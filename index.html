@@ -173,14 +173,23 @@ code b.r,.onb b.r{color:#FFD27A}
 /* 島を作った直後の知らせ */
 #made{display:none;position:fixed;left:50%;top:20px;transform:translateX(-50%);width:min(560px,calc(100% - 32px));box-sizing:border-box;background:var(--night2);color:#fff;border-radius:14px;box-shadow:0 8px 0 rgba(0,0,0,.3);padding:14px 18px 0;flex-direction:column;gap:10px;overflow:hidden;z-index:36}
 #made.show{display:flex}
-#made .t{font-size:15px;font-weight:700}
+#made .t{font-size:15px;font-weight:700;padding-right:40px}
 #made .s{font-size:13px;color:#C9CEE3}
+#made .s.ok{color:#8FE3A8;font-weight:700}
+#made .s.err{color:#FFB4A8}
+#made .x{position:absolute;right:6px;top:4px;width:44px;height:44px;border:0;background:none;color:#C9CEE3;font-size:20px;cursor:pointer}
 #made .row{display:flex;align-items:center;gap:10px}
-#made code{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:15px;background:var(--night);padding:8px 12px;border-radius:10px;flex:1}
-#made button{font:inherit;font-size:14px;font-weight:700;min-height:44px;padding:0 18px;border:0;border-radius:10px;background:#FFD27A;color:var(--ink);box-shadow:0 4px 0 #B5843A;cursor:pointer}
+#made .cmd{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:15px;background:var(--night);padding:0 6px 0 12px;min-height:44px;border-radius:10px;flex:1;min-width:0;display:flex;align-items:center;white-space:nowrap}
+#made .cmd .h{color:#7FB2FF}
+#made .cmd input{font:inherit;font-weight:700;color:#FFD27A;background:var(--night2);border:2px solid #3D4570;border-radius:6px;padding:2px 6px;margin-left:1px;flex:1;min-width:4em;box-sizing:border-box}
+#made .cmd input::placeholder{color:rgba(255,210,122,.55)}
+#made .cmd input:focus{outline:none;border-color:#FFD27A}
+#made .copy{font:inherit;font-size:14px;font-weight:700;min-height:44px;padding:0 18px;border:0;border-radius:10px;background:#FFD27A;color:var(--ink);box-shadow:0 4px 0 #B5843A;cursor:pointer;white-space:nowrap}
+#made .hint{font-size:12px;color:var(--mute)}
 #made .bar{margin:4px -18px 0;height:5px;background:var(--night)}
 #made .bar i{display:block;height:100%;background:#FFD27A;width:100%}
-#made.show .bar i{animation:drain 8s linear forwards}
+#made.run .bar i{animation:drain 8s linear forwards}
+#made.hold .bar i{background:#8A90B8}
 @keyframes drain{from{width:100%}to{width:0}}
 #card .person,#card .isl{display:none;flex-direction:column;gap:8px}
 #card[data-mode=person] .person,#card[data-mode=island] .isl{display:flex}
@@ -282,7 +291,7 @@ code b.r,.onb b.r{color:#FFD27A}
   <div class="wait" hidden role="status"><i></i><span></span></div>
   <div class="acts"><button type="button" class="ghostbtn cancel">やめる</button></div>
 </div></div>
-<div id="made" role="status" aria-live="polite"><div class="t"></div><div class="s">この島の呼び名に係名を付けて起動すると、この島に座ります</div><div class="row"><code></code><button type="button">コピー</button></div><div class="bar"><i></i></div></div>
+<div id="made" role="status" aria-live="polite"><div class="t"></div><button type="button" class="x" aria-label="閉じる">×</button><div class="s"></div><div class="row"><div class="cmd">claude -n&nbsp;<b class="h"></b>@<input type="text" aria-label="係名" placeholder="係名" autocomplete="off" spellcheck="false"></div><button type="button" class="copy">コピー</button></div><div class="hint"></div><div class="bar"><i></i></div></div>
 <section id="card" aria-label="カード" data-mode="person">
   <div class="person">
     <div class="meta"><b></b><span class="where"></span></div>
@@ -818,7 +827,8 @@ card.querySelector('.leave').addEventListener('click', async () => {
 });
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
-  if (drag) cancelDrag();
+  if (madeEl.contains(document.activeElement)) closeMade();
+  else if (drag) cancelDrag();
   else if (mv) cancelMove();
   else if (card.dataset.mode === 'island') closeIsland();
   else if (selectedKey) select(selectedKey);
@@ -886,18 +896,65 @@ async function saveIslands(list, msg, made) {
   if (made) showMade(made); else copyToast(msg);
   tick();
 }
-// 島を作った直後：その島の起動コマンドとコピーを8秒出し、島の縁を光らせる
-let madeTimer = 0;
+// 島を作った直後：係名を打てる起動コマンドを出し、島の縁を光らせる。
+// 8秒で消えるのは打ち始めるまで。打っている間は残し、コピーしたら欄を空にして、もうひとり分を打てるようにする
+const madeEl = document.getElementById('made'), madeIn = madeEl.querySelector('input');
+let madeTimer = 0, madeId = '';
 function showMade({ id, name }) {
-  const m = document.getElementById('made');
-  m.querySelector('.t').textContent = '「' + name + '」の島を作りました';
-  m.querySelector('code').innerHTML = `claude -n <b class="h">${esc(id)}</b>@<b class="r">係名</b>`;
-  m.querySelector('button').onclick = () => copyText('claude -n ' + id + '@', 'claude -n ' + id + '@ をコピーしました。ターミナルに貼って、続けて係名を打ってください');
-  m.classList.remove('show'); void m.offsetWidth; m.classList.add('show');
-  fresh = { id, until: Date.now() + 8000 };
-  clearTimeout(madeTimer);
-  madeTimer = setTimeout(() => { m.classList.remove('show'); fresh = null; relayout(); }, 8000);
+  madeId = id;
+  madeEl.querySelector('.t').textContent = '「' + name + '」の島を作りました';
+  madeEl.querySelector('.h').textContent = id;
+  madeIn.value = '';
+  madeSay('係名を打ってコピーし、ターミナルに貼ると、この島に座ります', '');
+  madeEl.querySelector('.hint').textContent = '係名は名札に出る役目（review・api など）。空白や ! * # は使えません';
+  madeEl.classList.add('show');
+  madeRun();
+  madeIn.focus();
 }
+function madeSay(text, kind) {
+  const s = madeEl.querySelector('.s');
+  s.textContent = text; s.className = 's' + (kind ? ' ' + kind : '');
+}
+// 帯を最初から流し、8秒たったら閉じる
+function madeRun() {
+  clearTimeout(madeTimer);
+  madeEl.classList.remove('run', 'hold'); void madeEl.offsetWidth; madeEl.classList.add('run');
+  fresh = { id: madeId, until: Date.now() + 8000 };
+  madeTimer = setTimeout(closeMade, 8000);
+}
+// 打っている間は止める（閉じるかコピーするまで残す）
+function madeHold() {
+  clearTimeout(madeTimer);
+  madeEl.classList.remove('run'); madeEl.classList.add('hold');
+  fresh = { id: madeId, until: Infinity };
+}
+function closeMade() {
+  clearTimeout(madeTimer);
+  if (!madeEl.classList.contains('show')) return;
+  madeEl.classList.remove('show', 'run', 'hold');
+  fresh = null; relayout();
+}
+function copyMade() {
+  const r = madeIn.value.trim();
+  if (!r) { copyText('claude -n ' + madeId + '@', 'claude -n ' + madeId + '@ をコピーしました。ターミナルに貼って、続けて係名を打ってください'); return; }
+  if (!ROLE_OK.test(r)) { madeSay('空白や ! * # などは使えません（- _ . と日本語は大丈夫です）', 'err'); madeHold(); madeIn.focus(); return; }
+  const cmd = 'claude -n ' + madeId + '@' + r;
+  const done = () => {
+    madeSay('✓ ' + cmd + ' をコピーしました。ターミナルに貼って Enter', 'ok');
+    madeEl.querySelector('.hint').textContent = 'もうひとり座らせるなら、続けて係名を打ちます';
+    madeIn.value = ''; madeIn.focus();
+    madeRun();
+  };
+  navigator.clipboard.writeText(cmd).then(done, done);
+}
+madeIn.addEventListener('input', () => {
+  if (madeEl.querySelector('.s.err')) madeSay('係名を打ってコピーし、ターミナルに貼ると、この島に座ります', '');
+  madeEl.querySelector('.hint').textContent = 'Enter でもコピーできます';
+  madeHold();
+});
+madeIn.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.isComposing) copyMade(); });
+madeEl.querySelector('.copy').addEventListener('click', copyMade);
+madeEl.querySelector('.x').addEventListener('click', closeMade);
 function copyToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg; t.classList.add('show');

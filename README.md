@@ -88,7 +88,7 @@ claude -n blog@draft
 - Names that match no island sit at "その他" (Other).
 - Spaces, `!`, `*`, `#` and the like in names mean something else to the shell. `-` `_` `@` `.` and Japanese are fine.
 
-**Create islands**: use "＋ 島を作る" (create island) at the end of the island row, type the island name (lowercase letters, digits, `-`) into the blank in the start command, then choose the sign name and a color. Matching the color to your terminal tab color makes sessions easier to find. Click an island's sign to rename it, change its color, or delete it.
+**Create islands**: use "＋ 島を作る" (create island) at the end of the island row, type the island name (lowercase letters, digits, `-`) into the blank in the start command, then choose the sign name and a color. Matching the color to your terminal tab color makes sessions easier to find. Right after creating it, type a role name into the notice that appears to copy the full start command, such as `claude -n app@review` (as many as you like, one after another). Click an island's sign to rename it, change its color, or delete it.
 
 **Getting back to a session**: click the character, copy its session name, and open the terminal tab with that name (a browser cannot jump straight to a specific terminal tab).
 
