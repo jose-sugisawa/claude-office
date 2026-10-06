@@ -17,7 +17,7 @@ import (
 
 // Claude Code のステータスライン（各セッションのいちばん下の行）。
 // Claude Code は描くたびに、このコマンドの標準入力へセッションの情報を JSON で渡す。
-// ここでは「係名 · ctx ███████░░░ 72%」を出し、オフィスが読むよう次の2つを書く。
+// ここでは「セッション名 · ctx ███████░░░ 72%」を出し、オフィスが読むよう次の2つを書く。
 //   <Claude の設定>/office/ctx/<セッションID>.json  コンテキストの使用率（context_window.used_percentage）
 //   <Claude の設定>/office/usage.json               使用量の枠（rate_limits。全セッション共通）
 

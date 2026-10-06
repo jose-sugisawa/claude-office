@@ -32,10 +32,10 @@ claude-office puts that scattered state into one office.
 | | |
 |---|---|
 | Four states | Working (typing at the desk) / Your turn (a reply arrived, or it is waiting for a permission prompt; raises a hand and bounces) / Idle (30 minutes since the last reply; dozing off) / Closed (an empty chair; disappears after an hour) |
-| Islands | The prefix of a session name decides which island (business or project) it sits at. Create, edit, and delete islands from the screen |
+| Islands | The island name (the part of the session name before `@`) decides which island (business or project) it sits at. Create, edit, and delete islands from the screen |
 | Drag to move | Drag a character onto an island to get the `/rename` command for it, ready to copy. It waits there as "移り待ち" (moving) until you run the command in that tab |
 | Whiteboard | Sessions on "your turn", longest-waiting first. Orange after 10 minutes |
-| Card | Click a character to see its working directory, the start of its last reply, and a button to copy its name. For closed sessions, the command to resume |
+| Card | Click a character to see its working directory, the start of its last reply, and a button to copy its session name. For closed sessions, the command to resume |
 | Context | A usage gauge under each name tag (yellow at 60%, red at 80% with a "time to /compact" hint) |
 | Usage | On the top wall, usage of the 5-hour and weekly limits and time until reset |
 | Other | Zoom, plus "全体" (fit all islands on one screen); the room goes dark in dark mode; the browser tab shows how many are waiting |
@@ -83,14 +83,14 @@ claude -n app@review       # sits at the "app" island with the name tag "review"
 claude -n blog@draft
 ```
 
-- The part before `@` is the island prefix, the part after is the role name. Joining with `-`, as in `app-review`, also seats it at that island. Case-insensitive.
+- The part before `@` is the island name, the part after is the role name. Joining with `-`, as in `app-review`, also seats it at that island. Case-insensitive.
 - Forgot to name it? Type `/rename app@review` in that session and it moves to the island. You can also drag the character onto an island: the screen shows the `/rename` command to copy (with the role name filled in), and tells you once it has moved. Dropping it on "＋ 島を作る" creates a new island first.
 - Names that match no island sit at "その他" (Other).
 - Spaces, `!`, `*`, `#` and the like in names mean something else to the shell. `-` `_` `@` `.` and Japanese are fine.
 
-**Create islands**: use "＋ 島を作る" (create island) at the end of the island row and choose the sign name, the name prefix, and a color. Matching the color to your terminal tab color makes sessions easier to find. Click an island's sign to rename it, change its color, or delete it.
+**Create islands**: use "＋ 島を作る" (create island) at the end of the island row, type the island name (lowercase letters, digits, `-`) into the blank in the start command, then choose the sign name and a color. Matching the color to your terminal tab color makes sessions easier to find. Click an island's sign to rename it, change its color, or delete it.
 
-**Getting back to a session**: click the character, copy its name, and open the terminal tab with that name (a browser cannot jump straight to a specific terminal tab).
+**Getting back to a session**: click the character, copy its session name, and open the terminal tab with that name (a browser cannot jump straight to a specific terminal tab).
 
 ## Supported environments
 

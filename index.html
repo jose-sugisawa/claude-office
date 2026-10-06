@@ -189,9 +189,30 @@ code b.r,.onb b.r{color:#FFD27A}
 #card input[type=text]{font:inherit;font-size:16px;color:#fff;background:var(--night2);border:2px solid #3D4570;border-radius:10px;padding:8px 12px;min-height:44px;box-sizing:border-box}
 #card input[type=text]:focus{outline:none;border-color:#FFD27A}
 #card input[readonly]{opacity:.7}
-#card .idhint{font-size:13px;color:var(--mute)}
+/* 島のフォーム：起動コマンドの空いたところに島の呼び名を打つ。上にできあがる看板を出す */
+#card .pv{display:flex;flex-direction:column;gap:10px;background:#14162B;border-radius:12px;padding:14px 16px}
+#card .pvsign{align-self:flex-start;display:flex;align-items:center;gap:8px;padding:4px 12px;background:#F6EBD3;color:var(--ink);border:3px solid var(--ink);box-shadow:0 3px 0 #000;font-size:15px;font-weight:700}
+#card .pvsign b{width:11px;height:11px;border-radius:50%;border:2px solid var(--ink)}
+#card .pvsign small{font-size:13px;font-weight:400;color:#6B5442}
+#card .pvname:empty::before{content:'看板の名前';color:#9A8A78;font-weight:400}
+#card .pvlab{font-size:14px;font-weight:700;color:#F4F1E8}
+#card .pvcmd{display:flex;align-items:center;flex-wrap:wrap;gap:6px;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:18px;color:#E8EAED}
+#card .pvcmd .p{color:#7FE0D0}
+#card .pvcmd .r{color:#8A90AE}
+#card .pvcmd input[type=text]{font-family:inherit;font-size:18px;font-weight:700;color:var(--ink);background:#FFD27A;border-color:#FFD27A;width:9em;padding:4px 10px}
+#card .pvcmd input[type=text]:focus{border-color:#fff}
+#card .pvcmd input::placeholder{color:rgba(42,30,26,.45)}
+#card .lockid{display:inline-flex;align-items:center;gap:6px;font-weight:700;color:#FFD27A;border:2px dashed #3D4570;border-radius:8px;padding:4px 10px;min-height:44px;box-sizing:border-box}
+#card .lockid[hidden]{display:none}
+#card .copyid{margin-left:auto;font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif}
+#card .pvkeys{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:4px 12px;font-size:13px;color:var(--mute);line-height:1.6}
+#card .pvkeys b{font-family:ui-monospace,'SF Mono',Menlo,monospace}
+#card .pvkeys .h{color:#FFD27A}
+#card .pvkeys .r{color:#8A90AE}
+#card .lt small,#card legend small{font-size:12px;color:var(--mute);margin-left:8px}
+#card .lt{color:#F4F1E8;font-size:14px;font-weight:700}
 #card fieldset{border:0;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
-#card legend{font-size:13px;color:var(--mute);margin-bottom:6px;padding:0}
+#card legend{font-size:14px;font-weight:700;color:#F4F1E8;margin-bottom:6px;padding:0}
 #card .sw{position:relative;display:flex;flex-direction:row;align-items:center;gap:8px;padding:6px 12px 6px 8px;min-height:44px;box-sizing:border-box;border-radius:999px;background:var(--night2);color:#F4F1E8;font-size:14px;cursor:pointer;border:2px solid transparent}
 #card .sw input{position:absolute;opacity:0;pointer-events:none}
 #card .sw i{width:22px;height:22px;border-radius:50%;border:2px solid var(--ink)}
@@ -261,7 +282,7 @@ code b.r,.onb b.r{color:#FFD27A}
   <div class="wait" hidden role="status"><i></i><span></span></div>
   <div class="acts"><button type="button" class="ghostbtn cancel">やめる</button></div>
 </div></div>
-<div id="made" role="status" aria-live="polite"><div class="t"></div><div class="s">この島に座らせるには、係名を付けて起動します</div><div class="row"><code></code><button type="button">コピー</button></div><div class="bar"><i></i></div></div>
+<div id="made" role="status" aria-live="polite"><div class="t"></div><div class="s">この島の呼び名に係名を付けて起動すると、この島に座ります</div><div class="row"><code></code><button type="button">コピー</button></div><div class="bar"><i></i></div></div>
 <section id="card" aria-label="カード" data-mode="person">
   <div class="person">
     <div class="meta"><b></b><span class="where"></span></div>
@@ -273,10 +294,14 @@ code b.r,.onb b.r{color:#FFD27A}
   </div>
   <form class="isl" novalidate>
     <div class="ttl"></div>
-    <label>看板の名前<input type="text" name="name" maxlength="30" placeholder="ネットショップ" autocomplete="off"></label>
-    <label>係名の頭（英小文字・数字・-）<input type="text" name="id" maxlength="40" placeholder="shop" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
-    <div class="idhint"></div>
-    <fieldset class="colors"><legend>色（ターミナルのタブ色と合わせると探しやすい）</legend></fieldset>
+    <div class="pv">
+      <div class="pvsign"><b></b><span class="pvname"></span><small></small></div>
+      <label class="pvlab" for="isl-id"></label>
+      <div class="pvcmd"><span class="p">$</span><span>claude -n</span><input type="text" id="isl-id" name="id" maxlength="40" placeholder="shop" autocomplete="off" autocapitalize="off" spellcheck="false" aria-describedby="isl-keys"><span class="lockid" hidden><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#B4BAD4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span></span></span><span>@</span><span class="r">review</span><button type="button" class="ghost copyid" hidden>コピー</button></div>
+      <div class="pvkeys" id="isl-keys"><b class="h"></b><span class="hd"></span><b class="r">review</b><span>係名。名札に出る役割で、起動のたびに自由に付けます</span></div>
+    </div>
+    <label><span class="lt">看板に出す名前<small>日本語で OK</small></span><input type="text" name="name" maxlength="30" placeholder="ネットショップ" autocomplete="off"></label>
+    <fieldset class="colors"><legend>色<small>ターミナルのタブ色とそろえると探しやすい</small></legend></fieldset>
     <div class="formerr" role="alert"></div>
     <div class="acts"><button type="submit" class="primary">作る</button><button type="button" class="ghost del">島を消す</button><button type="button" class="ghost cancel">やめる</button></div>
   </form>
@@ -333,9 +358,9 @@ function svg(parent, html, cls, style) {
 // shq はシェルに貼るときの引用。英数字と @._- だけならそのまま、それ以外はシングルクォートで包む（; や $ を含む名前を貼っても別のコマンドにならない）
 function shq(s) { return /^[A-Za-z0-9@._-]+$/.test(s) ? s : "'" + s.replace(/'/g, "'\\''") + "'"; }
 function hash(s) { let h = 0; for (const c of s) h = (h * 31 + c.codePointAt(0)) >>> 0; return h; }
-// 係名が島の頭で始まり、続きが英数字でなければその島（大文字小文字は区別しない）
+// セッション名が島の呼び名で始まり、続きが英数字でなければその島（大文字小文字は区別しない）
 // APP・app-review・app@review・SHOPセール は島に入り、appx のような別の単語は入らない
-// 複数の島に当てはまるときは、頭のいちばん長い島（shop-cf-x は shop ではなく shop-cf の島）
+// 複数の島に当てはまるときは、呼び名のいちばん長い島（shop-cf-x は shop ではなく shop-cf の島）
 function islandOf(name) {
   const n = name.toLowerCase();
   let best = ISLANDS[ISLANDS.length - 1], len = 0;
@@ -456,7 +481,7 @@ function buildCell(parent, m, x, y) {
 
   const tag = el('div', 'tag ' + m.state, cell);
   el('i', '', tag).style.background = `var(--${m.state})`;
-  // 「島の頭@係名」なら、島に座っているので名札は係名だけにする（カードとボードは名前全体）
+  // 「島の呼び名@係名」なら、島に座っているので名札は係名だけにする（カードとボードはセッション名の全体）
   const at = m.island.id !== OTHER.id ? m.name.indexOf('@') : -1;
   const short = at > 0 && m.name.slice(at + 1) ? m.name.slice(at + 1) : m.name;
   el('span', '', tag).textContent = m.pending ? '移り待ち' : m.state === 'gone' ? short + '（閉じた）' : short;
@@ -553,10 +578,10 @@ function buildOnboarding(roomW, islandsBottom) {
       <div class="cmd"><span>claude -n</span><b class="h" style="border-color:#7FB2FF">${id}</b><span>@</span><b class="r" style="border-color:#FFD27A">review</b></div>
       <div class="ln" style="left:${x1 + w1 / 2 - 2}px;background:#7FB2FF"></div>
       <div class="ln" style="left:${x2 + 58 - 2}px;background:#FFD27A"></div>
-      <div class="lbl" style="left:${Math.max(0, x1 + w1 / 2 - 70)}px;border-color:#7FB2FF"><b class="h">島の頭</b><br>どの島に座るか</div>
+      <div class="lbl" style="left:${Math.max(0, x1 + w1 / 2 - 70)}px;border-color:#7FB2FF"><b class="h">島の呼び名</b><br>どの島に座るか</div>
       <div class="lbl" style="left:${Math.max(x1 + w1 / 2 + 100, x2 - 20)}px;border-color:#FFD27A"><b class="r">係名</b><br>名札に出る役割（自由）</div>
     </div>
-    <div class="note">島の頭は、島を作るときに決めた短い英字です。@ の後ろは日本語でもかまいません（例：${id}@レビュー）。</div>
+    <div class="note">島の呼び名は、島を作るときに決めた短い英字です。@ の後ろは日本語でもかまいません（例：${id}@レビュー）。</div>
   </div>
   <div>
     <div class="cap">たとえば、${esc(ex.name)}に3人の Claude を置くと</div>
@@ -570,7 +595,7 @@ function buildOnboarding(roomW, islandsBottom) {
   </div>
 </div>
 <div class="foot">
-  <div class="st"><i style="background:#7FB2FF">1</i>島を作る（頭は ${id}）</div>
+  <div class="st"><i style="background:#7FB2FF">1</i>島を作る（呼び名は ${id}）</div>
   <div class="st"><i style="background:#FFD27A">2</i>claude -n ${id}@review で起動</div>
   <div class="st"><i style="background:#A6D3B4">3</i>数秒で島に座る</div>
   <div class="btns"><button type="button" class="go">島を作る</button><button type="button" class="ok">わかった</button></div>
@@ -774,12 +799,12 @@ function fillCard(now) {
           b.addEventListener('click', () => copyText('/rename ' + (is.prefixes[0] || is.id) + '@', '/rename ' + (is.prefixes[0] || is.id) + '@ をコピーしました。タブに貼って、続けて係名を打ってください'));
         });
       } else {
-        p.textContent = 'まず島を作ってから、このセッションのタブで /rename 島の頭@係名 と打つと移ります';
+        p.textContent = 'まず島を作ってから、このセッションのタブで /rename 島の呼び名@係名 と打つと移ります';
         const b = el('button', 'chip', chips); b.type = 'button'; b.textContent = '＋ 島を作る';
         b.addEventListener('click', () => openIsland(null));
       }
     }
-    btn.textContent = '係名をコピー';
+    btn.textContent = 'セッション名をコピー';
     btn.onclick = () => copyText(m.name, m.name + ' をコピーしました。ターミナルでこの名前のタブを開いてください');
   }
   card.classList.add('open');
@@ -811,9 +836,16 @@ COLORS.forEach(([v, label]) => {
   l.append(label);
 });
 let editing = null;
-function idHint() {
-  const id = form.elements.id.value;
-  form.querySelector('.idhint').textContent = 'claude -n ' + (id || 'xxx') + '@係名 で起動した人がこの島に座ります（例：' + (id || 'xxx') + '@review）';
+// 見本：できあがる看板と、打つコマンド。看板の名前・色・呼び名を打つたびに描き直す
+function drawPreview() {
+  const is = rawIslands.find(i => i.id === editing);
+  const head = is ? (is.prefixes[0] || is.id) : form.elements.id.value;
+  const color = form.elements.color.value || is?.color || 'green';
+  const sign = form.querySelector('.pvsign');
+  sign.querySelector('b').style.background = HEX[color] || color;
+  sign.querySelector('.pvname').textContent = form.elements.name.value.trim();
+  sign.querySelector('small').textContent = (is ? lastList.filter(m => m.island.id === is.id && m.state !== 'gone').length : 0) + '人';
+  form.querySelector('.pvkeys .h').textContent = head || 'shop';
 }
 function openIsland(id) {
   if (selectedKey) select(selectedKey);
@@ -821,17 +853,28 @@ function openIsland(id) {
   const is = rawIslands.find(i => i.id === id);
   form.querySelector('.ttl').textContent = is ? '島を直す：' + is.name : '新しい島';
   form.elements.name.value = is ? is.name : '';
-  form.elements.id.value = is ? is.prefixes.join('、') : '';
-  form.elements.id.readOnly = !!is;
+  // 直すとき、呼び名は座っている人の名前とつながっているので変えられない。起動のしかたとコピーを出す
+  const head = is ? (is.prefixes[0] || is.id) : '';
+  const more = is ? is.prefixes.slice(1) : [];
+  form.elements.id.value = '';
+  form.elements.id.hidden = !!is;
+  form.querySelector('.lockid').hidden = !is;
+  form.querySelector('.lockid span').textContent = head;
+  form.querySelector('.copyid').hidden = !is;
+  form.querySelector('.copyid').onclick = () => copyText('claude -n ' + head + '@', 'claude -n ' + head + '@ をコピーしました。ターミナルに貼って、続けて係名を打ってください');
+  form.querySelector('.pvlab').textContent = is ? 'この島に座る起動のしかた' : 'ターミナルでこう打つと、この島に座ります';
+  form.querySelector('.pvkeys .hd').textContent = is
+    ? 'この島の呼び名。座っている人の名前とつながっているので変えられません。別の呼び名にしたいときは、新しい島を作ってください' + (more.length ? '（ほかの呼び名：' + more.join('、') + '）' : '')
+    : 'この島の呼び名。英小文字・数字・- で打ちます';
   const color = is ? is.color : (COLORS.find(([c]) => !rawIslands.some(i => i.color === c)) || COLORS[0])[0];
   [...form.elements.color].forEach(r => { r.checked = r.value === color; });
   form.querySelector('.del').hidden = !is;
   form.querySelector('[type=submit]').textContent = is ? '保存' : '作る';
   form.querySelector('.formerr').textContent = '';
-  idHint();
+  drawPreview();
   card.dataset.mode = 'island';
   card.classList.add('open');
-  form.elements.name.focus();
+  (is ? form.elements.name : form.elements.id).focus();
 }
 function closeIsland() { editing = null; afterMake = ''; card.classList.remove('open'); card.dataset.mode = 'person'; }
 async function saveIslands(list, msg, made) {
@@ -860,10 +903,10 @@ function copyToast(msg) {
   t.textContent = msg; t.classList.add('show');
   clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
 }
-form.addEventListener('input', () => { form.querySelector('.formerr').textContent = ''; });
+form.addEventListener('input', () => { form.querySelector('.formerr').textContent = ''; drawPreview(); });
 form.elements.id.addEventListener('input', () => {
-  if (!form.elements.id.readOnly) form.elements.id.value = form.elements.id.value.toLowerCase().replace(/[\s_]+/g, '-');
-  idHint();
+  form.elements.id.value = form.elements.id.value.toLowerCase().replace(/[\s_]+/g, '-');
+  drawPreview();
 });
 form.addEventListener('submit', e => {
   e.preventDefault();
@@ -876,9 +919,9 @@ form.addEventListener('submit', e => {
     return;
   }
   const id = form.elements.id.value.trim();
-  if (!/^[a-z0-9][a-z0-9-]*$/.test(id)) { err.textContent = '係名の頭は英小文字・数字・- で入れてください（例：shop）'; return; }
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(id)) { err.textContent = '島の呼び名は英小文字・数字・- で入れてください（例：shop）'; return; }
   const dup = rawIslands.find(i => i.prefixes.includes(id));
-  if (dup) { err.textContent = '「' + id + '」は「' + dup.name + '」の島の頭と同じです'; return; }
+  if (dup) { err.textContent = '「' + id + '」は「' + dup.name + '」の島の呼び名と同じです'; return; }
   saveIslands([...rawIslands, { id, name, color }], '', { id, name });
 });
 form.querySelector('.del').addEventListener('click', () => {
@@ -939,7 +982,7 @@ function cancelDrag() {
   relayout();
 }
 
-// 係名の案：app@review → review、島の頭で始まる app-review → review、自分で付けた名前ならそのまま、自動の名前なら空
+// 係名の案：app@review → review、島の呼び名で始まる app-review → review、自分で付けた名前ならそのまま、自動の名前なら空
 function roleOf(m) {
   if (!m.named) return '';
   const at = m.name.indexOf('@');
@@ -957,7 +1000,7 @@ function openMove(key, isl) {
   mv = { key, head: isl.prefixes[0] || isl.id, copied: false };
   pending.set(key, { island: isl.id, until: Date.now() + PENDING_MS });
   const from = islandOf(m.name);
-  moveEl.querySelector('.from').replaceChildren('タブ：' + m.name + '（いまは「' + from.label + '」）→ ');
+  moveEl.querySelector('.from').replaceChildren('セッション ' + m.name + '（いまは「' + from.label + '」）→ ');
   const dot = el('b', '', moveEl.querySelector('.from')); dot.style.background = isl.color;
   moveEl.querySelector('.from').append(isl.label);
   moveEl.querySelector('h2').textContent = '「' + isl.label + '」の島へ移す';
