@@ -167,7 +167,8 @@ code b.r,.onb b.r{color:#FFD27A}
 .onb button{font:inherit;font-size:14px;font-weight:700;min-height:44px;padding:0 18px;border:0;border-radius:10px;cursor:pointer}
 .onb .go{background:#FFD27A;color:var(--ink);box-shadow:0 4px 0 #B5843A}
 .onb .ok{background:var(--night2);color:#F4F1E8;box-shadow:0 4px 0 #171A33}
-.onb .after{font-size:12px;color:var(--mute);margin-top:-8px}
+.onb .after{font-size:14px;color:#E3E5EE;margin-top:-8px;padding:10px 14px;border-radius:12px;background:var(--night2);line-height:1.6}
+.onb .after b{color:#FFD27A}
 .onb .after code{background:var(--night2);padding:1px 6px;border-radius:4px;color:#fff}
 /* 島を作った直後の知らせ */
 #made{display:none;position:fixed;left:50%;top:20px;transform:translateX(-50%);width:min(560px,calc(100% - 32px));box-sizing:border-box;background:var(--night2);color:#fff;border-radius:14px;box-shadow:0 8px 0 rgba(0,0,0,.3);padding:14px 18px 0;flex-direction:column;gap:10px;overflow:hidden;z-index:36}
@@ -202,6 +203,44 @@ code b.r,.onb b.r{color:#FFD27A}
 .sign.btn:hover{background:#FFF6E2}
 .addisle{box-sizing:border-box;border:4px dashed rgba(42,30,26,.35);border-radius:10px;background:rgba(255,255,255,.12);color:#6B5442;font:inherit;font-size:17px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
 .addisle:hover{background:rgba(255,255,255,.25)}
+/* 島へドラッグして移す */
+.crew{touch-action:none}
+.crew.lifted{opacity:.25}
+.rug.drop,.addisle.drop{outline:6px solid #FFD27A;outline-offset:2px}
+.addisle.drop{background:rgba(255,214,122,.35);color:var(--ink)}
+#ghost{display:none;position:fixed;z-index:50;pointer-events:none;flex-direction:column;align-items:center;gap:8px;transform:translate(-50%,-40px)}
+#ghost.on{display:flex}
+#ghost .fig{line-height:0;transform:rotate(-8deg);filter:drop-shadow(0 6px 0 rgba(0,0,0,.3))}
+#ghost .to{display:flex;align-items:center;gap:6px;padding:4px 12px 4px 8px;background:var(--night);color:#fff;border-radius:999px;font-size:13px;font-weight:700;white-space:nowrap;box-shadow:0 3px 0 rgba(0,0,0,.3)}
+#ghost .to i{width:10px;height:10px;border-radius:50%}
+#ghost .to.no{background:var(--night2);color:var(--mute);font-weight:400}
+.cell.pending .crew{opacity:.6;outline:3px dashed #FFD27A;outline-offset:6px;border-radius:6px}
+.cell.pending .tag{border:2px dashed #C9962E;background:#FFF6E2}
+.draghint{color:#6B5442;font-size:13px;font-weight:700}
+#move{position:fixed;inset:0;z-index:45;background:rgba(12,14,32,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+#move[hidden]{display:none}
+#move .box{width:min(580px,100%);box-sizing:border-box;background:var(--night);color:#F4F1E8;border:3px solid var(--night2);border-radius:18px;box-shadow:0 10px 0 rgba(0,0,0,.35);padding:20px 22px 22px;display:flex;flex-direction:column;gap:12px}
+#move .who{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mute)}
+#move .who b{width:10px;height:10px;border-radius:50%;display:inline-block}
+#move h2{margin:0;font-size:21px}
+#move p{margin:0;font-size:14px;line-height:1.6;color:#C9CEE3}
+#move p strong{color:#FFD27A}
+#move label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute)}
+#move input{font:inherit;font-size:16px;color:#fff;background:var(--night2);border:2px solid #3D4570;border-radius:10px;padding:8px 12px;min-height:44px;box-sizing:border-box}
+#move input:focus{outline:none;border-color:#FFD27A}
+#move .row{display:flex;align-items:center;gap:10px}
+#move code{flex:1;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:17px;background:var(--night2);padding:10px 14px;border-radius:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#move button{font:inherit;font-size:14px;font-weight:700;min-height:44px;padding:0 18px;border:0;border-radius:10px;cursor:pointer}
+#move .copy{background:#FFD27A;color:var(--ink);box-shadow:0 4px 0 #B5843A}
+#move .ghostbtn{background:var(--night2);color:#F4F1E8;box-shadow:0 4px 0 #171A33}
+#move .wait{display:flex;align-items:center;gap:10px;font-size:14px;color:#FFD27A}
+#move .wait i{width:10px;height:10px;border-radius:50%;background:#FFD27A;animation:glow 1.4s steps(1) infinite}
+#move .wait.ok{color:#8FE3A8}
+#move .wait.ok i{background:#8FE3A8;animation:none}
+#move .wait[hidden]{display:none}
+#move .formerr{font-size:13px;color:#FF9C8A}
+#move .formerr:empty{display:none}
+#move .acts{display:flex;justify-content:flex-end;gap:10px}
 @media (prefers-reduced-motion: reduce){*{animation:none!important}}
 </style>
 </head>
@@ -211,6 +250,17 @@ code b.r,.onb b.r{color:#FFD27A}
 <div id="zoom" role="group" aria-label="部屋の大きさ"><button type="button" data-z="-" aria-label="小さくする">−</button><span></span><button type="button" data-z="+" aria-label="大きくする">＋</button><button type="button" data-z="fit" aria-pressed="false" title="全部の島が1画面に入る大きさにする">全体</button></div>
 <div id="stage"><div id="room"></div></div>
 <div id="toast" role="status" aria-live="polite"></div>
+<div id="ghost" aria-hidden="true"><div class="fig"></div><div class="to"></div></div>
+<div id="move" hidden><div class="box" role="dialog" aria-modal="true" aria-labelledby="move-t">
+  <div class="who"><span class="from"></span></div>
+  <h2 id="move-t"></h2>
+  <p>この画面からは Claude に送れません。<strong>このセッションのタブ</strong>で次のコマンドを打つと、島に移ります。</p>
+  <label>係名（名札に出る役割。日本語でもかまいません）<input type="text" name="role" maxlength="40" placeholder="review" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+  <div class="row"><code></code><button type="button" class="copy">コピー</button></div>
+  <div class="formerr" role="alert"></div>
+  <div class="wait" hidden role="status"><i></i><span></span></div>
+  <div class="acts"><button type="button" class="ghostbtn cancel">やめる</button></div>
+</div></div>
 <div id="made" role="status" aria-live="polite"><div class="t"></div><div class="s">この島に座らせるには、係名を付けて起動します</div><div class="row"><code></code><button type="button">コピー</button></div><div class="bar"><i></i></div></div>
 <section id="card" aria-label="カード" data-mode="person">
   <div class="person">
@@ -266,7 +316,7 @@ const RANK = { turn: 0, busy: 1, sleep: 2, gone: 3 };
 
 const room = document.getElementById('room');
 const stage = document.getElementById('stage');
-let lastSig = '', refs = new Map(), boardEl = null, clockEl = null, usageEl = null, usage = null, roomH = 600;
+let lastSig = '', refs = new Map(), drops = [], boardEl = null, clockEl = null, usageEl = null, usage = null, roomH = 600;
 
 function el(tag, cls, parent, style) {
   const e = document.createElement(tag);
@@ -394,7 +444,7 @@ function buildWall(roomW) {
 }
 
 function buildCell(parent, m, x, y) {
-  const cell = el('div', 'abs cell', parent, { left: x + 'px', top: y + 'px' });
+  const cell = el('div', 'abs cell' + (m.pending ? ' pending' : ''), parent, { left: x + 'px', top: y + 'px' });
   const look = LOOKS[hash(m.name) % LOOKS.length];
   if (m.state === 'busy' || m.state === 'turn') el('div', 'abs lamp', cell);
   if (m.state !== 'gone') svg(cell, CHAIR, 'scenery', { left: '46px', top: '40px', zIndex: 1 });
@@ -409,7 +459,7 @@ function buildCell(parent, m, x, y) {
   // 「島の頭@係名」なら、島に座っているので名札は係名だけにする（カードとボードは名前全体）
   const at = m.island.id !== OTHER.id ? m.name.indexOf('@') : -1;
   const short = at > 0 && m.name.slice(at + 1) ? m.name.slice(at + 1) : m.name;
-  el('span', '', tag).textContent = m.state === 'gone' ? short + '（閉じた）' : short;
+  el('span', '', tag).textContent = m.pending ? '移り待ち' : m.state === 'gone' ? short + '（閉じた）' : short;
   tag.title = m.name;
 
   let btn;
@@ -430,6 +480,7 @@ function buildCell(parent, m, x, y) {
   }
   btn.type = 'button';
   btn.addEventListener('click', () => select(m.key));
+  if (m.state !== 'gone') btn.addEventListener('pointerdown', e => press(e, m, btn));
   if (m.key === selectedKey) btn.classList.add('sel');
   let gauge = null, gpct = null;
   if (m.state !== 'gone') {
@@ -524,7 +575,7 @@ function buildOnboarding(roomW, islandsBottom) {
   <div class="st"><i style="background:#A6D3B4">3</i>数秒で島に座る</div>
   <div class="btns"><button type="button" class="go">島を作る</button><button type="button" class="ok">わかった</button></div>
 </div>
-<div class="after">もう動いているセッションは、そのタブで <code>/rename ${id}@review</code> と打つと島に移ります。</div>`;
+<div class="after"><b>もう動いているセッションは</b>、キャラを島へドラッグすると、移すコマンドが出ます（そのタブで <code>/rename ${id}@review</code> と打っても移ります）。</div>`;
   box.querySelector('.go').addEventListener('click', () => openIsland(null));
   box.querySelector('.ok').addEventListener('click', () => { save('office.onboarded', true); relayout(); });
   return top + box.offsetHeight;
@@ -537,6 +588,7 @@ function build(list) {
   const P = plan(list, roomW);
   room.replaceChildren();
   refs.clear();
+  drops = [];
   room.style.width = roomW + 'px';
   const floor = el('div', 'abs floor scenery', room, { top: WALL + 'px' });
   buildWall(roomW);
@@ -547,14 +599,16 @@ function build(list) {
       b.type = 'button';
       b.textContent = '＋ 島を作る';
       b.addEventListener('click', () => openIsland(null));
+      drops.push({ add: true, el: b });
       continue;
     }
-    el('div', 'abs rug scenery' + (fresh && fresh.id === isl.id && Date.now() < fresh.until ? ' fresh' : ''), room, {
+    const rug = el('div', 'abs rug scenery' + (fresh && fresh.id === isl.id && Date.now() < fresh.until ? ' fresh' : ''), room, {
       left: x + 'px', top: (y + 18) + 'px', width: ISLAND_W + 'px', height: (h - 18) + 'px',
       backgroundColor: isl.rug, borderColor: isl.edge,
       backgroundImage: `radial-gradient(${isl.edge}55 3px, transparent 3px)`, backgroundSize: '24px 24px',
       boxShadow: `inset 0 0 0 6px ${isl.rug}, inset 0 0 0 9px ${isl.edge}`
     });
+    if (isl.id !== OTHER.id) drops.push({ isl, el: rug });
     const box = el('div', 'abs', room, { left: x + 'px', top: y + 'px', width: ISLAND_W + 'px', height: h + 'px' });
     const sign = el(isl.id === OTHER.id ? 'div' : 'button', 'abs sign' + (isl.id === OTHER.id ? '' : ' btn'), box, { left: '14px', top: '0' });
     if (isl.id !== OTHER.id) {
@@ -566,6 +620,7 @@ function build(list) {
     sign.append(isl.label);
     el('small', '', sign).textContent = members.filter(m => m.state !== 'gone').length + '人';
     if (!members.length) { el('div', 'abs empty', box, { left: '24px', top: '58px' }).textContent = 'いまはだれもいません'; continue; }
+    if (isl.id === OTHER.id && members.some(m => m.state !== 'gone')) el('div', 'abs draghint', box, { right: '16px', top: '6px' }).textContent = rawIslands.length ? '島へドラッグで移せます' : '「＋ 島を作る」へドラッグで、島を作って移せます';
     members.forEach((m, i) => buildCell(box, m, 6 + (i % PER_ROW) * CELL_W, 50 + Math.floor(i / PER_ROW) * CELL_H));
   }
   svg(room, PLANT, 'scenery', { left: '2px', top: (WALL - 40) + 'px', zIndex: 6 });
@@ -623,9 +678,17 @@ function update(list, now) {
 let lastMembers = [];
 function render(members, now) {
   lastMembers = members;
-  const list = members.map(m => ({ ...m, state: stateOf(m, now), island: islandOf(m.name) }));
-  const sig = islandsSig + JSON.stringify(list.map(m => [m.key, m.name, m.state]));
-  if (sig !== lastSig) { build(list); lastSig = sig; }
+  const list = members.map(m => {
+    let island = islandOf(m.name), pend = false;
+    const p = pending.get(m.key);
+    if (p && island.id === p.island) { pending.delete(m.key); moved(m, island); }
+    else if (p && now > p.until) pending.delete(m.key);
+    else if (p) { const to = ISLANDS.find(i => i.id === p.island); if (to) { island = to; pend = true; } }
+    return { ...m, state: stateOf(m, now), island, pending: pend };
+  });
+  const sig = islandsSig + JSON.stringify(list.map(m => [m.key, m.name, m.state, m.pending]));
+  // ドラッグ中は部屋を作り直さない（つかんでいる人と島の場所が変わらないように）
+  if (sig !== lastSig && !drag) { build(list); lastSig = sig; }
   update(list, now);
   lastList = list;
   if (selectedKey) fillCard(now);
@@ -730,7 +793,9 @@ card.querySelector('.leave').addEventListener('click', async () => {
 });
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
-  if (card.dataset.mode === 'island') closeIsland();
+  if (drag) cancelDrag();
+  else if (mv) cancelMove();
+  else if (card.dataset.mode === 'island') closeIsland();
   else if (selectedKey) select(selectedKey);
 });
 
@@ -768,11 +833,13 @@ function openIsland(id) {
   card.classList.add('open');
   form.elements.name.focus();
 }
-function closeIsland() { editing = null; card.classList.remove('open'); card.dataset.mode = 'person'; }
+function closeIsland() { editing = null; afterMake = ''; card.classList.remove('open'); card.dataset.mode = 'person'; }
 async function saveIslands(list, msg, made) {
   const res = await fetch('/api/islands', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(list) });
   if (!res.ok) { form.querySelector('.formerr').textContent = (await res.text()).trim(); return; }
+  const k = afterMake;
   closeIsland();
+  if (made && k) { await tick(); const isl = ISLANDS.find(i => i.id === made.id); if (isl) openMove(k, isl); return; }
   if (made) showMade(made); else copyToast(msg);
   tick();
 }
@@ -820,6 +887,124 @@ form.querySelector('.del').addEventListener('click', () => {
   saveIslands(rawIslands.filter(i => i.id !== editing), '「' + is.name + '」の島を消しました');
 });
 form.querySelector('.cancel').addEventListener('click', closeIsland);
+
+// ---- 島へドラッグして移す ----
+// この画面からは Claude に送れないので、落とした島の /rename を出して、そのタブで打ってもらう。
+// 打つまでは落とした島に「移り待ち」で仮に座らせ、本当に移ったら知らせる。PENDING_MS のあいだ打たれなければ元に戻す
+const PENDING_MS = 5 * 60e3;
+const pending = new Map(); // key → { island, until }
+const ROLE_OK = /^[\p{L}\p{N}_.@ー-]+$/u; // シェルが別の意味に取る空白・! * # などは入れない
+let drag = null, press0 = null, noClick = false, afterMake = '', mv = null, moveTimer = 0;
+const ghost = document.getElementById('ghost');
+const moveEl = document.getElementById('move'), roleIn = moveEl.querySelector('input');
+
+function press(e, m, btn) { if (e.button === 0) press0 = { m, btn, x: e.clientX, y: e.clientY }; }
+window.addEventListener('pointermove', e => {
+  if (!press0) return;
+  if (!drag) {
+    if (Math.hypot(e.clientX - press0.x, e.clientY - press0.y) < 6) return; // 少し動いただけなら、押した（カードを開く）とみなす
+    drag = { ...press0, hit: null, from: islandOf(press0.m.name).id };
+    drag.btn.classList.add('lifted');
+    ghost.querySelector('.fig').innerHTML = drag.btn.innerHTML;
+    ghost.classList.add('on');
+  }
+  ghost.style.left = e.clientX + 'px';
+  ghost.style.top = e.clientY + 'px';
+  const hit = drops.find(d => { const r = d.el.getBoundingClientRect(); return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom; }) || null;
+  const ok = hit && (hit.add || hit.isl.id !== drag.from) ? hit : null;
+  if (ok !== drag.hit) { drag.hit?.el.classList.remove('drop'); ok?.el.classList.add('drop'); drag.hit = ok; }
+  const to = ghost.querySelector('.to');
+  to.className = 'to' + (ok ? '' : ' no');
+  to.replaceChildren();
+  if (ok && ok.add) to.textContent = '新しい島を作って移す';
+  else if (ok) { el('i', '', to).style.background = ok.isl.color; to.append('「' + ok.isl.label + '」へ移す'); }
+  else to.textContent = hit ? 'いまいる島です' : '島の上で離す';
+});
+window.addEventListener('pointerup', () => {
+  press0 = null;
+  if (!drag) return;
+  const { m, hit } = drag;
+  noClick = true; setTimeout(() => { noClick = false; }, 0); // 離したときの click でカードが開かないように
+  cancelDrag();
+  if (hit && hit.add) { openIsland(null); afterMake = m.key; }
+  else if (hit) openMove(m.key, hit.isl);
+});
+window.addEventListener('pointercancel', () => { press0 = null; if (drag) cancelDrag(); });
+window.addEventListener('click', e => { if (noClick) { e.stopPropagation(); e.preventDefault(); } }, true);
+function cancelDrag() {
+  ghost.classList.remove('on');
+  drag.btn.classList.remove('lifted');
+  drag.hit?.el.classList.remove('drop');
+  drag = null; press0 = null;
+  relayout();
+}
+
+// 係名の案：app@review → review、島の頭で始まる app-review → review、自分で付けた名前ならそのまま、自動の名前なら空
+function roleOf(m) {
+  if (!m.named) return '';
+  const at = m.name.indexOf('@');
+  if (at >= 0) return m.name.slice(at + 1);
+  const cur = islandOf(m.name);
+  if (cur.id === OTHER.id) return m.name.replace(/\s+/g, '-');
+  const k = [...cur.prefixes].sort((a, b) => b.length - a.length).find(k => m.name.toLowerCase().startsWith(k));
+  return m.name.slice(k.length).replace(/^[-_.]+/, '');
+}
+function openMove(key, isl) {
+  const m = lastList.find(x => x.key === key);
+  if (!m) return;
+  if (selectedKey) select(selectedKey);
+  clearTimeout(moveTimer);
+  mv = { key, head: isl.prefixes[0] || isl.id, copied: false };
+  pending.set(key, { island: isl.id, until: Date.now() + PENDING_MS });
+  const from = islandOf(m.name);
+  moveEl.querySelector('.from').replaceChildren('タブ：' + m.name + '（いまは「' + from.label + '」）→ ');
+  const dot = el('b', '', moveEl.querySelector('.from')); dot.style.background = isl.color;
+  moveEl.querySelector('.from').append(isl.label);
+  moveEl.querySelector('h2').textContent = '「' + isl.label + '」の島へ移す';
+  roleIn.value = roleOf(m);
+  moveEl.querySelector('.formerr').textContent = '';
+  const w = moveEl.querySelector('.wait'); w.hidden = true; w.classList.remove('ok');
+  moveEl.querySelector('.acts').hidden = false;
+  moveEl.querySelector('.cancel').textContent = 'やめる';
+  drawCmd();
+  moveEl.hidden = false;
+  roleIn.focus(); roleIn.select();
+  relayout();
+}
+function drawCmd() {
+  moveEl.querySelector('code').innerHTML = `/rename <b class="h">${esc(mv.head)}</b>@<b class="r">${esc(roleIn.value.trim() || '係名')}</b>`;
+}
+function copyMove() {
+  const r = roleIn.value.trim(), err = moveEl.querySelector('.formerr');
+  if (!r) { err.textContent = '係名を入れてください（例：review）'; roleIn.focus(); return; }
+  if (!ROLE_OK.test(r)) { err.textContent = '空白や ! * # などは使えません（- _ . と日本語は大丈夫です）'; roleIn.focus(); return; }
+  copyText('/rename ' + mv.head + '@' + r, 'コピーしました。このセッションのタブに貼って Enter を押してください');
+  mv.copied = true;
+  const p = pending.get(mv.key); if (p) p.until = Date.now() + PENDING_MS;
+  const w = moveEl.querySelector('.wait'); w.hidden = false;
+  w.querySelector('span').textContent = 'タブで打つのを待っています。移ったらここでお知らせします';
+  moveEl.querySelector('.cancel').textContent = '閉じる';
+}
+function cancelMove() {
+  if (!mv.copied) pending.delete(mv.key); // コピーした後に閉じたら、移り待ちのまま残す
+  closeMove();
+  relayout();
+}
+function closeMove() { moveEl.hidden = true; mv = null; clearTimeout(moveTimer); }
+// 本当に移った（/rename が打たれた）とき
+function moved(m, island) {
+  if (mv && mv.key === m.key) {
+    const w = moveEl.querySelector('.wait'); w.hidden = false; w.classList.add('ok');
+    w.querySelector('span').textContent = '移りました：' + m.name;
+    moveEl.querySelector('.acts').hidden = true;
+    moveTimer = setTimeout(closeMove, 1600);
+  } else copyToast('「' + m.name + '」が「' + island.label + '」に移りました');
+}
+roleIn.addEventListener('input', () => { moveEl.querySelector('.formerr').textContent = ''; drawCmd(); });
+roleIn.addEventListener('keydown', e => { if (e.key === 'Enter') copyMove(); });
+moveEl.querySelector('.copy').addEventListener('click', copyMove);
+moveEl.querySelector('.cancel').addEventListener('click', cancelMove);
+moveEl.addEventListener('click', e => { if (e.target === moveEl) cancelMove(); });
 
 async function tick() {
   if (document.hidden) return;

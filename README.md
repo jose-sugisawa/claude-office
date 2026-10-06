@@ -33,6 +33,7 @@ claude-office puts that scattered state into one office.
 |---|---|
 | Four states | Working (typing at the desk) / Your turn (a reply arrived, or it is waiting for a permission prompt; raises a hand and bounces) / Idle (30 minutes since the last reply; dozing off) / Closed (an empty chair; disappears after an hour) |
 | Islands | The prefix of a session name decides which island (business or project) it sits at. Create, edit, and delete islands from the screen |
+| Drag to move | Drag a character onto an island to get the `/rename` command for it, ready to copy. It waits there as "移り待ち" (moving) until you run the command in that tab |
 | Whiteboard | Sessions on "your turn", longest-waiting first. Orange after 10 minutes |
 | Card | Click a character to see its working directory, the start of its last reply, and a button to copy its name. For closed sessions, the command to resume |
 | Context | A usage gauge under each name tag (yellow at 60%, red at 80% with a "time to /compact" hint) |
@@ -83,7 +84,7 @@ claude -n blog@draft
 ```
 
 - The part before `@` is the island prefix, the part after is the role name. Joining with `-`, as in `app-review`, also seats it at that island. Case-insensitive.
-- Forgot to name it? Type `/rename app@review` in that session and it moves to the island.
+- Forgot to name it? Type `/rename app@review` in that session and it moves to the island. You can also drag the character onto an island: the screen shows the `/rename` command to copy (with the role name filled in), and tells you once it has moved. Dropping it on "＋ 島を作る" creates a new island first.
 - Names that match no island sit at "その他" (Other).
 - Spaces, `!`, `*`, `#` and the like in names mean something else to the shell. `-` `_` `@` `.` and Japanese are fine.
 
