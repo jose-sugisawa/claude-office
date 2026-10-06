@@ -1,0 +1,11 @@
+# Actions は SHA で固定しているので、新しい版は Dependabot の PR で上げる
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+  - package-ecosystem: gomod
+    directory: /
+    schedule:
+      interval: monthly

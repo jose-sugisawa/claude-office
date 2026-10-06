@@ -1,0 +1,38 @@
+name: release
+# v から始まるタグを push すると、各 OS 用の実行ファイルを作ってリリースに載せる（install.sh・install.ps1 が Go の無い環境でここから取る）
+on:
+  push:
+    tags: ['v*']
+
+permissions: {}
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # リリースを作る
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
+        with:
+          go-version: stable
+      - run: go test ./...
+      - name: ビルド
+        run: |
+          v="${GITHUB_REF_NAME#v}"
+          mkdir -p dist
+          for t in darwin/amd64 darwin/arm64 linux/amd64 linux/arm64 windows/amd64 windows/arm64; do
+            os="${t%/*}"; arch="${t#*/}"; name="claude-office_${os}_${arch}"
+            dir="build/$name"; mkdir -p "$dir"
+            exe=claude-office; [ "$os" = windows ] && exe=claude-office.exe
+            CGO_ENABLED=0 GOOS=$os GOARCH=$arch go build -trimpath -ldflags "-s -w -X main.version=$v" -o "$dir/$exe" .
+            cp README.md LICENSE "$dir/"
+            if [ "$os" = windows ]; then (cd "$dir" && zip -q "../../dist/$name.zip" *); else tar -czf "dist/$name.tar.gz" -C "$dir" .; fi
+          done
+          (cd dist && sha256sum * > checksums.txt)
+      - name: リリースを作る
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" dist/* --title "$GITHUB_REF_NAME" --generate-notes

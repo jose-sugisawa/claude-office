@@ -1,0 +1,849 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Claude オフィス</title>
+<!-- ファビコン：ヘッドセットを付けたキャラの頭（16×16 のドット絵） -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'><rect x='2' y='0' width='12' height='1' fill='%233A3F4A'/><rect x='1' y='1' width='1' height='1' fill='%233A3F4A'/><rect x='2' y='1' width='12' height='1' fill='%23D69A45'/><rect x='14' y='1' width='1' height='1' fill='%233A3F4A'/><rect x='0' y='2' width='1' height='1' fill='%233A3F4A'/><rect x='1' y='2' width='4' height='1' fill='%23D69A45'/><rect x='5' y='2' width='5' height='1' fill='%23F0BE6E'/><rect x='10' y='2' width='5' height='1' fill='%23D69A45'/><rect x='15' y='2' width='1' height='1' fill='%233A3F4A'/><rect x='0' y='3' width='1' height='1' fill='%233A3F4A'/><rect x='1' y='3' width='14' height='1' fill='%23D69A45'/><rect x='15' y='3' width='1' height='1' fill='%233A3F4A'/><rect x='0' y='4' width='2' height='1' fill='%232A1E1A'/><rect x='2' y='4' width='12' height='1' fill='%23D69A45'/><rect x='14' y='4' width='2' height='1' fill='%232A1E1A'/><rect x='0' y='5' width='1' height='1' fill='%232A1E1A'/><rect x='1' y='5' width='1' height='1' fill='%23F2A93B'/><rect x='2' y='5' width='5' height='1' fill='%23D69A45'/><rect x='7' y='5' width='6' height='1' fill='%23F8D9BD'/><rect x='13' y='5' width='1' height='1' fill='%23D69A45'/><rect x='14' y='5' width='1' height='1' fill='%23F2A93B'/><rect x='15' y='5' width='1' height='1' fill='%232A1E1A'/><rect x='0' y='6' width='1' height='1' fill='%232A1E1A'/><rect x='1' y='6' width='1' height='1' fill='%23F2A93B'/><rect x='2' y='6' width='1' height='1' fill='%23D69A45'/><rect x='3' y='6' width='10' height='1' fill='%23F8D9BD'/><rect x='13' y='6' width='1' height='1' fill='%23D69A45'/><rect x='14' y='6' width='1' height='1' fill='%23F2A93B'/><rect x='15' y='6' width='1' height='1' fill='%232A1E1A'/><rect x='0' y='7' width='1' height='1' fill='%232A1E1A'/><rect x='1' y='7' width='1' height='1' fill='%23F2A93B'/><rect x='2' y='7' width='1' height='1' fill='%23D69A45'/><rect x='3' y='7' width='2' height='1' fill='%23F8D9BD'/><rect x='5' y='7' width='1' height='1' fill='%232A1E1A'/><rect x='6' y='7' width='4' height='1' fill='%23F8D9BD'/><rect x='10' y='7' width='1' height='1' fill='%232A1E1A'/><rect x='11' y='7' width='2' height='1' fill='%23F8D9BD'/><rect x='13' y='7' width='1' height='1' fill='%23D69A45'/><rect x='14' y='7' width='1' height='1' fill='%23F2A93B'/><rect x='15' y='7' width='1' height='1' fill='%232A1E1A'/><rect x='0' y='8' width='1' height='1' fill='%232A1E1A'/><rect x='1' y='8' width='1' height='1' fill='%23F2A93B'/><rect x='2' y='8' width='1' height='1' fill='%23D69A45'/><rect x='3' y='8' width='2' height='1' fill='%23F8D9BD'/><rect x='5' y='8' width='1' height='1' fill='%232A1E1A'/><rect x='6' y='8' width='4' height='1' fill='%23F8D9BD'/><rect x='10' y='8' width='1' height='1' fill='%232A1E1A'/><rect x='11' y='8' width='2' height='1' fill='%23F8D9BD'/><rect x='13' y='8' width='1' height='1' fill='%23D69A45'/><rect x='14' y='8' width='1' height='1' fill='%23F2A93B'/><rect x='15' y='8' width='1' height='1' fill='%232A1E1A'/><rect x='0' y='9' width='2' height='1' fill='%232A1E1A'/><rect x='2' y='9' width='12' height='1' fill='%23F8D9BD'/><rect x='14' y='9' width='2' height='1' fill='%232A1E1A'/><rect x='0' y='10' width='1' height='1' fill='%232A1E1A'/><rect x='1' y='10' width='1' height='1' fill='%23F8D9BD'/><rect x='2' y='10' width='1' height='1' fill='%233A3F4A'/><rect x='3' y='10' width='1' height='1' fill='%23F8D9BD'/><rect x='4' y='10' width='1' height='1' fill='%23F2A7A0'/><rect x='5' y='10' width='6' height='1' fill='%23F8D9BD'/><rect x='11' y='10' width='1' height='1' fill='%23F2A7A0'/><rect x='12' y='10' width='3' height='1' fill='%23F8D9BD'/><rect x='15' y='10' width='1' height='1' fill='%232A1E1A'/><rect x='1' y='11' width='2' height='1' fill='%232A1E1A'/><rect x='3' y='11' width='2' height='1' fill='%233A3F4A'/><rect x='5' y='11' width='1' height='1' fill='%23F2A93B'/><rect x='6' y='11' width='9' height='1' fill='%232A1E1A'/><rect x='2' y='12' width='1' height='1' fill='%232A1E1A'/><rect x='3' y='12' width='10' height='1' fill='%23A781D0'/><rect x='13' y='12' width='1' height='1' fill='%232A1E1A'/><rect x='2' y='13' width='1' height='1' fill='%232A1E1A'/><rect x='3' y='13' width='10' height='1' fill='%23A781D0'/><rect x='13' y='13' width='1' height='1' fill='%232A1E1A'/><rect x='2' y='14' width='1' height='1' fill='%232A1E1A'/><rect x='3' y='14' width='10' height='1' fill='%238461AE'/><rect x='13' y='14' width='1' height='1' fill='%232A1E1A'/><rect x='2' y='15' width='1' height='1' fill='%232A1E1A'/><rect x='3' y='15' width='10' height='1' fill='%238461AE'/><rect x='13' y='15' width='1' height='1' fill='%232A1E1A'/></svg>">
+<style>
+:root{
+  --ink:#2A1E1A; --night:#1F2340; --night2:#2E345C; --paper:#FBFAF6; --mute:#B4BAD4;
+  --busy:#4C8DF6; --turn:#F2A93B; --sleep:#9AA0B2; --gone:#C9CCD6;
+  --wall:#EFE4CC; --floor:#C99A6B; --floorLine:#B4865A;
+}
+body{margin:0;background:var(--night);font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;color:var(--ink)}
+#stage{overflow:hidden}
+#room{position:relative;width:1440px;transform-origin:0 0}
+.abs{position:absolute}
+.px{position:absolute;shape-rendering:crispEdges;pointer-events:none}
+#zoom{position:fixed;bottom:16px;right:16px;z-index:30;display:flex;align-items:center;gap:4px;padding:4px;background:rgba(31,35,64,.88);border-radius:12px;box-shadow:0 4px 0 rgba(0,0,0,.25);color:#F4F1E8;font-size:13px;font-weight:700}
+#zoom button{font:inherit;min-width:40px;min-height:40px;padding:0 10px;border:0;border-radius:8px;background:var(--night2);color:#F4F1E8;cursor:pointer}
+#zoom button[aria-pressed=true]{background:#FFD27A;color:var(--ink)}
+#zoom span{min-width:46px;text-align:center}
+#strip{display:none;position:fixed;left:0;right:0;top:0;height:6px;background:var(--turn);z-index:30}
+#strip.on{display:block}
+
+/* 部屋（夜は暗くして、人と名札だけを明るいまま残す） */
+.floor{left:0;width:100%;background-color:var(--floor);background-image:repeating-linear-gradient(0deg,var(--floorLine) 0 3px,transparent 3px 24px),repeating-linear-gradient(90deg,rgba(60,36,20,.10) 0 3px,transparent 3px 144px)}
+.wall{left:0;top:0;width:100%;height:228px;background-color:var(--wall);background-image:repeating-linear-gradient(90deg,rgba(150,120,80,.10) 0 6px,transparent 6px 24px)}
+.wall .top{left:0;top:0;width:100%;height:18px;background:#4A3A2E;border-bottom:3px solid #6B5442}
+.wall .base{left:0;top:210px;width:100%;height:18px;background:#8A6446;border-top:3px solid #A57B57}
+.win{top:44px;width:204px;height:110px;background:#6B4E36;padding:6px;box-sizing:border-box;display:grid;grid-template-columns:1fr 1fr;gap:6px;box-shadow:0 6px 0 #4A3A2E}
+.win i{background:#A9DCF5;position:relative}
+.win i:first-child::after{content:'';position:absolute;left:18px;top:26px;width:36px;height:9px;background:#fff;box-shadow:9px -9px 0 -0px #fff}
+.clock{left:290px;top:62px;width:72px;height:72px;border-radius:50%;background:var(--paper);border:6px solid #4A3A2E;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700}
+.rug{box-sizing:border-box;border:6px solid}
+.sign{display:flex;align-items:center;gap:8px;padding:4px 12px;background:#F6EBD3;border:3px solid var(--ink);box-shadow:0 3px 0 var(--ink);font-size:15px;font-weight:700;z-index:7;white-space:nowrap}
+.sign b{width:11px;height:11px;border-radius:50%;border:2px solid var(--ink);display:inline-block}
+.sign small{font-weight:400;color:#6B5442;font-size:13px}
+.empty{color:#6B5442;font-size:14px}
+@media (prefers-color-scheme: dark){
+  .scenery{filter:brightness(.55) saturate(.85)}
+  .lamp{display:block!important}
+}
+.lamp{display:none;left:-20px;top:20px;width:190px;height:150px;border-radius:50%;background:radial-gradient(rgba(255,214,140,.45),rgba(255,214,140,0) 70%);pointer-events:none;z-index:1}
+
+/* 使用量の掲示板（5時間・1週間の枠） */
+.usage{left:382px;top:30px;width:280px;height:168px;box-sizing:border-box;padding:10px 14px;background:var(--night);border:6px solid #6B4E36;box-shadow:0 6px 0 #4A3A2E;color:#F4F1E8;display:flex;flex-direction:column;gap:8px}
+.usage h2{margin:0;font-size:13px;color:var(--mute);font-weight:700}
+.usage .m{display:grid;grid-template-columns:44px minmax(0,1fr) 40px;gap:8px;align-items:center;font-size:13px;font-weight:700}
+.usage .bar{height:10px;border-radius:5px;background:var(--night2);overflow:hidden}
+.usage .bar i{display:block;height:100%}
+.usage .pct{text-align:right}
+.usage .sub{grid-column:2 / 4;font-size:11px;font-weight:400;color:var(--mute);margin-top:-4px}
+.usage .none{font-size:12px;color:var(--mute)}
+/* ホワイトボード */
+.board{left:680px;top:22px;width:560px;height:186px;background:var(--paper);border:6px solid #9097B0;box-sizing:border-box;padding:8px 16px;display:flex;flex-direction:column;gap:2px;box-shadow:0 6px 0 #6E7590;overflow:hidden}
+.board h2{margin:0 0 2px;font-size:17px;color:#C2410C}
+.board .row{display:grid;grid-template-columns:12px 170px minmax(0,1fr) 66px;gap:10px;align-items:center;font-size:14px}
+.board .row span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.board .row .dot{width:10px;height:10px;border-radius:50%}
+.board .row .ago{text-align:right;color:#6E7590}
+.board .row .ago.late{color:#C2410C;font-weight:700}
+.board .dim{opacity:.45}
+.board .none{font-size:14px;color:#6E7590}
+
+/* 席 */
+.cell{width:150px;height:196px}
+.crew{position:absolute;padding:0;margin:0;border:0;background:none;cursor:pointer;line-height:0}
+.crew:focus-visible{outline:3px solid var(--turn);outline-offset:4px;border-radius:6px}
+.crew.sel{outline:3px solid var(--turn);outline-offset:4px;border-radius:6px}
+.crew.stand{left:50px;top:46px;width:51px;height:72px;z-index:2}
+.crew.sleeper{left:42px;top:70px;width:66px;height:40px;z-index:5}
+.crew.chair{left:46px;top:40px;width:60px;height:48px;z-index:5}
+.bubble{position:absolute;left:75px;bottom:156px;transform:translateX(-50%);width:max-content;max-width:138px;max-height:calc(2.7em + 8px);box-sizing:border-box;font-size:12px;font-weight:700;line-height:1.35;padding:4px 9px;border:2px solid var(--ink);border-radius:8px;box-shadow:0 3px 0 var(--ink);z-index:9;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;pointer-events:none;text-align:left}
+.bubble.busy{background:#CFE0FF}
+.bubble.turn{background:#FFE3A3}
+.bubble.sleep{background:#EDEAE2;font-weight:400}
+.bang{position:absolute;left:106px;top:48px;width:22px;height:26px;background:#FFD34D;border:3px solid #7A5A00;box-sizing:border-box;border-radius:5px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:15px;z-index:9;pointer-events:none}
+.tag{position:absolute;left:75px;top:160px;transform:translateX(-50%);z-index:8;white-space:nowrap;display:flex;align-items:center;gap:6px;padding:2px 10px 2px 6px;background:#fff;border-radius:999px;box-shadow:0 2px 0 rgba(42,30,26,.35);font-size:12px;font-weight:700;pointer-events:none;border:2px solid transparent;max-width:144px;box-sizing:border-box}
+.tag span{overflow:hidden;text-overflow:ellipsis}
+.tag i{width:9px;height:9px;border-radius:50%}
+.tag.turn{border-color:var(--turn)}
+.tag.gone{opacity:.65;font-weight:400}
+.gauge{position:absolute;left:30px;top:187px;width:88px;height:6px;border-radius:3px;background:rgba(42,30,26,.25);overflow:hidden;pointer-events:none;z-index:8}
+.gauge i{display:block;height:100%;width:0}
+.gpct{position:absolute;left:122px;top:182px;font-size:10px;font-weight:700;color:#6B5442;pointer-events:none;z-index:8}
+.gpct.hot{color:#B42318}
+.zz{left:22px;top:44px;width:40px;height:40px;z-index:9;color:#fff;font-weight:800;text-shadow:2px 2px 0 var(--ink);pointer-events:none}
+.zz span{position:absolute;left:18px;top:18px;opacity:0;animation:zfloat 3.6s linear infinite}
+.zz span:nth-child(2){animation-delay:1.2s;font-size:18px}
+.zz span:nth-child(3){animation-delay:2.4s;font-size:23px}
+.snot{position:absolute;left:39px;top:18px;width:12px;height:12px;border-radius:50%;background:rgba(169,214,255,.8);border:2px solid #6FA8DC;box-sizing:border-box;transform-origin:0 50%;animation:bubble 3.6s steps(6) infinite}
+.hop{animation:hop .9s steps(1) infinite}
+.glow{animation:glow 1.4s steps(1) infinite}
+@keyframes hop{0%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes glow{0%{opacity:1}50%{opacity:.6}}
+@keyframes zfloat{0%{transform:translate(0,0);opacity:0}15%{opacity:1}80%{opacity:1}100%{transform:translate(-10px,-26px);opacity:0}}
+@keyframes bubble{0%{transform:scale(.35)}70%{transform:scale(1)}85%{transform:scale(1.08)}100%{transform:scale(.35)}}
+
+/* カードと知らせ */
+#err{display:none;position:fixed;left:16px;right:16px;top:16px;padding:10px 14px;background:#C2410C;color:#fff;font-size:14px;z-index:40;border-radius:8px}
+#toast{position:fixed;left:50%;top:20px;transform:translateX(-50%);padding:10px 16px;background:var(--night2);color:#fff;border-radius:10px;font-size:14px;opacity:0;transition:opacity .2s;pointer-events:none;max-width:calc(100% - 32px);z-index:35}
+#toast.show{opacity:1}
+#card{display:none;position:fixed;left:50%;bottom:16px;transform:translateX(-50%);width:min(780px,calc(100% - 32px));box-sizing:border-box;background:var(--night);color:#F4F1E8;border:3px solid var(--night2);border-radius:16px;box-shadow:0 8px 0 rgba(0,0,0,.35);padding:16px 20px 18px;z-index:25;flex-direction:column;gap:8px}
+#card.open{display:flex}
+#card .meta{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mute)}
+#card .meta b{width:10px;height:10px;border-radius:50%;display:inline-block}
+#card .name{font-size:22px;font-weight:700}
+#card .cwd{font-size:13px;color:var(--mute)}
+#card .text{font-size:14px;line-height:1.6;white-space:pre-wrap;max-height:9.6em;overflow:auto;background:var(--night2);padding:8px 12px;border-radius:10px;color:#E3E5EE}
+#card .text:empty{display:none}
+#card .hint{font-size:13px;color:#FFD27A;line-height:1.6}
+#card .hint:empty{display:none}
+#card code{background:var(--night2);padding:1px 6px;border-radius:4px;color:#fff}
+#card .acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:2px}
+#card button{font:inherit;font-size:14px;font-weight:700;min-height:44px;padding:0 18px;border:0;border-radius:10px;cursor:pointer}
+#card .primary{background:#FFD27A;color:var(--ink);box-shadow:0 4px 0 #B5843A}
+#card .ghost{background:var(--night2);color:#F4F1E8;box-shadow:0 4px 0 #171A33}
+#card [hidden]{display:none}
+#card .hint.box{border:2px solid #FFD27A;border-radius:12px;padding:12px 14px;color:#E3E5EE;display:flex;flex-direction:column;gap:8px}
+#card .hint.box strong{color:#FFD27A}
+#card .chips{display:flex;flex-wrap:wrap;gap:8px}
+#card .chip{display:flex;align-items:center;gap:10px;min-height:44px;padding:0 12px 0 10px;border-radius:10px;background:var(--night2);color:#fff;box-shadow:none;font-weight:400}
+#card .chip i{width:10px;height:10px;border-radius:50%}
+#card .chip code{background:none;padding:0;font-size:14px}
+#card .chip small{font-size:12px;color:var(--mute)}
+code b.h,.onb b.h{color:#7FB2FF}
+code b.r,.onb b.r{color:#FFD27A}
+.addisle.glow{background:rgba(255,214,122,.35);border-color:var(--ink);box-shadow:0 0 0 4px rgba(255,210,122,.6);color:var(--ink)}
+.rug.fresh{outline:6px solid rgba(255,210,122,.9);outline-offset:2px}
+/* はじめの案内（島と係） */
+.onb{position:absolute;z-index:20;box-sizing:border-box;background:var(--night);color:#F4F1E8;border:3px solid var(--night2);border-radius:20px;box-shadow:0 10px 0 rgba(0,0,0,.3);padding:24px 30px;display:flex;flex-direction:column;gap:20px}
+.onb h2{margin:0;font-size:24px;font-weight:800;display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.onb h2 small{font-size:14px;font-weight:400;color:var(--mute)}
+.onb .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.onb .concept{background:var(--night2);border-radius:14px;padding:16px 18px;display:flex;gap:14px;align-items:flex-start}
+.onb .concept h3{margin:0 0 6px;font-size:17px;font-weight:800}
+.onb .concept p{margin:0;font-size:14px;color:#C9CEE3;line-height:1.6}
+.onb .rugmini{flex:none;width:54px;height:40px;border-radius:8px;border:4px solid;box-sizing:border-box}
+.onb .tagmini{flex:none;display:flex;align-items:center;gap:6px;padding:2px 10px 2px 6px;background:#fff;color:var(--ink);border-radius:999px;font-size:12px;font-weight:700;margin-top:6px}
+.onb .tagmini i,.onb .mtag i{width:9px;height:9px;border-radius:50%;background:var(--busy)}
+.onb .lower{display:grid;grid-template-columns:560px minmax(0,1fr);gap:28px;align-items:center}
+.onb .cap{font-size:13px;color:var(--mute);font-weight:700;margin-bottom:10px}
+.onb .anat{position:relative;height:168px}
+.onb .anat .cmd{position:absolute;left:0;top:0;font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:30px;font-weight:700;display:flex;gap:12px;align-items:baseline;white-space:nowrap}
+.onb .anat .cmd span{color:#8A90AE}
+.onb .anat .cmd b{padding:0 4px;border-bottom:4px solid}
+.onb .anat .ln{position:absolute;top:50px;width:4px;height:44px}
+.onb .anat .lbl{position:absolute;top:100px;padding:6px 12px;border-radius:10px;background:var(--night2);border:2px solid;font-size:13px;line-height:1.5}
+.onb .note{font-size:13px;color:var(--mute);line-height:1.6}
+.onb .ex{display:grid;grid-template-columns:300px minmax(0,1fr);gap:18px;align-items:center}
+.onb .isle{position:relative;height:150px;border-radius:10px;border:5px solid;box-sizing:border-box}
+.onb .isle .sg{position:absolute;left:10px;top:-14px;padding:2px 10px;background:#F6EBD3;border:2px solid var(--ink);color:var(--ink);font-size:13px;font-weight:700;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.onb .isle .sg i{width:9px;height:9px;border-radius:50%;border:2px solid var(--ink)}
+.onb .mini{position:absolute;top:26px;width:84px;height:110px}
+.onb .mini svg{position:absolute;left:25px;top:4px}
+.onb .mini .dk{position:absolute;left:14px;top:38px;width:56px;height:26px;background:#D9B07F;border:3px solid var(--ink);box-sizing:border-box}
+.onb .mtag{position:absolute;left:42px;top:74px;transform:translateX(-50%);white-space:nowrap;display:flex;align-items:center;gap:4px;padding:1px 8px 1px 4px;background:#fff;color:var(--ink);border-radius:999px;font-size:11px;font-weight:700}
+.onb .cmds{display:flex;flex-direction:column;gap:8px}
+.onb .cmds code{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:15px;display:block}
+.onb .cmds small{font-size:12px;color:var(--mute)}
+.onb .foot{display:flex;align-items:center;gap:22px;border-top:1px solid var(--night2);padding-top:18px;flex-wrap:wrap}
+.onb .st{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700}
+.onb .st i{width:30px;height:30px;border-radius:50%;color:var(--night);font-style:normal;font-weight:900;display:flex;align-items:center;justify-content:center}
+.onb .btns{margin-left:auto;display:flex;gap:10px}
+.onb button{font:inherit;font-size:14px;font-weight:700;min-height:44px;padding:0 18px;border:0;border-radius:10px;cursor:pointer}
+.onb .go{background:#FFD27A;color:var(--ink);box-shadow:0 4px 0 #B5843A}
+.onb .ok{background:var(--night2);color:#F4F1E8;box-shadow:0 4px 0 #171A33}
+.onb .after{font-size:12px;color:var(--mute);margin-top:-8px}
+.onb .after code{background:var(--night2);padding:1px 6px;border-radius:4px;color:#fff}
+/* 島を作った直後の知らせ */
+#made{display:none;position:fixed;left:50%;top:20px;transform:translateX(-50%);width:min(560px,calc(100% - 32px));box-sizing:border-box;background:var(--night2);color:#fff;border-radius:14px;box-shadow:0 8px 0 rgba(0,0,0,.3);padding:14px 18px 0;flex-direction:column;gap:10px;overflow:hidden;z-index:36}
+#made.show{display:flex}
+#made .t{font-size:15px;font-weight:700}
+#made .s{font-size:13px;color:#C9CEE3}
+#made .row{display:flex;align-items:center;gap:10px}
+#made code{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:15px;background:var(--night);padding:8px 12px;border-radius:10px;flex:1}
+#made button{font:inherit;font-size:14px;font-weight:700;min-height:44px;padding:0 18px;border:0;border-radius:10px;background:#FFD27A;color:var(--ink);box-shadow:0 4px 0 #B5843A;cursor:pointer}
+#made .bar{margin:4px -18px 0;height:5px;background:var(--night)}
+#made .bar i{display:block;height:100%;background:#FFD27A;width:100%}
+#made.show .bar i{animation:drain 8s linear forwards}
+@keyframes drain{from{width:100%}to{width:0}}
+#card .person,#card .isl{display:none;flex-direction:column;gap:8px}
+#card[data-mode=person] .person,#card[data-mode=island] .isl{display:flex}
+#card .ttl{font-size:20px;font-weight:700}
+#card label{display:flex;flex-direction:column;gap:4px;font-size:13px;color:var(--mute)}
+#card input[type=text]{font:inherit;font-size:16px;color:#fff;background:var(--night2);border:2px solid #3D4570;border-radius:10px;padding:8px 12px;min-height:44px;box-sizing:border-box}
+#card input[type=text]:focus{outline:none;border-color:#FFD27A}
+#card input[readonly]{opacity:.7}
+#card .idhint{font-size:13px;color:var(--mute)}
+#card fieldset{border:0;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+#card legend{font-size:13px;color:var(--mute);margin-bottom:6px;padding:0}
+#card .sw{position:relative;display:flex;flex-direction:row;align-items:center;gap:8px;padding:6px 12px 6px 8px;min-height:44px;box-sizing:border-box;border-radius:999px;background:var(--night2);color:#F4F1E8;font-size:14px;cursor:pointer;border:2px solid transparent}
+#card .sw input{position:absolute;opacity:0;pointer-events:none}
+#card .sw i{width:22px;height:22px;border-radius:50%;border:2px solid var(--ink)}
+#card .sw:has(input:checked){border-color:#FFD27A}
+#card .sw:has(input:focus-visible){outline:3px solid #FFD27A;outline-offset:2px}
+#card .formerr{font-size:13px;color:#FF9C8A}
+#card .formerr:empty{display:none}
+.sign.btn{cursor:pointer;font-family:inherit;color:var(--ink)}
+.sign.btn:hover{background:#FFF6E2}
+.addisle{box-sizing:border-box;border:4px dashed rgba(42,30,26,.35);border-radius:10px;background:rgba(255,255,255,.12);color:#6B5442;font:inherit;font-size:17px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px}
+.addisle:hover{background:rgba(255,255,255,.25)}
+@media (prefers-reduced-motion: reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div id="strip" aria-hidden="true"></div>
+<div id="err" role="alert"></div>
+<div id="zoom" role="group" aria-label="部屋の大きさ"><button type="button" data-z="-" aria-label="小さくする">−</button><span></span><button type="button" data-z="+" aria-label="大きくする">＋</button><button type="button" data-z="fit" aria-pressed="false" title="全部の島が1画面に入る大きさにする">全体</button></div>
+<div id="stage"><div id="room"></div></div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="made" role="status" aria-live="polite"><div class="t"></div><div class="s">この島に座らせるには、係名を付けて起動します</div><div class="row"><code></code><button type="button">コピー</button></div><div class="bar"><i></i></div></div>
+<section id="card" aria-label="カード" data-mode="person">
+  <div class="person">
+    <div class="meta"><b></b><span class="where"></span></div>
+    <div class="name"></div>
+    <div class="cwd"></div>
+    <div class="text"></div>
+    <div class="hint"></div>
+    <div class="acts"><button type="button" class="primary"></button><button type="button" class="ghost leave" hidden>退出させる</button><button type="button" class="ghost close">閉じる</button></div>
+  </div>
+  <form class="isl" novalidate>
+    <div class="ttl"></div>
+    <label>看板の名前<input type="text" name="name" maxlength="30" placeholder="ネットショップ" autocomplete="off"></label>
+    <label>係名の頭（英小文字・数字・-）<input type="text" name="id" maxlength="40" placeholder="shop" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+    <div class="idhint"></div>
+    <fieldset class="colors"><legend>色（ターミナルのタブ色と合わせると探しやすい）</legend></fieldset>
+    <div class="formerr" role="alert"></div>
+    <div class="acts"><button type="submit" class="primary">作る</button><button type="button" class="ghost del">島を消す</button><button type="button" class="ghost cancel">やめる</button></div>
+  </form>
+</section>
+<script>
+'use strict';
+// 状態：busy=作業中 / waiting=確認待ち（あなたの番） / idle で FRESH_MIN 分以内=あなたの番 / それを過ぎた=放置 / gone=閉じた
+const FRESH_MIN = Number(new URLSearchParams(location.search).get('fresh')) || 30;
+const LATE_MIN = 10; // ホワイトボードで「何分前」を目立たせる長さ
+const POLL_MS = 3000;
+const WALL = 228, CELL_W = 150, CELL_H = 196, PER_ROW = 3, ISLAND_W = 462, GAP = 26, EMPTY_H = 120;
+const ZMIN = 0.6, ZMAX = 1.4;
+
+// 島は islands.json から読む（/api/islands）。最後に必ず「その他」を足す。ラグは島の色を淡くした色
+const OTHER = { id: 'other', name: 'その他', color: '#3FA7A2', prefixes: [] };
+let ISLANDS = [OTHER], islandsSig = '', rawIslands = [];
+function mix(hex, to, t) {
+  const a = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)), b = [1, 3, 5].map(i => parseInt(to.slice(i, i + 2), 16));
+  return '#' + a.map((v, i) => Math.round(v + (b[i] - v) * t).toString(16).padStart(2, '0')).join('');
+}
+function setIslands(list) {
+  islandsSig = JSON.stringify(list);
+  rawIslands = list;
+  ISLANDS = [...list.map(i => ({ ...i, color: i.hex })), OTHER].map(i => ({ ...i, label: i.name, rug: mix(i.color, '#E8E0CC', 0.55), edge: mix(i.color, '#7A6A55', 0.35) }));
+}
+const LOOKS = [
+  { hair: '#2B1D14', hairHi: '#4A3526', skin: '#F6CFAE', shirt: '#E9874E', shirtDk: '#C76A35', pants: '#3B3F58' },
+  { hair: '#6B3E26', hairHi: '#8E5737', skin: '#EDBE95', shirt: '#5C8EDB', shirtDk: '#3F6DB8', pants: '#2E3142' },
+  { hair: '#1B1D2B', hairHi: '#3A3E55', skin: '#F6CFAE', shirt: '#67B58A', shirtDk: '#4A9169', pants: '#3B3F58' },
+  { hair: '#D69A45', hairHi: '#F0BE6E', skin: '#F8D9BD', shirt: '#A781D0', shirtDk: '#8461AE', pants: '#2E3142' },
+  { hair: '#3A2A20', hairHi: '#5A4434', skin: '#DDA77E', shirt: '#EDCB57', shirtDk: '#C9A63A', pants: '#3B3F58' },
+  { hair: '#8A4A2A', hairHi: '#B06A42', skin: '#F6CFAE', shirt: '#E07795', shirtDk: '#BF5876', pants: '#2E3142' },
+  { hair: '#2B1D14', hairHi: '#4A3526', skin: '#EDBE95', shirt: '#4FB3AE', shirtDk: '#35908B', pants: '#3B3F58' },
+  { hair: '#6E7387', hairHi: '#9095A8', skin: '#F8D9BD', shirt: '#F4F1E8', shirtDk: '#D6D2C6', pants: '#2E3142' },
+];
+const RANK = { turn: 0, busy: 1, sleep: 2, gone: 3 };
+
+const room = document.getElementById('room');
+const stage = document.getElementById('stage');
+let lastSig = '', refs = new Map(), boardEl = null, clockEl = null, usageEl = null, usage = null, roomH = 600;
+
+function el(tag, cls, parent, style) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (style) Object.assign(e.style, style);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function svg(parent, html, cls, style) {
+  const d = el('div', 'px ' + (cls || ''), parent, style);
+  d.innerHTML = html;
+  return d;
+}
+// shq はシェルに貼るときの引用。英数字と @._- だけならそのまま、それ以外はシングルクォートで包む（; や $ を含む名前を貼っても別のコマンドにならない）
+function shq(s) { return /^[A-Za-z0-9@._-]+$/.test(s) ? s : "'" + s.replace(/'/g, "'\\''") + "'"; }
+function hash(s) { let h = 0; for (const c of s) h = (h * 31 + c.codePointAt(0)) >>> 0; return h; }
+// 係名が島の頭で始まり、続きが英数字でなければその島（大文字小文字は区別しない）
+// APP・app-review・app@review・SHOPセール は島に入り、appx のような別の単語は入らない
+// 複数の島に当てはまるときは、頭のいちばん長い島（shop-cf-x は shop ではなく shop-cf の島）
+function islandOf(name) {
+  const n = name.toLowerCase();
+  let best = ISLANDS[ISLANDS.length - 1], len = 0;
+  for (const i of ISLANDS) for (const k of i.prefixes) {
+    if (k.length > len && n.startsWith(k) && !/^[a-z0-9]/.test(n.slice(k.length))) { best = i; len = k.length; }
+  }
+  return best;
+}
+function stateOf(m, now) {
+  if (m.status === 'gone') return 'gone';
+  if (m.status === 'idle') return now - m.since <= FRESH_MIN * 60e3 ? 'turn' : 'sleep';
+  if (m.status === 'busy' || m.status === 'shell') return 'busy';
+  return 'turn'; // waiting（許可などの確認待ち）と知らない状態は、こちらの番として目立たせる
+}
+function dur(ms) {
+  const m = Math.floor(Math.max(0, ms) / 60e3);
+  if (m < 1) return '今';
+  if (m < 60) return m + '分';
+  if (m < 1440) return Math.floor(m / 60) + '時間';
+  return Math.floor(m / 1440) + '日';
+}
+// コンテキストの使用率（Claude Code の context_window.used_percentage）。60% 未満は灰・80% 未満は黄・それ以上は赤
+const CTX_WARN = 60, CTX_HOT = 80;
+function ctxColor(p) { return p === null ? 'transparent' : p >= CTX_HOT ? '#D9534F' : p >= CTX_WARN ? '#E3B341' : '#9AA0B2'; }
+function tok(n) { return n >= 1e6 ? (Math.round(n / 1e5) / 10) + 'M' : Math.round(n / 1e3) + 'k'; }
+function ago(ms) { const d = dur(ms); return d === '今' ? '今' : d + '前'; }
+
+// ---- ドット絵（16px 前後のタイルを3倍で描く） ----
+const O = '#2A1E1A';
+function standSvg(l, up) {
+  return `<svg width="51" height="72" viewBox="0 0 17 24" shape-rendering="crispEdges" aria-hidden="true">
+<rect x="3" y="0" width="10" height="1" fill="${O}"/><rect x="2" y="1" width="12" height="1" fill="${O}"/><rect x="1" y="2" width="14" height="9" fill="${O}"/><rect x="2" y="11" width="12" height="1" fill="${O}"/>
+<rect x="3" y="1" width="10" height="1" fill="${l.hair}"/><rect x="2" y="2" width="12" height="9" fill="${l.skin}"/><rect x="2" y="2" width="12" height="2" fill="${l.hair}"/>
+<rect x="2" y="4" width="2" height="4" fill="${l.hair}"/><rect x="12" y="4" width="2" height="4" fill="${l.hair}"/><rect x="4" y="4" width="4" height="1" fill="${l.hair}"/><rect x="5" y="2" width="4" height="1" fill="${l.hairHi}"/>
+<rect x="5" y="6" width="1" height="2" fill="${O}"/><rect x="10" y="6" width="1" height="2" fill="${O}"/><rect x="4" y="9" width="1" height="1" fill="#F2A7A0"/><rect x="11" y="9" width="1" height="1" fill="#F2A7A0"/>
+<rect x="3" y="12" width="10" height="8" fill="${O}"/><rect x="4" y="12" width="8" height="7" fill="${l.shirt}"/><rect x="4" y="17" width="8" height="2" fill="${l.shirtDk}"/><rect x="7" y="12" width="2" height="1" fill="${l.skin}"/>
+<rect x="1" y="13" width="2" height="6" fill="${O}"/><rect x="2" y="13" width="1" height="4" fill="${l.shirtDk}"/><rect x="2" y="17" width="1" height="1" fill="${l.skin}"/>
+${up ? `<rect x="14" y="3" width="3" height="11" fill="${O}"/><rect x="15" y="5" width="1" height="8" fill="${l.shirtDk}"/><rect x="15" y="4" width="1" height="1" fill="${l.skin}"/>`
+     : `<rect x="13" y="13" width="2" height="6" fill="${O}"/><rect x="13" y="13" width="1" height="4" fill="${l.shirtDk}"/><rect x="13" y="17" width="1" height="1" fill="${l.skin}"/>`}
+<rect x="3" y="19" width="10" height="5" fill="${O}"/><rect x="4" y="19" width="3" height="3" fill="${l.pants}"/><rect x="9" y="19" width="3" height="3" fill="${l.pants}"/></svg>`;
+}
+function sleepSvg(l) {
+  return `<svg width="66" height="39" viewBox="0 0 22 13" shape-rendering="crispEdges" aria-hidden="true">
+<rect x="0" y="7" width="22" height="6" fill="${O}"/><rect x="1" y="8" width="20" height="4" fill="${l.shirt}"/><rect x="1" y="11" width="20" height="1" fill="${l.shirtDk}"/>
+<rect x="1" y="8" width="2" height="2" fill="${l.skin}"/><rect x="19" y="8" width="2" height="2" fill="${l.skin}"/>
+<rect x="5" y="0" width="12" height="10" fill="${O}"/><rect x="6" y="1" width="10" height="3" fill="${l.hair}"/><rect x="8" y="1" width="4" height="1" fill="${l.hairHi}"/>
+<rect x="6" y="4" width="1" height="4" fill="${l.hair}"/><rect x="15" y="4" width="1" height="4" fill="${l.hair}"/><rect x="7" y="4" width="8" height="5" fill="${l.skin}"/>
+<rect x="8" y="6" width="2" height="1" fill="${O}"/><rect x="12" y="6" width="2" height="1" fill="${O}"/><rect x="7" y="7" width="1" height="1" fill="#F2A7A0"/><rect x="14" y="7" width="1" height="1" fill="#F2A7A0"/></svg>
+<span class="snot"></span>`;
+}
+function deskSvg(on) {
+  const scr = on ? '#7FE0D0' : '#2C3140';
+  return `<svg width="96" height="90" viewBox="0 0 32 30" shape-rendering="crispEdges" aria-hidden="true">
+<rect x="19" y="0" width="11" height="8" fill="${O}"/><rect x="20" y="1" width="9" height="6" fill="#3A3F4A"/><rect ${on ? 'class="glow"' : ''} x="21" y="2" width="7" height="4" fill="${scr}"/>
+${on ? '<rect x="22" y="3" width="4" height="1" fill="#fff" opacity=".8"/><rect x="22" y="5" width="3" height="1" fill="#fff" opacity=".8"/>' : ''}
+<rect x="24" y="8" width="1" height="2" fill="${O}"/><rect x="0" y="9" width="32" height="21" fill="${O}"/><rect x="1" y="10" width="30" height="12" fill="#D9B07F"/><rect x="1" y="10" width="30" height="1" fill="#EDC996"/>
+<rect x="3" y="13" width="8" height="1" fill="#C99C69"/><rect x="21" y="10" width="7" height="1" fill="${O}"/><rect x="6" y="16" width="10" height="3" fill="${O}"/><rect x="7" y="17" width="8" height="1" fill="#E6E8EE"/>
+<rect x="2" y="12" width="3" height="3" fill="#F4F1E8"/><rect x="1" y="22" width="30" height="6" fill="#A8774A"/><rect x="1" y="27" width="30" height="1" fill="#8A5E38"/>
+<rect x="22" y="23" width="7" height="3" fill="#B98757"/><rect x="24" y="24" width="3" height="1" fill="${O}"/></svg>`;
+}
+const CHAIR = `<svg width="60" height="48" viewBox="0 0 20 16" shape-rendering="crispEdges" aria-hidden="true">
+<rect x="1" y="0" width="18" height="16" fill="${O}"/><rect x="0" y="1" width="20" height="14" fill="${O}"/><rect x="1" y="1" width="18" height="14" fill="#3D4F7A"/><rect x="2" y="2" width="16" height="2" fill="#56699A"/></svg>`;
+const PLANT = `<svg width="48" height="60" viewBox="0 0 16 20" shape-rendering="crispEdges" aria-hidden="true">
+<rect x="5" y="0" width="6" height="13" fill="${O}"/><rect x="1" y="3" width="14" height="10" fill="${O}"/><rect x="6" y="1" width="4" height="11" fill="#4F9A5B"/><rect x="2" y="4" width="5" height="6" fill="#3F7F4A"/>
+<rect x="9" y="4" width="5" height="6" fill="#3F7F4A"/><rect x="4" y="8" width="8" height="4" fill="#4F9A5B"/><rect x="7" y="2" width="1" height="5" fill="#8FD08A"/>
+<rect x="3" y="12" width="10" height="8" fill="${O}"/><rect x="4" y="12" width="8" height="2" fill="#D98057"/><rect x="5" y="14" width="6" height="5" fill="#C0683F"/></svg>`;
+const SHELF = `<svg width="144" height="138" viewBox="0 0 48 46" shape-rendering="crispEdges" aria-hidden="true">
+<rect x="0" y="0" width="48" height="46" fill="${O}"/><rect x="1" y="1" width="46" height="44" fill="#8A5E38"/><rect x="3" y="3" width="42" height="12" fill="#5A3C24"/><rect x="3" y="17" width="42" height="12" fill="#5A3C24"/><rect x="3" y="31" width="42" height="12" fill="#5A3C24"/>
+<rect x="4" y="5" width="3" height="10" fill="#C2533A"/><rect x="7" y="6" width="3" height="9" fill="#4F7CC9"/><rect x="10" y="4" width="2" height="11" fill="#E3B341"/><rect x="12" y="7" width="3" height="8" fill="#5BA37A"/><rect x="30" y="5" width="3" height="10" fill="#F4F1E8"/><rect x="33" y="6" width="3" height="9" fill="#C2533A"/>
+<rect x="4" y="20" width="3" height="9" fill="#E3B341"/><rect x="7" y="19" width="2" height="10" fill="#4F7CC9"/><rect x="20" y="20" width="3" height="9" fill="#5BA37A"/><rect x="23" y="19" width="3" height="10" fill="#C2533A"/><rect x="36" y="18" width="3" height="11" fill="#9B6FC2"/>
+<rect x="5" y="38" width="10" height="5" fill="#B98757"/><rect x="18" y="33" width="3" height="10" fill="#4F7CC9"/><rect x="30" y="36" width="6" height="7" fill="#D9DBE3"/><rect x="38" y="33" width="3" height="10" fill="#5BA37A"/></svg>`;
+// 使用量（Claude Code の rate_limits）。5時間と1週間の枠の使用率と、リセットまでの時間
+function resetIn(sec) {
+  const ms = sec * 1000 - Date.now();
+  if (ms <= 0) return 'もうすぐリセット';
+  if (ms < 24 * 3600e3) return 'リセットまで ' + (ms >= 3600e3 ? Math.floor(ms / 3600e3) + '時間' : '') + Math.floor(ms % 3600e3 / 60e3) + '分';
+  const d = new Date(sec * 1000);
+  return (d.getMonth() + 1) + '/' + d.getDate() + '（' + '日月火水木金土'[d.getDay()] + '）' + d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0') + ' にリセット';
+}
+function drawUsage() {
+  if (!usageEl) return;
+  usageEl.replaceChildren();
+  el('h2', '', usageEl).textContent = 'Claude の使用量';
+  const rl = usage && usage.rate_limits;
+  if (!rl) { el('div', 'none', usageEl).textContent = 'まだ届いていません（どこかのタブで Claude を動かすと出ます）'; return; }
+  [['5時間', rl.five_hour], ['1週間', rl.seven_day]].forEach(([label, v]) => {
+    if (!v) return;
+    const p = Math.round(v.used_percentage);
+    const m = el('div', 'm', usageEl);
+    el('span', '', m).textContent = label;
+    el('i', '', el('span', 'bar', m)).style.cssText = 'width:' + Math.min(100, p) + '%;background:' + (p >= CTX_HOT ? '#D9534F' : p >= CTX_WARN ? '#E3B341' : '#7FB2FF');
+    el('span', 'pct', m).textContent = p + '%';
+    if (v.resets_at) el('span', 'sub', m).textContent = resetIn(v.resets_at);
+  });
+}
+
+function buildWall(roomW) {
+  const wall = el('div', 'abs wall scenery', room);
+  el('div', 'abs top', wall); el('div', 'abs base', wall);
+  [64].forEach(x => { const w = el('div', 'abs win', wall, { left: x + 'px' }); el('i', '', w); el('i', '', w); });
+  svg(wall, SHELF, '', { left: (roomW - 178) + 'px', top: '72px' });
+  clockEl = el('div', 'abs clock', room);
+  boardEl = el('div', 'abs board', room, { left: Math.max(680, roomW - 760) + 'px' });
+  usageEl = el('div', 'abs usage', room);
+  drawUsage();
+}
+
+function buildCell(parent, m, x, y) {
+  const cell = el('div', 'abs cell', parent, { left: x + 'px', top: y + 'px' });
+  const look = LOOKS[hash(m.name) % LOOKS.length];
+  if (m.state === 'busy' || m.state === 'turn') el('div', 'abs lamp', cell);
+  if (m.state !== 'gone') svg(cell, CHAIR, 'scenery', { left: '46px', top: '40px', zIndex: 1 });
+  svg(cell, deskSvg(m.state === 'busy'), 'scenery', { left: '27px', top: '62px', zIndex: 3 });
+
+  let bubble = null;
+  if (m.state !== 'gone') bubble = el('div', 'bubble ' + m.state, cell);
+  if (m.state === 'turn') el('div', 'bang', cell).textContent = '!';
+
+  const tag = el('div', 'tag ' + m.state, cell);
+  el('i', '', tag).style.background = `var(--${m.state})`;
+  // 「島の頭@係名」なら、島に座っているので名札は係名だけにする（カードとボードは名前全体）
+  const at = m.island.id !== OTHER.id ? m.name.indexOf('@') : -1;
+  const short = at > 0 && m.name.slice(at + 1) ? m.name.slice(at + 1) : m.name;
+  el('span', '', tag).textContent = m.state === 'gone' ? short + '（閉じた）' : short;
+  tag.title = m.name;
+
+  let btn;
+  if (m.state === 'gone') {
+    btn = el('button', 'crew chair', cell);
+    btn.innerHTML = CHAIR;
+    btn.setAttribute('aria-label', m.name + '（閉じた）のカードを開く');
+  } else if (m.state === 'sleep') {
+    btn = el('button', 'crew sleeper', cell);
+    btn.innerHTML = sleepSvg(look);
+    btn.setAttribute('aria-label', m.name + ' のカードを開く');
+    const zz = el('div', 'abs zz', cell);
+    ['z', 'Z', 'Z'].forEach(t => { el('span', '', zz).textContent = t; });
+  } else {
+    btn = el('button', 'crew stand' + (m.state === 'turn' ? ' hop' : ''), cell);
+    btn.innerHTML = standSvg(look, m.state === 'turn');
+    btn.setAttribute('aria-label', m.name + ' のカードを開く');
+  }
+  btn.type = 'button';
+  btn.addEventListener('click', () => select(m.key));
+  if (m.key === selectedKey) btn.classList.add('sel');
+  let gauge = null, gpct = null;
+  if (m.state !== 'gone') {
+    gauge = el('i', '', el('div', 'gauge', cell));
+    gpct = el('span', 'gpct', cell);
+  }
+  refs.set(m.key, { bubble, btn, gauge, gpct });
+}
+
+function islandHeight(n) { return n ? 58 + Math.ceil(n / PER_ROW) * CELL_H + 8 : EMPTY_H; }
+
+// 島の並べ方：画面の幅に入るだけ列を作り、いちばん短い列に順に積む（誰もいない島は低くする）
+function roomWidth(z) { return Math.max(ISLAND_W * 2 + 50, Math.floor(window.innerWidth / z)); }
+function plan(list, roomW) {
+  const cols = Math.max(1, Math.floor((roomW - 6) / (ISLAND_W + 12)));
+  const colY = Array(cols).fill(WALL + 24);
+  const out = [...ISLANDS, { add: true }].map(isl => {
+    const members = isl.add ? [] : list.filter(m => m.island === isl).sort((a, b) => RANK[a.state] - RANK[b.state] || a.name.localeCompare(b.name));
+    const h = islandHeight(members.length);
+    let c = 0;
+    for (let k = 1; k < cols; k++) if (colY[k] < colY[c]) c = k;
+    const p = { isl, members, x: 18 + c * (ISLAND_W + 12), y: colY[c], h };
+    colY[c] += h + GAP;
+    return p;
+  });
+  return { out, height: Math.max(...colY) - GAP + 110 }; // 下はカードの分だけ空ける
+}
+
+// 大きさ：手で選んだ倍率（zoom）か、「全体」なら全部の島が1画面に入るいちばん大きい倍率。どちらもこのブラウザに覚える
+function load(k, d) { try { const v = localStorage.getItem(k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } }
+function save(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+let zoom = load('office.zoom', 1), fitAll = load('office.fit', false), curZ = 1;
+function chooseZoom(list) {
+  if (!fitAll) return zoom;
+  for (let z = 1; z > ZMIN; z = Math.round((z - 0.05) * 100) / 100) {
+    if (plan(list, roomWidth(z)).height * z <= window.innerHeight) return z;
+  }
+  return ZMIN;
+}
+
+// ---- はじめの案内（島と係）。島に名前付きで座っている人がいなくて、まだ「わかった」を押していないときだけ出す ----
+function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]); }
+function showOnboarding(list) {
+  return !load('office.onboarded', false) && !list.some(m => m.island.id !== OTHER.id && m.state !== 'gone');
+}
+function miniSvg(hair, shirt, hop) {
+  return `<svg ${hop ? 'class="hop" ' : ''}width="34" height="48" viewBox="0 0 17 24" shape-rendering="crispEdges" aria-hidden="true"><rect x="1" y="2" width="14" height="9" fill="${O}"/><rect x="2" y="2" width="12" height="9" fill="#F6CFAE"/><rect x="2" y="2" width="12" height="2" fill="${hair}"/><rect x="5" y="6" width="1" height="2" fill="${O}"/><rect x="10" y="6" width="1" height="2" fill="${O}"/><rect x="3" y="12" width="10" height="8" fill="${O}"/><rect x="4" y="12" width="8" height="7" fill="${shirt}"/></svg>`;
+}
+function buildOnboarding(roomW, islandsBottom) {
+  // 例の島：作った島があれば最初の島、なければ「アプリ開発（app）」
+  const first = ISLANDS.find(i => i.id !== OTHER.id);
+  const ex = first ? { id: first.prefixes[0] || first.id, name: first.label, color: first.color, rug: first.rug, edge: first.edge }
+                   : { id: 'app', name: 'アプリ開発', color: '#4C7FD6', rug: '#AFC0E6', edge: '#7E92C4' };
+  const id = esc(ex.id), w = Math.min(1300, roomW - 80), top = islandsBottom + 16; // 島の下に置く（人を隠さない）
+  const roles = [['review', 'レビュー係：PR を見る', '#2B1D14', '#E9874E', '#F2A93B'], ['api', 'API 係：サーバーを作る', '#6B3E26', '#5C8EDB', '#4C8DF6'], ['docs', '説明書係：README を書く', '#D69A45', '#A781D0', '#4C8DF6']];
+  // 「claude -n」「app」「@」「review」の幅から、線と説明の位置を決める（等幅 30px ＝ 1文字 18px）
+  const cw = 18, gap = 12, x1 = 9 * cw + gap, w1 = ex.id.length * cw + 8, x2 = x1 + w1 + gap + cw + gap;
+  const box = el('section', 'onb', room, { left: Math.round((roomW - w) / 2) + 'px', top: top + 'px', width: w + 'px' });
+  box.setAttribute('aria-label', 'はじめかた');
+  box.innerHTML = `
+<h2>はじめかた：島と係<small>Claude Code を起動するときに付ける名前で、座る場所と名札が決まります</small></h2>
+<div class="two">
+  <div class="concept"><div class="rugmini" style="background:${ex.rug};border-color:${ex.edge}"></div><div><h3><b class="h">島</b> ＝ プロジェクト</h3><p>部署の机の島のようなもの。作っているアプリ、ブログ、調べものなど、仕事のまとまりごとに1つ作ります。</p></div></div>
+  <div class="concept"><div class="tagmini"><i></i>review</div><div><h3><b class="r">係</b> ＝ その Claude に任せる役割</h3><p>1つの島に何人でも座れます。「レビュー係」「API 係」のように、セッションごとに役割の名前を付けます。名札に出ます。</p></div></div>
+</div>
+<div class="lower">
+  <div>
+    <div class="cap">名前の付け方</div>
+    <div class="anat">
+      <div class="cmd"><span>claude -n</span><b class="h" style="border-color:#7FB2FF">${id}</b><span>@</span><b class="r" style="border-color:#FFD27A">review</b></div>
+      <div class="ln" style="left:${x1 + w1 / 2 - 2}px;background:#7FB2FF"></div>
+      <div class="ln" style="left:${x2 + 58 - 2}px;background:#FFD27A"></div>
+      <div class="lbl" style="left:${Math.max(0, x1 + w1 / 2 - 70)}px;border-color:#7FB2FF"><b class="h">島の頭</b><br>どの島に座るか</div>
+      <div class="lbl" style="left:${Math.max(x1 + w1 / 2 + 100, x2 - 20)}px;border-color:#FFD27A"><b class="r">係名</b><br>名札に出る役割（自由）</div>
+    </div>
+    <div class="note">島の頭は、島を作るときに決めた短い英字です。@ の後ろは日本語でもかまいません（例：${id}@レビュー）。</div>
+  </div>
+  <div>
+    <div class="cap">たとえば、${esc(ex.name)}に3人の Claude を置くと</div>
+    <div class="ex">
+      <div class="isle" style="background:${ex.rug};border-color:${ex.edge}">
+        <div class="sg"><i style="background:${ex.color}"></i>${esc(ex.name)} 3人</div>
+        ${roles.map((r, i) => `<div class="mini" style="left:${6 + i * 98}px">${miniSvg(r[2], r[3], i === 0)}<div class="dk"></div><div class="mtag"><i style="background:${r[4]}"></i>${r[0]}</div></div>`).join('')}
+      </div>
+      <div class="cmds">${roles.map(r => `<div><code>claude -n <b class="h">${id}</b>@<b class="r">${r[0]}</b></code><small>${r[1]}</small></div>`).join('')}</div>
+    </div>
+  </div>
+</div>
+<div class="foot">
+  <div class="st"><i style="background:#7FB2FF">1</i>島を作る（頭は ${id}）</div>
+  <div class="st"><i style="background:#FFD27A">2</i>claude -n ${id}@review で起動</div>
+  <div class="st"><i style="background:#A6D3B4">3</i>数秒で島に座る</div>
+  <div class="btns"><button type="button" class="go">島を作る</button><button type="button" class="ok">わかった</button></div>
+</div>
+<div class="after">もう動いているセッションは、そのタブで <code>/rename ${id}@review</code> と打つと島に移ります。</div>`;
+  box.querySelector('.go').addEventListener('click', () => openIsland(null));
+  box.querySelector('.ok').addEventListener('click', () => { save('office.onboarded', true); relayout(); });
+  return top + box.offsetHeight;
+}
+let fresh = null; // 作ったばかりの島（しばらく縁を光らせる）
+
+function build(list) {
+  curZ = chooseZoom(list);
+  const roomW = roomWidth(curZ);
+  const P = plan(list, roomW);
+  room.replaceChildren();
+  refs.clear();
+  room.style.width = roomW + 'px';
+  const floor = el('div', 'abs floor scenery', room, { top: WALL + 'px' });
+  buildWall(roomW);
+  const onb = showOnboarding(list);
+  for (const { isl, members, x, y, h } of P.out) {
+    if (isl.add) {
+      const b = el('button', 'abs addisle' + (onb ? ' glow' : ''), room, { left: x + 'px', top: (y + 18) + 'px', width: ISLAND_W + 'px', height: (h - 18) + 'px' });
+      b.type = 'button';
+      b.textContent = '＋ 島を作る';
+      b.addEventListener('click', () => openIsland(null));
+      continue;
+    }
+    el('div', 'abs rug scenery' + (fresh && fresh.id === isl.id && Date.now() < fresh.until ? ' fresh' : ''), room, {
+      left: x + 'px', top: (y + 18) + 'px', width: ISLAND_W + 'px', height: (h - 18) + 'px',
+      backgroundColor: isl.rug, borderColor: isl.edge,
+      backgroundImage: `radial-gradient(${isl.edge}55 3px, transparent 3px)`, backgroundSize: '24px 24px',
+      boxShadow: `inset 0 0 0 6px ${isl.rug}, inset 0 0 0 9px ${isl.edge}`
+    });
+    const box = el('div', 'abs', room, { left: x + 'px', top: y + 'px', width: ISLAND_W + 'px', height: h + 'px' });
+    const sign = el(isl.id === OTHER.id ? 'div' : 'button', 'abs sign' + (isl.id === OTHER.id ? '' : ' btn'), box, { left: '14px', top: '0' });
+    if (isl.id !== OTHER.id) {
+      sign.type = 'button';
+      sign.title = '押すと名前と色を直せます';
+      sign.addEventListener('click', () => openIsland(isl.id));
+    }
+    el('b', '', sign).style.background = isl.color;
+    sign.append(isl.label);
+    el('small', '', sign).textContent = members.filter(m => m.state !== 'gone').length + '人';
+    if (!members.length) { el('div', 'abs empty', box, { left: '24px', top: '58px' }).textContent = 'いまはだれもいません'; continue; }
+    members.forEach((m, i) => buildCell(box, m, 6 + (i % PER_ROW) * CELL_W, 50 + Math.floor(i / PER_ROW) * CELL_H));
+  }
+  svg(room, PLANT, 'scenery', { left: '2px', top: (WALL - 40) + 'px', zIndex: 6 });
+  svg(room, PLANT, 'scenery', { left: (roomW - 52) + 'px', top: (P.height - 180) + 'px', zIndex: 6 });
+  roomH = P.height;
+  if (onb) roomH = buildOnboarding(roomW, P.height - 110) + 110;
+  floor.style.height = (roomH - WALL) + 'px';
+  room.style.height = roomH + 'px';
+  fit();
+}
+
+function update(list, now) {
+  for (const m of list) {
+    const r = refs.get(m.key);
+    if (!r || !r.bubble) continue;
+    let text = '';
+    const used = m.ctx ? Math.round(m.ctx.used) : null;
+    const hot = used !== null && used >= CTX_HOT;
+    if (m.state === 'busy') text = '作業中 ' + dur(now - m.since);
+    else if (m.state === 'turn') text = m.status === 'waiting' ? '確認待ち ' + ago(now - m.since) : ago(now - m.since) + '・' + (hot ? '' : (m.line || '返事があります'));
+    else if (m.state === 'sleep') text = '放置 ' + dur(now - m.since);
+    if (hot) text += (m.state === 'turn' ? '' : '・') + 'ctx ' + used + '% そろそろ /compact';
+    r.bubble.textContent = text;
+    r.gauge.style.width = (used ?? 0) + '%';
+    r.gauge.style.background = ctxColor(used);
+    r.gpct.textContent = used === null ? '—' : used + '%';
+    r.gpct.classList.toggle('hot', hot);
+  }
+
+  // ホワイトボード：待たせている長い順。放置は下に薄く
+  const turn = list.filter(m => m.state === 'turn').sort((a, b) => a.since - b.since);
+  const sleep = list.filter(m => m.state === 'sleep').sort((a, b) => a.since - b.since);
+  boardEl.replaceChildren();
+  el('h2', '', boardEl).textContent = 'あなたの番 ' + turn.length;
+  const rows = [...turn, ...sleep];
+  if (!rows.length) el('div', 'none', boardEl).textContent = 'いまはだれも待っていません';
+  const max = 5;
+  rows.slice(0, max).forEach(m => {
+    const row = el('div', 'row' + (m.state === 'sleep' ? ' dim' : ''), boardEl);
+    el('span', 'dot', row).style.background = m.island.color;
+    el('span', '', row).textContent = m.name;
+    el('span', '', row).textContent = m.status === 'waiting' ? '確認待ち（' + (m.waiting || '許可') + '）' : (m.line || '');
+    const late = m.state === 'turn' && now - m.since >= LATE_MIN * 60e3;
+    el('span', 'ago' + (late ? ' late' : ''), row).textContent = ago(now - m.since);
+  });
+  if (rows.length > max) el('div', 'none', boardEl).textContent = 'ほか ' + (rows.length - max) + ' 人';
+
+  const d = new Date(now);
+  clockEl.textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+  document.getElementById('strip').classList.toggle('on', turn.length > 0);
+  const busy = list.filter(m => m.state === 'busy').length;
+  document.title = (turn.length ? `(${turn.length}) ` : '') + `Claude オフィス・作業中 ${busy}`;
+}
+
+let lastMembers = [];
+function render(members, now) {
+  lastMembers = members;
+  const list = members.map(m => ({ ...m, state: stateOf(m, now), island: islandOf(m.name) }));
+  const sig = islandsSig + JSON.stringify(list.map(m => [m.key, m.name, m.state]));
+  if (sig !== lastSig) { build(list); lastSig = sig; }
+  update(list, now);
+  lastList = list;
+  if (selectedKey) fillCard(now);
+}
+
+function fit() {
+  room.style.transform = `scale(${curZ})`;
+  stage.style.height = Math.ceil(roomH * curZ) + 'px';
+  document.querySelector('#zoom span').textContent = Math.round(curZ * 100) + '%';
+  document.querySelector('#zoom [data-z=fit]').setAttribute('aria-pressed', String(fitAll));
+}
+function relayout() { lastSig = ''; render(lastMembers, Date.now()); }
+document.getElementById('zoom').addEventListener('click', e => {
+  const z = e.target.closest('button')?.dataset.z;
+  if (!z) return;
+  if (z === 'fit') fitAll = !fitAll;
+  else { fitAll = false; zoom = Math.min(ZMAX, Math.max(ZMIN, Math.round((curZ + (z === '+' ? 0.1 : -0.1)) * 10) / 10)); save('office.zoom', zoom); }
+  save('office.fit', fitAll);
+  relayout();
+});
+
+let toastTimer = 0;
+function copyText(text, msg) {
+  const done = () => {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+  };
+  navigator.clipboard.writeText(text).then(done, done);
+}
+
+// キャラを押すと下にカードを出す。中身は読み直すたびに新しくする
+const STATE_LABEL = { busy: '作業中', turn: 'あなたの番', sleep: '放置', gone: '閉じた' };
+let selectedKey = '', lastList = [];
+const card = document.getElementById('card');
+function select(key) {
+  selectedKey = selectedKey === key ? '' : key;
+  document.querySelectorAll('.crew.sel').forEach(b => b.classList.remove('sel'));
+  refs.get(selectedKey)?.btn?.classList.add('sel');
+  fillCard(Date.now());
+}
+function fillCard(now) {
+  const m = lastList.find(x => x.key === selectedKey);
+  if (!m) { selectedKey = ''; if (card.dataset.mode === 'person') card.classList.remove('open'); return; }
+  card.dataset.mode = 'person';
+  card.querySelector('.meta b').style.background = m.island.color;
+  const label = m.status === 'waiting' ? '確認待ち（' + (m.waiting || '許可') + '）' : STATE_LABEL[m.state];
+  const when = m.state === 'busy' ? '始めて ' + dur(now - m.since) : ago(now - m.since);
+  card.querySelector('.where').textContent = m.island.label + '・' + label + '・' + when;
+  card.querySelector('.name').textContent = m.name;
+  const c = m.ctx;
+  card.querySelector('.cwd').textContent = (m.cwd || m.dir || '') + (c ? '・コンテキスト ' + Math.round(c.used) + '%（' + tok(c.tokens) + ' / ' + tok(c.size) + '）' : m.state === 'gone' ? '' : '・コンテキスト —（話しかけると出ます）');
+  card.querySelector('.text').textContent = m.excerpt || '';
+  const hint = card.querySelector('.hint');
+  const btn = card.querySelector('.primary');
+  hint.replaceChildren();
+  hint.classList.remove('box');
+  const code = t => { const c = document.createElement('code'); c.textContent = t; return c; };
+  card.querySelector('.leave').hidden = m.state !== 'gone';
+  if (m.state === 'gone') {
+    const cmd = 'claude --resume ' + shq(m.key) + ' -n ' + shq(m.name);
+    hint.append('閉じています。続けるならターミナルの新しいタブで ', code(cmd));
+    btn.textContent = '再開のコマンドをコピー';
+    btn.onclick = () => copyText(cmd, '再開のコマンドをコピーしました。ターミナルの新しいタブに貼ってください');
+  } else {
+    if (m.status === 'waiting') hint.append('タブで確認の返事を待っています。許可するかを選んでください');
+    if (m.island.id === OTHER.id) {
+      // どの島にも入っていない人：島ごとの /rename を並べ、押すとコピー
+      hint.classList.add('box');
+      if (m.status === 'waiting') hint.replaceChildren();
+      el('strong', '', hint).textContent = 'この人はどの島にも入っていません';
+      const p = el('div', '', hint);
+      const chips = el('div', 'chips', hint);
+      if (rawIslands.length) {
+        p.textContent = 'このセッションのタブで、入れたい島のコマンドを打つと移ります（@ の後ろは名札に出る係名。自由に付けてください）';
+        rawIslands.forEach(is => {
+          const b = el('button', 'chip', chips); b.type = 'button';
+          el('i', '', b).style.background = is.hex;
+          el('code', '', b).innerHTML = `/rename <b class="h">${esc(is.prefixes[0] || is.id)}</b>@<b class="r">係名</b>`;
+          el('small', '', b).textContent = is.name;
+          b.addEventListener('click', () => copyText('/rename ' + (is.prefixes[0] || is.id) + '@', '/rename ' + (is.prefixes[0] || is.id) + '@ をコピーしました。タブに貼って、続けて係名を打ってください'));
+        });
+      } else {
+        p.textContent = 'まず島を作ってから、このセッションのタブで /rename 島の頭@係名 と打つと移ります';
+        const b = el('button', 'chip', chips); b.type = 'button'; b.textContent = '＋ 島を作る';
+        b.addEventListener('click', () => openIsland(null));
+      }
+    }
+    btn.textContent = '係名をコピー';
+    btn.onclick = () => copyText(m.name, m.name + ' をコピーしました。ターミナルでこの名前のタブを開いてください');
+  }
+  card.classList.add('open');
+}
+card.querySelector('.close').addEventListener('click', () => select(selectedKey));
+card.querySelector('.leave').addEventListener('click', async () => {
+  const key = selectedKey;
+  try { await fetch('/api/dismiss?key=' + encodeURIComponent(key), { method: 'POST' }); } catch (e) {}
+  select(key);
+  tick();
+});
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Escape') return;
+  if (card.dataset.mode === 'island') closeIsland();
+  else if (selectedKey) select(selectedKey);
+});
+
+// ---- 島を作る・直す・消す（islands.json に保存する） ----
+const COLORS = [['green', '緑'], ['blue', '青'], ['yellow', '黄'], ['magenta', '紫'], ['cyan', '水色'], ['red', '赤']];
+const HEX = { green: '#3FB36B', blue: '#4C7FD6', yellow: '#E3B341', magenta: '#9B6FC2', cyan: '#3FA7A2', red: '#D9534F' };
+const form = card.querySelector('form.isl');
+const fset = form.querySelector('.colors');
+COLORS.forEach(([v, label]) => {
+  const l = el('label', 'sw', fset);
+  const r = el('input', '', l); r.type = 'radio'; r.name = 'color'; r.value = v;
+  el('i', '', l).style.background = HEX[v];
+  l.append(label);
+});
+let editing = null;
+function idHint() {
+  const id = form.elements.id.value;
+  form.querySelector('.idhint').textContent = 'claude -n ' + (id || 'xxx') + '@係名 で起動した人がこの島に座ります（例：' + (id || 'xxx') + '@review）';
+}
+function openIsland(id) {
+  if (selectedKey) select(selectedKey);
+  editing = id;
+  const is = rawIslands.find(i => i.id === id);
+  form.querySelector('.ttl').textContent = is ? '島を直す：' + is.name : '新しい島';
+  form.elements.name.value = is ? is.name : '';
+  form.elements.id.value = is ? is.prefixes.join('、') : '';
+  form.elements.id.readOnly = !!is;
+  const color = is ? is.color : (COLORS.find(([c]) => !rawIslands.some(i => i.color === c)) || COLORS[0])[0];
+  [...form.elements.color].forEach(r => { r.checked = r.value === color; });
+  form.querySelector('.del').hidden = !is;
+  form.querySelector('[type=submit]').textContent = is ? '保存' : '作る';
+  form.querySelector('.formerr').textContent = '';
+  idHint();
+  card.dataset.mode = 'island';
+  card.classList.add('open');
+  form.elements.name.focus();
+}
+function closeIsland() { editing = null; card.classList.remove('open'); card.dataset.mode = 'person'; }
+async function saveIslands(list, msg, made) {
+  const res = await fetch('/api/islands', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(list) });
+  if (!res.ok) { form.querySelector('.formerr').textContent = (await res.text()).trim(); return; }
+  closeIsland();
+  if (made) showMade(made); else copyToast(msg);
+  tick();
+}
+// 島を作った直後：その島の起動コマンドとコピーを8秒出し、島の縁を光らせる
+let madeTimer = 0;
+function showMade({ id, name }) {
+  const m = document.getElementById('made');
+  m.querySelector('.t').textContent = '「' + name + '」の島を作りました';
+  m.querySelector('code').innerHTML = `claude -n <b class="h">${esc(id)}</b>@<b class="r">係名</b>`;
+  m.querySelector('button').onclick = () => copyText('claude -n ' + id + '@', 'claude -n ' + id + '@ をコピーしました。ターミナルに貼って、続けて係名を打ってください');
+  m.classList.remove('show'); void m.offsetWidth; m.classList.add('show');
+  fresh = { id, until: Date.now() + 8000 };
+  clearTimeout(madeTimer);
+  madeTimer = setTimeout(() => { m.classList.remove('show'); fresh = null; relayout(); }, 8000);
+}
+function copyToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+form.addEventListener('input', () => { form.querySelector('.formerr').textContent = ''; });
+form.elements.id.addEventListener('input', () => {
+  if (!form.elements.id.readOnly) form.elements.id.value = form.elements.id.value.toLowerCase().replace(/[\s_]+/g, '-');
+  idHint();
+});
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const name = form.elements.name.value.trim();
+  const color = form.elements.color.value || rawIslands.find(i => i.id === editing)?.color || 'green';
+  const err = form.querySelector('.formerr');
+  if (!name) { err.textContent = '看板の名前を入れてください'; return; }
+  if (editing) {
+    saveIslands(rawIslands.map(i => i.id === editing ? { ...i, name, color } : i), '「' + name + '」を直しました');
+    return;
+  }
+  const id = form.elements.id.value.trim();
+  if (!/^[a-z0-9][a-z0-9-]*$/.test(id)) { err.textContent = '係名の頭は英小文字・数字・- で入れてください（例：shop）'; return; }
+  const dup = rawIslands.find(i => i.prefixes.includes(id));
+  if (dup) { err.textContent = '「' + id + '」は「' + dup.name + '」の島の頭と同じです'; return; }
+  saveIslands([...rawIslands, { id, name, color }], '', { id, name });
+});
+form.querySelector('.del').addEventListener('click', () => {
+  const is = rawIslands.find(i => i.id === editing);
+  if (!is || !confirm('「' + is.name + '」の島を消します。座っていた人は「その他」に移ります（会話には何も起きません）')) return;
+  saveIslands(rawIslands.filter(i => i.id !== editing), '「' + is.name + '」の島を消しました');
+});
+form.querySelector('.cancel').addEventListener('click', closeIsland);
+
+async function tick() {
+  if (document.hidden) return;
+  try {
+    const [ri, rc, ru] = await Promise.all([fetch('/api/islands', { cache: 'no-store' }), fetch('/api/crew', { cache: 'no-store' }), fetch('/api/usage', { cache: 'no-store' })]);
+    if (ru.ok) { usage = await ru.json(); drawUsage(); }
+    if (!ri.ok) throw new Error(await ri.text());
+    if (!rc.ok) throw new Error(String(rc.status));
+    setIslands(await ri.json());
+    render(await rc.json() || [], Date.now());
+    document.getElementById('err').style.display = 'none';
+  } catch (e) {
+    const err = document.getElementById('err');
+    err.textContent = String(e.message || '').startsWith('islands.json') ? e.message
+      : 'オフィスのサーバーに届きません。ターミナルで claude-office を実行するか、claude-office install で自動起動にしてください。';
+    err.style.display = 'block';
+  }
+}
+
+let resizeTimer = 0;
+window.addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(relayout, 150); });
+document.addEventListener('visibilitychange', tick);
+setInterval(tick, POLL_MS);
+tick();
+</script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+name: ci
+on:
+  push:
+  pull_request:
+
+# 読むだけ（公開後は外の人の PR でも走るので、トークンに書き込みの権限を持たせない）
+permissions:
+  contents: read
+
+jobs:
+  vuln:
+    # Go 本体と標準ライブラリの既知の脆弱性（依存は標準ライブラリだけ）
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
+        with:
+          go-version: stable
+      - run: go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 ./...
+
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        go: ['1.23', 'stable']
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
+        with:
+          go-version: ${{ matrix.go }}
+      - run: go vet ./...
+      - run: go test ./...
+      - name: 見本の画面で起動して、API が返るか確かめる
+        shell: bash
+        run: |
+          exe="./claude-office$(go env GOEXE)"
+          go build -o "$exe" .
+          "$exe" serve -demo -addr 127.0.0.1:7799 &
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:7799/api/islands >/dev/null && break; sleep 1; done
+          curl -sf http://127.0.0.1:7799/ | grep 'Claude オフィス' >/dev/null
+          curl -sf http://127.0.0.1:7799/api/crew | grep 'app@review' >/dev/null
+          curl -sf http://127.0.0.1:7799/api/usage | grep five_hour >/dev/null
+          echo '{"session_id":"ci","session_name":"app@ci","context_window":{"context_window_size":1000,"used_percentage":42}}' | "$exe" statusline | grep '42%' >/dev/null
+      - name: install.sh の書き方
+        if: runner.os != 'Windows'
+        run: sh -n install.sh
+      - name: install.ps1 の書き方
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          $errs = $null
+          [System.Management.Automation.Language.Parser]::ParseFile("$PWD\install.ps1", [ref]$null, [ref]$errs) | Out-Null
+          if ($errs) { $errs; exit 1 }
+
+  install:
+    # clone したあとの ./install.sh を、聞かれる所は全部はいで通し、外すところまで確かめる
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5.6.0
+        with:
+          go-version: stable
+      - name: install.sh
+        run: ./install.sh -y
+      - name: 入ったものを確かめる
+        run: |
+          test -x ~/.local/bin/claude-office
+          grep -q 'claude-office' ~/.claude/settings.json
+          test -f ~/.claude/office/islands.json
+          echo '{"session_id":"ci","session_name":"app@ci","context_window":{"context_window_size":1000,"used_percentage":85}}' | ~/.local/bin/claude-office statusline | grep '/compact' >/dev/null
+          # 自動起動が効いていれば開ける（CI では自動起動が使えないことがあるので、そのときは手で起動して確かめる）
+          curl -sf http://127.0.0.1:7777/api/islands >/dev/null || { ~/.local/bin/claude-office serve & sleep 2; }
+          curl -sf http://127.0.0.1:7777/ | grep 'Claude オフィス' >/dev/null
+      - name: uninstall
+        run: |
+          ./install.sh uninstall
+          test ! -e ~/.local/bin/claude-office
+          ! grep -q 'claude-office' ~/.claude/settings.json

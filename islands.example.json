@@ -1,0 +1,5 @@
+[
+  {"id":"app","name":"アプリ開発","color":"blue"},
+  {"id":"blog","name":"ブログ","color":"green"},
+  {"id":"research","name":"調べもの","color":"yellow"}
+]
