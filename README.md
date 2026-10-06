@@ -1,47 +1,47 @@
 # claude-office
 
-![claude-office：Claude Code のセッションを、ドット絵のオフィスで見る](docs/hero.png)
+![claude-office: watch your Claude Code sessions in a pixel-art office](docs/hero.png)
 
-Claude Code のセッションを、ドット絵のオフィスに並べて見る手元のツールです。
-何本もの Claude を「従業員」のように同時に動かしていて、席を外して戻ったときに「誰が作業中で、誰が自分の返事を待っているか」を一目で知りたい人向けです。
+English | [日本語](README.ja.md)
 
-*A local, read-only dashboard that shows your running Claude Code sessions as pixel-art coworkers in an office. The UI is in Japanese.*
+A local tool that lays out your running Claude Code sessions as pixel-art coworkers in an office.
+It is for people who run many Claude sessions at once, like a small team, and want to see at a glance, when they come back to their desk, who is working and who is waiting on them.
 
-## なぜ作ったか
+The UI is currently in Japanese.
 
-思いついたら、とりあえず `claude` を立ち上げる。気づけばタブが10本。
-どのセッションが何の話をしていて、どれが自分の返事を待っていて、どれがもう重くなっているのか。**コンテキストもタスクの進み具合も、セッションの数だけ散らばっていました。** それを思い出してタブを回ること自体が、効率を落としていました。
+## Why
 
-claude-office は、散らばった状態を1枚のオフィスに並べます。
+An idea comes up, so you start another `claude`. Before you know it there are ten tabs.
+Which session is about what, which one is waiting for your reply, which one is getting heavy? **Context and task progress end up scattered across as many sessions as you have open.** Remembering all that and cycling through tabs was itself slowing me down.
 
-- **考えの状態が見える**：作業中・あなたの番・放置が、キャラの動きで分かる。タブを1つずつ開かずに、どこから手をつけるか決められます。
-- **コンテキストの状態が見える**：セッションごとの使用率がゲージで出る。重くなる前に `/compact` や会話の切り替えができます。
-- **だから、自然とトークンの節約につながる**：膨らんだコンテキストのまま作業を続けない。放置したセッションに気づいて閉じる。同じ説明を別のセッションでやり直さない。ツール自体は Claude を呼ばないので、使うトークンは0です。
+claude-office puts that scattered state into one office.
 
-*Spinning up session after session leaves your context and task state scattered across tabs. claude-office puts every session's state and context usage on one screen, so you stop working in bloated contexts — and naturally spend fewer tokens.*
+- **See what each session is doing**: working, your turn, or idle, shown by how the character moves. Decide where to start without opening every tab.
+- **See context usage**: each session has a usage gauge, so you can `/compact` or start a fresh conversation before it gets heavy.
+- **Spend fewer tokens as a side effect**: you stop working in bloated contexts, notice and close idle sessions, and stop re-explaining the same thing in another session. The tool itself never calls Claude, so it uses zero tokens.
 
-![見本のデータで開いたところ](docs/screenshot.png)
+![Opened with sample data](docs/screenshot.png)
 
-- **見るだけ**：指示はこれまでどおりターミナルで出します。この画面から Claude には何も送りません。
-- **トークンを使わない**：Claude は呼びません。読むのは手元のファイルだけです。
-- **手元だけ**：`127.0.0.1` で待ち受けます。外へは何も送りません。
-- **外部ライブラリなし**：Go の標準ライブラリだけで、実行ファイル1つです。
+- **Read-only**: you keep giving instructions in the terminal. This screen sends nothing to Claude.
+- **No tokens**: it never calls Claude. It only reads local files.
+- **Local only**: it listens on `127.0.0.1` and sends nothing out.
+- **No dependencies**: Go standard library only, a single binary.
 
-## できること
+## Features
 
 | | |
 |---|---|
-| 4つの状態 | 作業中（机でタイピング）／あなたの番（返事が来たか、許可などの確認待ち。手を挙げて跳ねる）／放置（返事から30分たった。居眠り）／閉じた（空いた椅子。1時間で消える） |
-| 島 | 係名の頭で、座る島（事業やプロジェクト）が決まる。島は画面から作る・直す・消す |
-| ホワイトボード | 「あなたの番」の人を、待たせている長い順に。10分を超えたらオレンジ |
-| カード | キャラを押すと、作業フォルダ・最後の返事の頭・係名のコピー。閉じた人なら再開のコマンド |
-| コンテキスト | 名札の下に使用率のゲージ（60% で黄、80% で赤と「そろそろ /compact」） |
-| 使用量 | 上の壁に、5時間・1週間の枠の使用率とリセットまでの時間 |
-| その他 | 拡大縮小と「全体」（全部の島を1画面に）、ダークモードで部屋が暗くなる、ブラウザのタブに待ち人数 |
+| Four states | Working (typing at the desk) / Your turn (a reply arrived, or it is waiting for a permission prompt; raises a hand and bounces) / Idle (30 minutes since the last reply; dozing off) / Closed (an empty chair; disappears after an hour) |
+| Islands | The prefix of a session name decides which island (business or project) it sits at. Create, edit, and delete islands from the screen |
+| Whiteboard | Sessions on "your turn", longest-waiting first. Orange after 10 minutes |
+| Card | Click a character to see its working directory, the start of its last reply, and a button to copy its name. For closed sessions, the command to resume |
+| Context | A usage gauge under each name tag (yellow at 60%, red at 80% with a "time to /compact" hint) |
+| Usage | On the top wall, usage of the 5-hour and weekly limits and time until reset |
+| Other | Zoom, plus "全体" (fit all islands on one screen); the room goes dark in dark mode; the browser tab shows how many are waiting |
 
-## 入れ方
+## Install
 
-**macOS・Linux**
+**macOS / Linux**
 
 ```sh
 git clone https://github.com/jose-sugisawa/claude-office.git
@@ -49,83 +49,81 @@ cd claude-office
 ./install.sh
 ```
 
-**Windows（PowerShell）**
+**Windows (PowerShell)**
 
 ```powershell
 git clone https://github.com/jose-sugisawa/claude-office.git
 cd claude-office
-.\install.ps1      # 止められたら powershell -ExecutionPolicy Bypass -File .\install.ps1
+.\install.ps1      # if blocked: powershell -ExecutionPolicy Bypass -File .\install.ps1
 ```
 
-`install` が順にやること（途中で聞かれるのは2か所だけ。全部はいでよければ `-y`／`-Yes`）：
+What `install` does, in order (it asks only twice; pass `-y` / `-Yes` to answer yes to everything):
 
-1. 実行ファイルを置く（`~/.local/bin/claude-office`。Windows は `%LOCALAPPDATA%\claude-office`）。Go が入っていればこのフォルダからビルドし、なければ [リリース](https://github.com/jose-sugisawa/claude-office/releases) から取ってくる
-2. ログイン時に自動で起動するようにして、いま起動する（macOS は launchd、Linux は systemd --user、Windows はスタートアップフォルダ）
-3. Claude Code のステータスラインに登録する（**聞かれます**。`~/.claude/settings.json` に `statusLine` を1項目足し、元の設定は `settings.json.bak` に残す。すでに別のステータスラインがあれば、置き換えるかもう一度聞く。置き換えた元のものは取っておき、uninstall で戻す。聞けないとき（パイプなど）は、`-y` が無ければ「いいえ」で進む）
-4. 実行ファイルの場所が PATH に無ければ足すか聞いて、ブラウザで http://127.0.0.1:7777 を開く
+1. Places the binary (`~/.local/bin/claude-office`; on Windows `%LOCALAPPDATA%\claude-office`). Builds from this folder if Go is installed, otherwise downloads it from [Releases](https://github.com/jose-sugisawa/claude-office/releases)
+2. Sets it to start at login and starts it now (launchd on macOS, systemd --user on Linux, the Startup folder on Windows)
+3. Registers it as the Claude Code status line (**asks first**. Adds one `statusLine` entry to `~/.claude/settings.json` and keeps the original as `settings.json.bak`. If you already have a different status line, it asks again before replacing it. The replaced one is kept and restored on uninstall. If it cannot ask, e.g. when piped, it answers "no" unless `-y` is given)
+4. Offers to add the binary's folder to PATH if it is missing, then opens http://127.0.0.1:7777 in your browser
 
-外すとき：`./install.sh uninstall`（Windows は `.\install.ps1 -Uninstall`）。島の一覧などは `~/.claude/office/` に残すので、要らなければ消してください。
+To remove: `./install.sh uninstall` (on Windows `.\install.ps1 -Uninstall`). Your island list and other data stay in `~/.claude/office/`; delete it if you no longer need it.
 
-**ほかの入れ方**
+**Other ways to install**
 
-- Go 1.23 以上があれば `go install github.com/jose-sugisawa/claude-office@latest` のあと、`claude-office install` と `claude-office statusline install`
-- 自動起動を使わないなら、`claude-office` を実行しているあいだだけ開ける
-- Claude Code なしで見た目だけ確かめるなら `claude-office serve -demo`
-- ポートを変えるなら `CLAUDE_OFFICE_ADDR=127.0.0.1:8787 ./install.sh`
+- With Go 1.23 or later: `go install github.com/jose-sugisawa/claude-office@latest`, then `claude-office install` and `claude-office statusline install`
+- Without autostart, the office is available only while `claude-office` is running
+- To check the look without Claude Code: `claude-office serve -demo`
+- To change the port: `CLAUDE_OFFICE_ADDR=127.0.0.1:8787 ./install.sh`
 
-## 使い方
+## Usage
 
-**係名を付けて起動する**
+**Start sessions with a name**
 
 ```sh
-claude -n app@review       # 「app」の島に、名札「review」で座る
+claude -n app@review       # sits at the "app" island with the name tag "review"
 claude -n blog@draft
 ```
 
-- `@` の前が島の頭、後ろが係名です。`app-review` のように `-` でつないでもその島に座ります。大文字小文字は区別しません。
-- 名前を付け忘れたら、そのセッションで `/rename app@review` と打てば島に移ります。
-- どの島にも当てはまらない名前は「その他」に座ります。
-- 名前に空白・`!`・`*`・`#` などを使うと、シェルが別の意味に取ります。`-` `_` `@` `.` と日本語は大丈夫です。
+- The part before `@` is the island prefix, the part after is the role name. Joining with `-`, as in `app-review`, also seats it at that island. Case-insensitive.
+- Forgot to name it? Type `/rename app@review` in that session and it moves to the island.
+- Names that match no island sit at "その他" (Other).
+- Spaces, `!`, `*`, `#` and the like in names mean something else to the shell. `-` `_` `@` `.` and Japanese are fine.
 
-**島を作る**：島の並びの最後の「＋ 島を作る」から、看板の名前・係名の頭・色を選びます。色はターミナルのタブ色とそろえると探しやすくなります。島の看板を押すと、名前と色を直したり、島を消したりできます。
+**Create islands**: use "＋ 島を作る" (create island) at the end of the island row and choose the sign name, the name prefix, and a color. Matching the color to your terminal tab color makes sessions easier to find. Click an island's sign to rename it, change its color, or delete it.
 
-**戻り方**：キャラを押して「係名をコピー」し、その名前のターミナルのタブを開きます（ブラウザから特定のタブへ直接は飛べません）。
+**Getting back to a session**: click the character, copy its name, and open the terminal tab with that name (a browser cannot jump straight to a specific terminal tab).
 
-## 動く環境
+## Supported environments
 
-| | サーバー・画面 | 自動起動 | 確かめたこと |
+| | Server & UI | Autostart | Tested |
 |---|---|---|---|
-| macOS | ○ | launchd | 実機で毎日使っている |
-| Linux | ○ | systemd --user | CI（GitHub Actions）でテストと起動。install.sh で入れて外すところまで |
-| Windows | ○ | スタートアップフォルダ | CI（GitHub Actions）でテストと起動。**install.ps1 と自動起動は実機で試していません** |
+| macOS | ○ | launchd | Used daily on real hardware |
+| Linux | ○ | systemd --user | CI (GitHub Actions): tests and startup, plus install and uninstall with install.sh |
+| Windows | ○ | Startup folder | CI (GitHub Actions): tests and startup. **install.ps1 and autostart are untested on real hardware** |
 
-Claude Code 2.1.29x で確かめています。
+Tested with Claude Code 2.1.29x.
 
-## しくみと注意
+## How it works and caveats
 
-- 動いているセッションは `~/.claude/sessions/<pid>.json`（状態・名前・作業フォルダ）から、最後の返事は会話ログ（`~/.claude/projects/*/<セッションID>.jsonl`）の末尾から読みます。**どちらも Claude Code が公開している仕様ではありません。** Claude Code の更新で読めなくなることがあります。
-- コンテキストと使用量は、ステータスラインに Claude Code が渡す `context_window.used_percentage` と `rate_limits` をそのまま使います。数字が出るのは、登録のあとにそのセッションの画面が一度動いてからです。
-- `CLAUDE_CONFIG_DIR` を設定していれば、`~/.claude` の代わりにそこを読みます。
-- 島の書き換えと「退出させる」は、この画面（`127.0.0.1`・`localhost`・`[::1]` の同じポート）からだけ受け付けます。ほかのサイトから手元のポートへ送られた書き換えは断ります。
-- 読み取りも、`127.0.0.1`・`localhost`・`[::1]` の名前で開かれたときだけ答えます（ほかのサイトが自分の名前を 127.0.0.1 に向け直して、会話の抜粋を読むのを防ぐため）。
-- `-addr` は手元のアドレスだけ受け付けます。`0.0.0.0` や LAN の IP で待ち受けるには `-allow-remote` が要ります。パスワードは無いので、同じネットワークの誰でも会話の抜粋を見られます。自動起動（`install`）は手元だけです。
-- 画面には会話の最後の返事の頭が出ます。画面を人に見せるときは気をつけてください。
-- Anthropic の公式ツールではありません。
+- Running sessions are read from `~/.claude/sessions/<pid>.json` (state, name, working directory), and the last reply from the tail of the conversation log (`~/.claude/projects/*/<session id>.jsonl`). **Neither is a published Claude Code spec.** A Claude Code update may break reading them.
+- Context and usage come straight from `context_window.used_percentage` and `rate_limits`, which Claude Code passes to the status line. The numbers appear once that session's screen has redrawn at least once after registration.
+- If `CLAUDE_CONFIG_DIR` is set, it is read instead of `~/.claude`.
+- Editing islands and "退出させる" (dismiss) are accepted only from this screen (`127.0.0.1`, `localhost`, or `[::1]` on the same port). Writes sent to your local port from other sites are refused.
+- Reads are answered only when the page is opened as `127.0.0.1`, `localhost`, or `[::1]` (this stops another site from pointing its own hostname at 127.0.0.1 to read conversation excerpts).
+- `-addr` accepts local addresses only. Listening on `0.0.0.0` or a LAN IP requires `-allow-remote`. There is no password, so anyone on the same network can see conversation excerpts. Autostart (`install`) is local only.
+- The screen shows the start of each session's last reply. Be careful when showing your screen to others.
+- This is not an official Anthropic tool.
 
-## 開発
+## Development
 
 ```sh
 go test ./...
-go run . serve -dev .     # index.html をディスクから毎回読む（書き換えて再読み込みするだけで反映）
-go run . serve -demo      # 見本のデータで
+go run . serve -dev .     # reads index.html from disk on every request (edit and reload)
+go run . serve -demo      # with sample data
 ```
 
-## 不具合・要望について
+## Issues and requests
 
-個人で使うために作ったツールなので、プルリクエストはお受けしていません。不具合や「こう動かない」は Issue でお知らせください（すぐには直せないことがあります）。改造して使いたい場合は、fork してご自由にどうぞ。
+This is a tool I built for my own use, so pull requests are not accepted. Please report bugs or "it doesn't work like this" in Issues (fixes may take a while). If you want to modify it, feel free to fork.
 
-*This is a personal tool. Pull requests are not accepted; please open an issue for bugs. Feel free to fork.*
-
-## ライセンス
+## License
 
 MIT
