@@ -1,0 +1,44 @@
+name: ci-all-os
+# macOS・Windows の実機で確かめる。分数を食う（macOS は 10 倍・Windows は 2 倍）ので手で回すだけ。
+# 自動起動やパスなど OS ごとに違う所を触ったときと、リリースのタグを打つ前に Actions の画面から回す。
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: stable
+      - run: go test ./...
+      - name: 見本の画面で起動して、API が返るか確かめる
+        shell: bash
+        run: |
+          exe="./claude-office$(go env GOEXE)"
+          go build -o "$exe" .
+          "$exe" serve -demo -addr 127.0.0.1:7799 &
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:7799/api/islands >/dev/null && break; sleep 1; done
+          curl -sf http://127.0.0.1:7799/ | grep 'Claude オフィス' >/dev/null
+          curl -sf http://127.0.0.1:7799/api/crew | grep 'app@review' >/dev/null
+          echo '{"session_id":"ci","session_name":"app@ci","context_window":{"context_window_size":1000,"used_percentage":42}}' | "$exe" statusline | grep '42%' >/dev/null
+      - name: install.sh（macOS）
+        if: runner.os == 'macOS'
+        run: |
+          ./install.sh -y
+          test -x ~/.local/bin/claude-office
+          curl -sf http://127.0.0.1:7777/api/islands >/dev/null || { ~/.local/bin/claude-office serve & sleep 2; }
+          curl -sf http://127.0.0.1:7777/ | grep 'Claude オフィス' >/dev/null
+          ./install.sh uninstall
+          test ! -e ~/.local/bin/claude-office

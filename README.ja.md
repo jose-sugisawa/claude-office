@@ -95,7 +95,7 @@ claude -n blog@draft
 |---|---|---|---|
 | macOS | ○ | launchd | 実機で毎日使っている |
 | Linux | ○ | systemd --user | CI（GitHub Actions）でテストと起動。install.sh で入れて外すところまで |
-| Windows | ○ | スタートアップフォルダ | CI（GitHub Actions）でテストと起動。**install.ps1 と自動起動は実機で試していません** |
+| Windows | ○ | スタートアップフォルダ | CI（GitHub Actions・手で回す ci-all-os）でテストと起動。**install.ps1 と自動起動は実機で試していません** |
 
 Claude Code 2.1.29x で確かめています。
 

@@ -1,16 +1,27 @@
 name: ci
+# 非公開のあいだは Actions の分数に上限がある（macOS は 10 倍・Windows は 2 倍で数えられる）。
+# ふだんは ubuntu の 1 ジョブだけ。macOS・Windows で実際に動かすのは ci-all-os を手で回す。
 on:
+  # ブランチへの push と PR で同じものが 2 回走らないよう、push は main だけ
   push:
+    branches: [main]
+    paths-ignore: ['**.md', 'docs/**', 'LICENSE', '.github/dependabot.yml']
   pull_request:
+    paths-ignore: ['**.md', 'docs/**', 'LICENSE', '.github/dependabot.yml']
+
+# 同じ PR に続けて push したら、古い方は止める（main は止めない。どのコミットで壊れたか分からなくなるので）
+concurrency:
+  group: ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 # 読むだけ（公開後は外の人の PR でも走るので、トークンに書き込みの権限を持たせない）
 permissions:
   contents: read
 
 jobs:
-  vuln:
-    # Go 本体と標準ライブラリの既知の脆弱性（依存は標準ライブラリだけ）
+  check:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -18,62 +29,33 @@ jobs:
       - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
         with:
           go-version: stable
-      - run: go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 ./...
-
-  test:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        go: ['1.23', 'stable']
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with:
-          go-version: ${{ matrix.go }}
       - run: go vet ./...
+      - name: macOS・Windows 向けにも通るか（実機は使わず、組み立てと vet だけ）
+        run: |
+          for os in darwin windows; do GOOS=$os go vet ./...; done
+      - name: go.mod に書いた最低の版（1.23）で組み立てられるか（vet ならテストのファイルも組み立てる）
+        run: GOTOOLCHAIN=go1.23.0 go vet ./...
       - run: go test ./...
       - name: 見本の画面で起動して、API が返るか確かめる
-        shell: bash
         run: |
-          exe="./claude-office$(go env GOEXE)"
-          go build -o "$exe" .
-          "$exe" serve -demo -addr 127.0.0.1:7799 &
+          go build -o ./claude-office .
+          ./claude-office serve -demo -addr 127.0.0.1:7799 &
           for i in $(seq 1 30); do curl -sf http://127.0.0.1:7799/api/islands >/dev/null && break; sleep 1; done
           curl -sf http://127.0.0.1:7799/ | grep 'Claude オフィス' >/dev/null
           curl -sf http://127.0.0.1:7799/api/crew | grep 'app@review' >/dev/null
           curl -sf http://127.0.0.1:7799/api/usage | grep five_hour >/dev/null
-          echo '{"session_id":"ci","session_name":"app@ci","context_window":{"context_window_size":1000,"used_percentage":42}}' | "$exe" statusline | grep '42%' >/dev/null
-      - name: install.sh の書き方
-        if: runner.os != 'Windows'
-        run: sh -n install.sh
-      - name: install.ps1 の書き方
-        if: runner.os == 'Windows'
+          echo '{"session_id":"ci","session_name":"app@ci","context_window":{"context_window_size":1000,"used_percentage":42}}' | ./claude-office statusline | grep '42%' >/dev/null
+      - name: install.ps1 の書き方（ubuntu にも pwsh が入っている）
         shell: pwsh
         run: |
           $errs = $null
-          [System.Management.Automation.Language.Parser]::ParseFile("$PWD\install.ps1", [ref]$null, [ref]$errs) | Out-Null
+          [System.Management.Automation.Language.Parser]::ParseFile("$PWD/install.ps1", [ref]$null, [ref]$errs) | Out-Null
           if ($errs) { $errs; exit 1 }
-
-  install:
-    # clone したあとの ./install.sh を、聞かれる所は全部はいで通し、外すところまで確かめる
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-latest, macos-latest]
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
-        with:
-          go-version: stable
+      # clone したあとの ./install.sh を、聞かれる所は全部はいで通し、外すところまで確かめる
       - name: install.sh
-        run: ./install.sh -y
+        run: |
+          sh -n install.sh
+          ./install.sh -y
       - name: 入ったものを確かめる
         run: |
           test -x ~/.local/bin/claude-office
@@ -88,3 +70,5 @@ jobs:
           ./install.sh uninstall
           test ! -e ~/.local/bin/claude-office
           ! grep -q 'claude-office' ~/.claude/settings.json
+      # Go 本体と標準ライブラリの既知の脆弱性（依存は標準ライブラリだけ）
+      - run: go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 ./...

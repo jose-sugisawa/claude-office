@@ -1,11 +1,18 @@
 # Actions は SHA で固定しているので、新しい版は Dependabot の PR で上げる
+# PR ごとに CI が走るので、種類ごとに 1 本にまとめる
 version: 2
 updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
+    groups:
+      actions:
+        patterns: ['*']
   - package-ecosystem: gomod
     directory: /
     schedule:
       interval: monthly
+    groups:
+      gomod:
+        patterns: ['*']
