@@ -588,12 +588,16 @@ function drawDaily() {
     span.innerHTML = a && a.ms >= 60e3 ? CLOCK_ICON + '今日 ' + esc(hm(a.ms)) : '';
   }
   if (!dailyEl) return;
-  dailyEl.replaceChildren();
   // 黒板ぜんたいを押せるように、中身の上に透明なボタンを重ねる（中身はボタンの外なので読み上げられる）
-  const open = el('button', 'open', dailyEl);
-  open.type = 'button';
-  open.setAttribute('aria-label', '今日の日報を大きく開く');
-  open.addEventListener('click', openDay);
+  // 3秒ごとに描き直すので、ボタンは作り直さない（作り直すと Tab で当てたフォーカスが外れる）
+  let open = dailyEl.querySelector(':scope > .open');
+  if (!open) {
+    open = el('button', 'open', dailyEl);
+    open.type = 'button';
+    open.setAttribute('aria-label', '今日の日報を大きく開く');
+    open.addEventListener('click', openDay);
+  }
+  for (const c of [...dailyEl.children]) if (c !== open) c.remove();
   const hd = el('div', 'hd', dailyEl);
   el('h2', '', hd).textContent = '今日の日報';
   el('small', '', hd).textContent = dateLabel(today ? today.now : Date.now()) + (st && st.first !== Infinity ? ' ' + hhmm(st.first) + '〜' : '');
