@@ -4,6 +4,7 @@
 // 動いていた時間は「指示を出してから、返事が終わる（turn_duration の印）まで」。
 // 印の無い古い記録では次の指示までに Claude が最後に何かした時刻まで。
 // どちらも、あいだに Gap より長く何も起きなかったら（確認の返事待ちなど）、そこで区切る。
+// ただしツールを動かしている途中は ToolGap まで区切らない（確認待ちもツールの途中なので、長く放っておいた分は数えてしまう）。
 package worklog
 
 import (
@@ -20,7 +21,11 @@ import (
 )
 
 // Gap は、1つの指示の中でもこれより長く何も起きなければ、動いていないとみなす長さ。
-const Gap = 30 * time.Minute
+// ツールを動かしている途中（サブエージェント・長いビルドなど）は記録が止まっても働いているので、ToolGap まで待つ。
+const (
+	Gap     = 30 * time.Minute
+	ToolGap = 3 * time.Hour
+)
 
 // Span は動いていた1区間。Name はそのときのセッション名（/rename で島を移ると、そこから変わる）。
 type Span struct {
@@ -50,6 +55,7 @@ type file struct {
 	first  string // 最初に付いた名前（名前を付ける前の区間に使う）
 	spans  []Span
 	cur    *Span
+	tool   bool // ツールを呼んで、まだ結果が返っていない
 }
 
 // Reader は会話の記録を、前に読んだ続きから読む。日付が変わったら読み直す。
@@ -59,10 +65,13 @@ type Reader struct {
 	mu    sync.Mutex
 	from  time.Time
 	files map[string]*file
+	seen  map[string]bool // 読んだ行の uuid（--fork-session などで別のファイルに写された行を二度数えない）
 }
 
 // NewReader は root（~/.claude）の会話の記録を読む Reader を作る。
-func NewReader(root string) *Reader { return &Reader{root: root, files: map[string]*file{}} }
+func NewReader(root string) *Reader {
+	return &Reader{root: root, files: map[string]*file{}, seen: map[string]bool{}}
+}
 
 // Today は、今日（手元の時刻の0時から now まで）動いていたセッションの区間を返す。
 func (r *Reader) Today(now time.Time) Day {
@@ -71,7 +80,7 @@ func (r *Reader) Today(now time.Time) Day {
 
 	from := time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, now.Location())
 	if !from.Equal(r.from) {
-		r.from, r.files = from, map[string]*file{}
+		r.from, r.files, r.seen = from, map[string]*file{}, map[string]bool{}
 	}
 	paths, _ := filepath.Glob(filepath.Join(r.root, "projects", "*", "*.jsonl"))
 	day := Day{From: from.UnixMilli(), Now: now.UnixMilli(), Sessions: []Session{}}
@@ -86,7 +95,7 @@ func (r *Reader) Today(now time.Time) Day {
 			r.files[p] = f
 		}
 		if st.Size() > f.offset {
-			f.read(p, from.UnixMilli())
+			f.read(p, from, r.seen)
 		}
 		if spans := f.result(now.UnixMilli()); len(spans) > 0 {
 			day.Sessions = append(day.Sessions, Session{Key: strings.TrimSuffix(filepath.Base(p), ".jsonl"), Spans: spans})
@@ -97,7 +106,7 @@ func (r *Reader) Today(now time.Time) Day {
 }
 
 // read は offset から読み、終わりまで書かれた行だけを使う（書きかけの最後の行は次に読む）。
-func (f *file) read(path string, from int64) {
+func (f *file) read(path string, from time.Time, seen map[string]bool) {
 	fh, err := os.Open(path)
 	if err != nil {
 		return
@@ -107,33 +116,43 @@ func (f *file) read(path string, from int64) {
 		return
 	}
 	br := bufio.NewReaderSize(fh, 1<<20)
+	fromISO := []byte(from.UTC().Format("2006-01-02T15:04:05.000Z"))
 	for {
 		line, err := br.ReadBytes('\n')
 		if err != nil { // 改行で終わっていない行は書きかけ
 			return
 		}
 		f.offset += int64(len(line))
-		f.add(line, from)
+		f.add(line, from.UnixMilli(), fromISO, seen)
 	}
 }
 
 type entry struct {
 	Type        string    `json:"type"`
 	Subtype     string    `json:"subtype"`
+	UUID        string    `json:"uuid"`
 	Timestamp   time.Time `json:"timestamp"`
 	IsMeta      bool      `json:"isMeta"`
 	IsSidechain bool      `json:"isSidechain"`
 	CustomTitle string    `json:"customTitle"`
-	Message     struct {
+	// /compact のあとに Claude Code が差し込む要約など。人が打った指示ではない
+	IsCompactSummary          bool `json:"isCompactSummary"`
+	IsVisibleInTranscriptOnly bool `json:"isVisibleInTranscriptOnly"`
+	Message                   struct {
 		Content json.RawMessage `json:"content"`
 	} `json:"message"`
 }
 
 // add は1行を区間に足す。
-func (f *file) add(line []byte, from int64) {
-	if !bytes.Contains(line, []byte(`"type":"user"`)) && !bytes.Contains(line, []byte(`"type":"assistant"`)) &&
-		!bytes.Contains(line, []byte(`"type":"custom-title"`)) && !bytes.Contains(line, []byte(`"turn_duration"`)) {
+func (f *file) add(line []byte, from int64, fromISO []byte, seen map[string]bool) {
+	title := bytes.Contains(line, []byte(`"type":"custom-title"`))
+	if !title && !bytes.Contains(line, []byte(`"type":"user"`)) && !bytes.Contains(line, []byte(`"type":"assistant"`)) &&
+		!bytes.Contains(line, []byte(`"turn_duration"`)) {
 		return // 速くするため、使わない行は JSON として読まない
+	}
+	// 0時より前の行も JSON として読まない（時刻は同じ書き方の UTC なので、文字列のまま比べられる）
+	if i := bytes.Index(line, []byte(`"timestamp":"`)); !title && i >= 0 && len(line) >= i+13+len(fromISO) && bytes.Compare(line[i+13:i+13+len(fromISO)], fromISO) < 0 {
+		return
 	}
 	var e entry
 	if json.Unmarshal(line, &e) != nil {
@@ -141,10 +160,11 @@ func (f *file) add(line []byte, from int64) {
 	}
 	// 返事が終わった印。決まった時刻に動く確認（/loop など）が数分おきに来ても、つなげて数えない
 	if e.Type == "system" && e.Subtype == "turn_duration" {
-		if f.cur != nil && !e.Timestamp.IsZero() && e.Timestamp.UnixMilli() > f.cur.End {
+		if f.cur != nil && !e.Timestamp.IsZero() && e.Timestamp.UnixMilli() > f.cur.End && e.Timestamp.UnixMilli()-f.cur.End <= f.gap() {
 			f.cur.End = e.Timestamp.UnixMilli()
 		}
 		f.close()
+		f.tool = false
 		return
 	}
 	if e.Type == "custom-title" {
@@ -163,11 +183,29 @@ func (f *file) add(line []byte, from int64) {
 	if t < from {
 		return
 	}
+	if e.UUID != "" {
+		if seen[e.UUID] {
+			return
+		}
+		seen[e.UUID] = true
+	}
 	start, prompt := false, false
 	if e.Type == "user" && !e.IsSidechain {
 		start, prompt = kindOf(e.Message.Content)
+		if e.IsCompactSummary || e.IsVisibleInTranscriptOnly {
+			prompt = false
+		}
 	}
-	if start || f.cur == nil || t-f.cur.End > Gap.Milliseconds() {
+	long := f.cur != nil && t-f.cur.End > f.gap()
+	switch {
+	case e.Type == "assistant" && !e.IsSidechain && bytes.Contains(line, []byte(`"type":"tool_use"`)):
+		f.tool = true
+	case e.Type == "user" && !e.IsSidechain && bytes.Contains(line, []byte(`"type":"tool_result"`)):
+		f.tool = false
+	case start:
+		f.tool = false
+	}
+	if start || f.cur == nil || long {
 		f.close()
 		n := 0
 		if prompt {
@@ -179,6 +217,14 @@ func (f *file) add(line []byte, from int64) {
 	if t > f.cur.End {
 		f.cur.End = t
 	}
+}
+
+// gap は、今の区間をつなげてよい長さ（ミリ秒）。
+func (f *file) gap() int64 {
+	if f.tool {
+		return ToolGap.Milliseconds()
+	}
+	return Gap.Milliseconds()
 }
 
 func (f *file) close() {
@@ -242,7 +288,7 @@ func kindOf(raw json.RawMessage) (start, prompt bool) {
 
 func isPrompt(s string) bool {
 	s = strings.TrimSpace(s)
-	for _, p := range []string{"<command-", "<local-command-", "<task-notification", "<system-reminder", "[Request interrupted"} {
+	for _, p := range []string{"<command-", "<local-command-", "<task-notification", "<system-reminder", "<bash-", "<artifact-content", "<user-prompt-submit-hook", "[Request interrupted"} {
 		if strings.HasPrefix(s, p) {
 			return false
 		}

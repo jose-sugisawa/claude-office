@@ -157,3 +157,54 @@ func TestKindOf(t *testing.T) {
 		}
 	}
 }
+
+func spansOf(t *testing.T, root string, now time.Time) []Span {
+	t.Helper()
+	var out []Span
+	for _, s := range NewReader(root).Today(now).Sessions {
+		out = append(out, s.Spans...)
+	}
+	return out
+}
+
+// サブエージェントや長いビルドで記録が30分以上止まっても、ツールの途中なら働いている
+func TestTodayLongToolCall(t *testing.T) {
+	root := t.TempDir()
+	writeLog(t, root, "t1", title("app@build"), user(at(10, 0), "ビルドして"),
+		fmt.Sprintf(`{"type":"assistant","timestamp":%q,"message":{"content":[{"type":"tool_use","name":"Agent"}]}}`, at(10, 1)),
+		toolResult(at(10, 46)), assistant(at(10, 50)))
+	s := spansOf(t, root, day.Add(12*time.Hour))
+	if len(s) != 1 || s[0].End-s[0].Start != 50*60e3 {
+		t.Fatalf("spans = %+v", s)
+	}
+}
+
+// 最後の返事のあと長く放っておいて、返事が終わった印が遅れて来ても、その間は数えない
+func TestTodayTurnEndAfterIdle(t *testing.T) {
+	root := t.TempDir()
+	writeLog(t, root, "t2", title("app@x"), user(at(10, 0), "見て"), assistant(at(10, 5)),
+		fmt.Sprintf(`{"type":"system","subtype":"turn_duration","timestamp":%q}`, at(11, 30)))
+	if s := spansOf(t, root, day.Add(12*time.Hour)); len(s) != 1 || s[0].End-s[0].Start != 5*60e3 {
+		t.Fatalf("spans = %+v", s)
+	}
+}
+
+// /compact の要約は指示に数えない。--fork-session で写された行は二度数えない
+func TestTodayCompactAndFork(t *testing.T) {
+	root := t.TempDir()
+	withID := func(line, id string) string { return strings.Replace(line, "{", fmt.Sprintf(`{"uuid":%q,`, id), 1) }
+	morning := []string{withID(user(at(9, 0), "朝の指示"), "u1"), withID(assistant(at(9, 10)), "a1")}
+	writeLog(t, root, "orig", append([]string{title("app@a")}, morning...)...)
+	writeLog(t, root, "fork", append(append([]string{title("app@a")}, morning...),
+		fmt.Sprintf(`{"uuid":"c1","type":"user","isCompactSummary":true,"isVisibleInTranscriptOnly":true,"timestamp":%q,"message":{"content":"This session is being continued"}}`, at(13, 0)),
+		withID(assistant(at(13, 5)), "a2"))...)
+	var ms int64
+	prompts := 0
+	for _, sp := range spansOf(t, root, day.Add(14*time.Hour)) {
+		ms += sp.End - sp.Start
+		prompts += sp.Prompts
+	}
+	if ms != 15*60e3 || prompts != 1 {
+		t.Fatalf("合計 %d 分・指示 %d 回, want 15 分・1 回", ms/60e3, prompts)
+	}
+}

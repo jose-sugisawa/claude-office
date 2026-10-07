@@ -29,10 +29,7 @@ body{margin:0;background:var(--night);font-family:-apple-system,BlinkMacSystemFo
 .wall{left:0;top:0;width:100%;height:228px;background-color:var(--wall);background-image:repeating-linear-gradient(90deg,rgba(150,120,80,.06) 0 6px,transparent 6px 24px)}
 .wall .top{left:0;top:0;width:100%;height:18px;background:var(--wood);border-bottom:3px solid #C9A47E}
 .wall .base{left:0;top:210px;width:100%;height:18px;background:#D2AE86;border-top:3px solid #E2C29C}
-.win{top:44px;width:204px;height:110px;background:var(--wood);padding:6px;box-sizing:border-box;display:grid;grid-template-columns:1fr 1fr;gap:6px;box-shadow:0 6px 0 var(--woodDark)}
-.win i{background:#BFE8FA;position:relative}
-.win i:first-child::after{content:'';position:absolute;left:18px;top:26px;width:36px;height:9px;background:#fff;box-shadow:9px -9px 0 -0px #fff}
-.clock{left:290px;top:62px;width:72px;height:72px;border-radius:50%;background:var(--paper);border:6px solid var(--wood);box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700}
+.clock{top:62px;width:72px;height:72px;border-radius:50%;background:var(--paper);border:6px solid var(--wood);box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700}
 .rug{box-sizing:border-box;border:6px solid}
 .sign{display:flex;align-items:center;gap:8px;padding:4px 12px;background:#F6EBD3;border:3px solid var(--ink);box-shadow:0 3px 0 var(--ink);font-size:15px;font-weight:700;z-index:7;white-space:nowrap}
 .sign b{width:11px;height:11px;border-radius:50%;border:2px solid var(--ink);display:inline-block}
@@ -272,9 +269,10 @@ code b.r,.onb b.r{color:#FFD27A}
 #move .formerr:empty{display:none}
 #move .acts{display:flex;justify-content:flex-end;gap:10px}
 /* 今日の日報（壁の黒板。押すと大きく開く） */
-.daily{left:24px;top:22px;width:340px;height:186px;box-sizing:border-box;padding:8px 14px 10px;background:#FFF8E7;border:6px solid var(--wood);box-shadow:0 6px 0 var(--woodDark);display:flex;flex-direction:column;gap:5px;font:inherit;color:var(--ink);text-align:left;cursor:pointer;overflow:hidden}
+.daily{left:24px;position:absolute;top:22px;width:340px;height:186px;box-sizing:border-box;padding:8px 14px 10px;background:#FFF8E7;border:6px solid var(--wood);box-shadow:0 6px 0 var(--woodDark);display:flex;flex-direction:column;gap:5px;font:inherit;color:var(--ink);text-align:left;cursor:pointer;overflow:hidden}
 .daily:hover{background:#FFFDF5}
-.daily:focus-visible{outline:4px solid #FFD27A;outline-offset:4px}
+.daily .open{position:absolute;inset:0;z-index:2;width:100%;height:100%;border:0;padding:0;background:transparent;cursor:pointer}
+.daily .open:focus-visible{outline:4px solid #FFD27A;outline-offset:6px}
 .daily .hd{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
 .daily h2{margin:0;font-size:15px}
 .daily .hd small,.daily .big small{font-size:12px;color:#6B5442;font-weight:400}
@@ -562,7 +560,7 @@ function dayStats() {
   }
   // 帯の左端は、最初に動いた時刻の「時」ちょうど（まだ動いていなければ0時）
   const start = first === Infinity ? today.from : Math.max(today.from, new Date(first).setMinutes(0, 0, 0));
-  return { total, prompts, first, start, end: Math.max(today.now, start + 3600e3),
+  return { total, prompts, first, start, end: Math.max(Date.now(), start + 3600e3),
     islands: [...isl.values()].sort((a, b) => b.ms - a.ms), sessions: sessions.sort((a, b) => b.ms - a.ms) };
 }
 function drawLane(lane, spans, color, a, b, now) {
@@ -591,9 +589,14 @@ function drawDaily() {
   }
   if (!dailyEl) return;
   dailyEl.replaceChildren();
+  // 黒板ぜんたいを押せるように、中身の上に透明なボタンを重ねる（中身はボタンの外なので読み上げられる）
+  const open = el('button', 'open', dailyEl);
+  open.type = 'button';
+  open.setAttribute('aria-label', '今日の日報を大きく開く');
+  open.addEventListener('click', openDay);
   const hd = el('div', 'hd', dailyEl);
   el('h2', '', hd).textContent = '今日の日報';
-  el('small', '', hd).textContent = dateLabel(Date.now()) + (st && st.first !== Infinity ? ' ' + hhmm(st.first) + '〜' : '');
+  el('small', '', hd).textContent = dateLabel(today ? today.now : Date.now()) + (st && st.first !== Infinity ? ' ' + hhmm(st.first) + '〜' : '');
   if (!st) { el('div', 'none', dailyEl).textContent = '読み込んでいます…'; return; }
   if (!st.total && !st.prompts) { el('div', 'none', dailyEl).textContent = 'まだだれも動いていません。指示を出すと、ここに今日の時間が積み上がります'; return; }
   const big = el('div', 'big', dailyEl);
@@ -619,7 +622,7 @@ function drawDaily() {
 const dayEl = document.getElementById('day');
 function drawDay() {
   const st = dayStats(), box = dayEl.querySelector('.box');
-  box.querySelector('.date').textContent = dateLabel(Date.now()) + (st && st.first !== Infinity ? '　' + hhmm(st.first) + '〜' + hhmm(Date.now()) : '');
+  box.querySelector('.date').textContent = dateLabel(today ? today.now : Date.now()) + (st && st.first !== Infinity ? '　' + hhmm(st.first) + '〜' + hhmm(Date.now()) : '');
   box.querySelector('.n').textContent = st ? hm(st.total) : '—';
   box.querySelector('.sub').textContent = st ? '指示 ' + st.prompts + '回・セッション ' + st.sessions.filter(x => x.ms > 0 || x.prompts > 0).length + 'つ' : '';
   const top = box.querySelector('.top'), lanes = box.querySelector('.lanes'), who = box.querySelector('.who');
@@ -632,7 +635,7 @@ function drawDay() {
     const nm = el('div', 'nm', lanes);
     el('i', '', nm).style.background = a.isl.color;
     el('span', '', nm).textContent = a.isl.label;
-    drawLane(el('div', 'lane', lanes), a.spans, a.isl.color, st.start, st.end, Date.now());
+    drawLane(el('div', 'lane', lanes), a.spans, a.isl.color, st.start, st.end, st.end);
     el('div', 't', lanes).textContent = hm(a.ms);
   }
   el('div', '', lanes);
@@ -645,7 +648,7 @@ function drawDay() {
   }
 }
 function openDay() { if (selectedKey) select(selectedKey); drawDay(); dayEl.hidden = false; dayEl.querySelector('.close').focus(); }
-function closeDay() { dayEl.hidden = true; dailyEl?.focus(); }
+function closeDay() { dayEl.hidden = true; dailyEl?.querySelector('.open')?.focus(); }
 dayEl.querySelector('.close').addEventListener('click', closeDay);
 dayEl.addEventListener('click', e => { if (e.target === dayEl) closeDay(); });
 // カードの「今日」：このセッションの時間・指示・全体のうちの割合と、1日の帯
@@ -669,12 +672,12 @@ function buildWall(roomW) {
   const wall = el('div', 'abs wall scenery', room);
   el('div', 'abs top', wall); el('div', 'abs base', wall);
   // 左は今日の日報（前は窓）、右端は時計（前は本棚）
-  dailyEl = el('button', 'abs daily', room);
-  dailyEl.type = 'button';
-  dailyEl.setAttribute('aria-label', '今日の日報を大きく開く');
-  dailyEl.addEventListener('click', openDay);
+  dailyEl = el('section', 'abs daily', room);
+  dailyEl.setAttribute('aria-label', '今日の日報');
   drawDaily();
+  // 時計はホワイトボードの右に入るときだけ（狭い画面ではボードの下に隠れるので出さない）
   clockEl = el('div', 'abs clock', room, { left: (roomW - 110) + 'px' });
+  if (roomW - 110 < Math.max(680, roomW - 760) + 560 + 10) clockEl.style.display = 'none';
   boardEl = el('div', 'abs board', room, { left: Math.max(680, roomW - 760) + 'px' });
   usageEl = el('div', 'abs usage', room);
   drawUsage();
@@ -1314,14 +1317,22 @@ moveEl.querySelector('.copy').addEventListener('click', copyMove);
 moveEl.querySelector('.cancel').addEventListener('click', cancelMove);
 moveEl.addEventListener('click', e => { if (e.target === moveEl) cancelMove(); });
 
+// 今日の日報は別に読む（最初の1回は会話の記録を全部読むので時間がかかる。そのあいだも部屋は動かす）
+let todayBusy = false;
+async function loadToday() {
+  if (todayBusy) return;
+  todayBusy = true; todayAt = Date.now();
+  try {
+    const r = await fetch('/api/today', { cache: 'no-store' });
+    if (r.ok) { today = await r.json(); drawDaily(); if (selectedKey) fillCard(Date.now()); }
+  } catch (e) {} finally { todayBusy = false; }
+}
 async function tick() {
   if (document.hidden) return;
   try {
-    const wantDay = Date.now() - todayAt >= DAY_MS;
-    const [ri, rc, ru, rt] = await Promise.all([fetch('/api/islands', { cache: 'no-store' }), fetch('/api/crew', { cache: 'no-store' }), fetch('/api/usage', { cache: 'no-store' }),
-      wantDay ? fetch('/api/today', { cache: 'no-store' }) : null]);
+    if (Date.now() - todayAt >= DAY_MS) loadToday();
+    const [ri, rc, ru] = await Promise.all([fetch('/api/islands', { cache: 'no-store' }), fetch('/api/crew', { cache: 'no-store' }), fetch('/api/usage', { cache: 'no-store' })]);
     if (ru.ok) { usage = await ru.json(); drawUsage(); }
-    if (rt && rt.ok) { today = await rt.json(); todayAt = Date.now(); }
     if (!ri.ok) throw new Error(await ri.text());
     if (!rc.ok) throw new Error(String(rc.status));
     setIslands(await ri.json());
