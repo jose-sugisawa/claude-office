@@ -29,10 +29,7 @@ body{margin:0;background:var(--night);font-family:-apple-system,BlinkMacSystemFo
 .wall{left:0;top:0;width:100%;height:228px;background-color:var(--wall);background-image:repeating-linear-gradient(90deg,rgba(150,120,80,.06) 0 6px,transparent 6px 24px)}
 .wall .top{left:0;top:0;width:100%;height:18px;background:var(--wood);border-bottom:3px solid #C9A47E}
 .wall .base{left:0;top:210px;width:100%;height:18px;background:#D2AE86;border-top:3px solid #E2C29C}
-.win{top:44px;width:204px;height:110px;background:var(--wood);padding:6px;box-sizing:border-box;display:grid;grid-template-columns:1fr 1fr;gap:6px;box-shadow:0 6px 0 var(--woodDark)}
-.win i{background:#BFE8FA;position:relative}
-.win i:first-child::after{content:'';position:absolute;left:18px;top:26px;width:36px;height:9px;background:#fff;box-shadow:9px -9px 0 -0px #fff}
-.clock{left:290px;top:62px;width:72px;height:72px;border-radius:50%;background:var(--paper);border:6px solid var(--wood);box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700}
+.clock{top:62px;width:72px;height:72px;border-radius:50%;background:var(--paper);border:6px solid var(--wood);box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700}
 .rug{box-sizing:border-box;border:6px solid}
 .sign{display:flex;align-items:center;gap:8px;padding:4px 12px;background:#F6EBD3;border:3px solid var(--ink);box-shadow:0 3px 0 var(--ink);font-size:15px;font-weight:700;z-index:7;white-space:nowrap}
 .sign b{width:11px;height:11px;border-radius:50%;border:2px solid var(--ink);display:inline-block}
@@ -271,6 +268,65 @@ code b.r,.onb b.r{color:#FFD27A}
 #move .formerr{font-size:13px;color:#FF9C8A}
 #move .formerr:empty{display:none}
 #move .acts{display:flex;justify-content:flex-end;gap:10px}
+/* 今日の日報（壁の黒板。押すと大きく開く） */
+.daily{left:24px;position:absolute;top:22px;width:340px;height:186px;box-sizing:border-box;padding:8px 14px 10px;background:#FFF8E7;border:6px solid var(--wood);box-shadow:0 6px 0 var(--woodDark);display:flex;flex-direction:column;gap:5px;font:inherit;color:var(--ink);text-align:left;cursor:pointer;overflow:hidden}
+.daily:hover{background:#FFFDF5}
+.daily .open{position:absolute;inset:0;z-index:2;width:100%;height:100%;border:0;padding:0;background:transparent;cursor:pointer}
+.daily .open:focus-visible{outline:4px solid #FFD27A;outline-offset:6px}
+.daily .hd{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.daily h2{margin:0;font-size:15px}
+.daily .hd small,.daily .big small{font-size:12px;color:#6B5442;font-weight:400}
+.daily .big{display:flex;align-items:baseline;gap:10px}
+.daily .big b{font-size:24px;font-weight:800}
+.daily .r{display:grid;grid-template-columns:10px 76px minmax(0,1fr) 62px;gap:7px;align-items:center;font-size:12px;font-weight:700}
+.daily .r i{width:10px;height:10px;border-radius:50%}
+.daily .r span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.daily .r .bar{height:9px;border-radius:5px;background:rgba(42,30,26,.12)}
+.daily .r .bar u{display:block;height:100%;border-radius:5px}
+.daily .r .t{text-align:right;font-weight:400;color:#4A3A30}
+.daily .none{font-size:13px;color:#6B5442;line-height:1.6}
+.sign .day{display:flex;align-items:center;gap:4px;padding-left:8px;border-left:2px solid rgba(42,30,26,.25);font-size:13px}
+.sign .day:empty{display:none}
+#card .today{display:flex;flex-direction:column;gap:8px;border-top:1px solid var(--night2);padding-top:10px}
+#card .today[hidden]{display:none}
+#card .today .lab{font-size:13px;color:#FFD27A;font-weight:700}
+#card .stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+#card .stats div{background:var(--night2);border-radius:10px;padding:8px 10px}
+#card .stats small{display:block;font-size:11px;color:var(--mute)}
+#card .stats b{font-size:18px}
+.lane{position:relative;height:12px;border-radius:6px;background:var(--night2);overflow:hidden}
+.lane u{position:absolute;top:0;height:100%;min-width:2px}
+.axis{position:relative;height:14px;font-size:11px;color:var(--mute)}
+.axis span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+#day{position:fixed;inset:0;z-index:45;background:rgba(12,14,32,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+#day[hidden]{display:none}
+#day .box{width:min(820px,100%);max-height:calc(100vh - 32px);overflow:auto;box-sizing:border-box;background:#FFF8E7;color:var(--ink);border:6px solid var(--wood);box-shadow:0 10px 0 rgba(0,0,0,.35);padding:20px 24px 22px;display:flex;flex-direction:column;gap:16px}
+#day .hd{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+#day h2{margin:0;font-size:22px}
+#day .hd small{font-size:14px;color:#6B5442}
+#day .sum{display:flex;flex-wrap:wrap;align-items:flex-end;gap:8px 24px}
+#day .sum .n{font-size:44px;font-weight:800;line-height:1.05}
+#day .sum .cap{font-size:13px;color:#6B5442}
+#day .sum .sub{font-size:14px;color:#4A3A30;padding-bottom:6px}
+#day .top{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;background:#EAF0FB;font-size:15px;font-weight:700}
+#day .top:empty{display:none}
+#day h3{margin:0;font-size:14px;color:#6B5442}
+#day .lanes{display:grid;grid-template-columns:minmax(80px,140px) minmax(0,1fr) 84px;gap:8px 12px;align-items:center;font-size:14px;font-weight:700}
+#day .lanes .nm{display:flex;align-items:center;gap:8px;overflow:hidden;white-space:nowrap}
+#day .lanes .nm span{overflow:hidden;text-overflow:ellipsis}
+#day .lanes .nm i{flex:none;width:10px;height:10px;border-radius:50%}
+#day .lanes .t{text-align:right;font-weight:400}
+#day .lane{height:16px;border-radius:4px;background:rgba(42,30,26,.08)}
+#day .lane .now{background:#C2410C;width:2px;min-width:0}
+#day .axis{color:#6B5442}
+#day .who{display:grid;grid-template-columns:minmax(0,1fr) 84px 64px;gap:6px 12px;font-size:14px}
+#day .who span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#day .who .n{text-align:right}
+#day .who .p{text-align:right;color:#6B5442}
+#day .note{font-size:12px;color:#6B5442;line-height:1.6;margin:0}
+#day .acts{display:flex;justify-content:flex-end}
+#day button.close{font:inherit;font-size:14px;font-weight:700;min-height:44px;padding:0 18px;border:0;border-radius:10px;background:var(--night2);color:#F4F1E8;box-shadow:0 4px 0 #171A33;cursor:pointer}
+@media (max-width:600px){#day .lanes{grid-template-columns:80px minmax(0,1fr) 70px}#day .sum .n{font-size:34px}}
 @media (prefers-reduced-motion: reduce){*{animation:none!important}}
 </style>
 </head>
@@ -291,6 +347,17 @@ code b.r,.onb b.r{color:#FFD27A}
   <div class="wait" hidden role="status"><i></i><span></span></div>
   <div class="acts"><button type="button" class="ghostbtn cancel">やめる</button></div>
 </div></div>
+<div id="day" hidden><div class="box" role="dialog" aria-modal="true" aria-labelledby="day-t">
+  <div class="hd"><h2 id="day-t">今日の日報</h2><small class="date"></small></div>
+  <div class="sum"><div><div class="cap">今日、セッションが動いた時間（のべ）</div><div class="n"></div></div><div class="sub"></div></div>
+  <div class="top"></div>
+  <h3>島ごと・1日の流れ</h3>
+  <div class="lanes"></div>
+  <h3>よく動いたセッション</h3>
+  <div class="who"></div>
+  <p class="note">動いた時間は、指示を出してから Claude が返事を終えるまで。同時に動いた分は足すので「のべ」です。会話の記録の時刻から数えるので、トークンは使いません。</p>
+  <div class="acts"><button type="button" class="close">閉じる</button></div>
+</div></div>
 <div id="made" role="status" aria-live="polite"><div class="t"></div><button type="button" class="x" aria-label="閉じる">×</button><div class="s"></div><div class="row"><div class="cmd">claude -n&nbsp;<b class="h"></b>@<input type="text" aria-label="係名" placeholder="係名" autocomplete="off" spellcheck="false"></div><button type="button" class="copy">コピー</button></div><div class="hint"></div><div class="bar"><i></i></div></div>
 <section id="card" aria-label="カード" data-mode="person">
   <div class="person">
@@ -298,6 +365,7 @@ code b.r,.onb b.r{color:#FFD27A}
     <div class="name"></div>
     <div class="cwd"></div>
     <div class="text"></div>
+    <div class="today" hidden><div class="lab">今日</div><div class="stats"></div><div class="lane"></div><div class="axis"></div></div>
     <div class="hint"></div>
     <div class="acts"><button type="button" class="primary"></button><button type="button" class="ghost leave" hidden>退出させる</button><button type="button" class="ghost close">閉じる</button></div>
   </div>
@@ -351,6 +419,7 @@ const RANK = { turn: 0, busy: 1, sleep: 2, gone: 3 };
 const room = document.getElementById('room');
 const stage = document.getElementById('stage');
 let lastSig = '', refs = new Map(), drops = [], boardEl = null, clockEl = null, usageEl = null, usage = null, roomH = 600;
+let dailyEl = null, today = null, todayAt = 0, signDays = new Map();
 
 function el(tag, cls, parent, style) {
   const e = document.createElement(tag);
@@ -436,11 +505,6 @@ const PLANT = `<svg width="48" height="60" viewBox="0 0 16 20" shape-rendering="
 <rect x="5" y="0" width="6" height="13" fill="${O}"/><rect x="1" y="3" width="14" height="10" fill="${O}"/><rect x="6" y="1" width="4" height="11" fill="#4F9A5B"/><rect x="2" y="4" width="5" height="6" fill="#3F7F4A"/>
 <rect x="9" y="4" width="5" height="6" fill="#3F7F4A"/><rect x="4" y="8" width="8" height="4" fill="#4F9A5B"/><rect x="7" y="2" width="1" height="5" fill="#8FD08A"/>
 <rect x="3" y="12" width="10" height="8" fill="${O}"/><rect x="4" y="12" width="8" height="2" fill="#D98057"/><rect x="5" y="14" width="6" height="5" fill="#C0683F"/></svg>`;
-const SHELF = `<svg width="144" height="138" viewBox="0 0 48 46" shape-rendering="crispEdges" aria-hidden="true">
-<rect x="0" y="0" width="48" height="46" fill="${O}"/><rect x="1" y="1" width="46" height="44" fill="#8A5E38"/><rect x="3" y="3" width="42" height="12" fill="#5A3C24"/><rect x="3" y="17" width="42" height="12" fill="#5A3C24"/><rect x="3" y="31" width="42" height="12" fill="#5A3C24"/>
-<rect x="4" y="5" width="3" height="10" fill="#C2533A"/><rect x="7" y="6" width="3" height="9" fill="#4F7CC9"/><rect x="10" y="4" width="2" height="11" fill="#E3B341"/><rect x="12" y="7" width="3" height="8" fill="#5BA37A"/><rect x="30" y="5" width="3" height="10" fill="#F4F1E8"/><rect x="33" y="6" width="3" height="9" fill="#C2533A"/>
-<rect x="4" y="20" width="3" height="9" fill="#E3B341"/><rect x="7" y="19" width="2" height="10" fill="#4F7CC9"/><rect x="20" y="20" width="3" height="9" fill="#5BA37A"/><rect x="23" y="19" width="3" height="10" fill="#C2533A"/><rect x="36" y="18" width="3" height="11" fill="#9B6FC2"/>
-<rect x="5" y="38" width="10" height="5" fill="#B98757"/><rect x="18" y="33" width="3" height="10" fill="#4F7CC9"/><rect x="30" y="36" width="6" height="7" fill="#D9DBE3"/><rect x="38" y="33" width="3" height="10" fill="#5BA37A"/></svg>`;
 // 使用量（Claude Code の rate_limits）。5時間と1週間の枠の使用率と、リセットまでの時間
 function resetIn(sec) {
   const ms = sec * 1000 - Date.now();
@@ -466,12 +530,154 @@ function drawUsage() {
   });
 }
 
+// ---- 今日の日報（/api/today）。区間ごとのセッション名で島に振り分ける（途中で /rename したら、そこから別の島） ----
+const DAY_MS = 30e3; // 読み直す間隔
+const CLOCK_ICON = '<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><circle cx="8" cy="8" r="6.2"/><path d="M8 4.6V8l2.4 1.6"/></svg>';
+const CROWN = '<svg width="22" height="17" viewBox="0 0 18 14" shape-rendering="crispEdges" aria-hidden="true"><path d="M1 3l4 4 4-6 4 6 4-4v10H1z" fill="#F2A93B" stroke="#2A1E1A" stroke-width="1.2"/></svg>';
+function hm(ms) {
+  const m = Math.round(ms / 60e3);
+  if (m < 1) return ms > 0 ? '1分未満' : '0分';
+  return m < 60 ? m + '分' : Math.floor(m / 60) + '時間' + (m % 60 ? (m % 60) + '分' : '');
+}
+function hhmm(t) { const d = new Date(t); return d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0'); }
+function dateLabel(t) { const d = new Date(t); return (d.getMonth() + 1) + '/' + d.getDate() + '（' + '日月火水木金土'[d.getDay()] + '）'; }
+function dayStats() {
+  if (!today) return null;
+  const names = new Map(lastMembers.map(m => [m.key, m.name]));
+  const isl = new Map(), sessions = [];
+  let total = 0, prompts = 0, first = Infinity;
+  for (const s of today.sessions || []) {
+    const now = names.get(s.key) || s.spans[s.spans.length - 1]?.name || '';
+    const x = { key: s.key, name: now || s.key.slice(0, 8), ms: 0, prompts: 0, spans: s.spans };
+    for (const sp of s.spans) {
+      const ms = Math.max(0, sp.end - sp.start), i = islandOf(sp.name || now);
+      const a = isl.get(i.id) || { isl: i, ms: 0, spans: [] };
+      a.ms += ms; a.spans.push(sp); isl.set(i.id, a);
+      x.ms += ms; x.prompts += sp.prompts;
+      total += ms; prompts += sp.prompts; first = Math.min(first, sp.start);
+    }
+    sessions.push(x);
+  }
+  // 帯の左端は、最初に動いた時刻の「時」ちょうど（まだ動いていなければ0時）
+  const start = first === Infinity ? today.from : Math.max(today.from, new Date(first).setMinutes(0, 0, 0));
+  return { total, prompts, first, start, end: Math.max(Date.now(), start + 3600e3),
+    islands: [...isl.values()].sort((a, b) => b.ms - a.ms), sessions: sessions.sort((a, b) => b.ms - a.ms) };
+}
+function drawLane(lane, spans, color, a, b, now) {
+  lane.replaceChildren();
+  for (const sp of spans) {
+    const u = el('u', '', lane);
+    u.style.cssText = `left:${(sp.start - a) / (b - a) * 100}%;width:${(sp.end - sp.start) / (b - a) * 100}%;background:${color}`;
+  }
+  if (now) el('u', 'now', lane).style.left = 'calc(' + (now - a) / (b - a) * 100 + '% - 2px)';
+}
+function drawAxis(axis, a, b) {
+  axis.replaceChildren();
+  const hours = (b - a) / 3600e3, step = Math.max(1, Math.ceil(hours / 4));
+  for (let t = a; t <= b; t += step * 3600e3) {
+    if (b - t < step * 3600e3 * 0.5 && t !== a) break; // 右端の「今」と重なる目盛りは出さない
+    const p = (t - a) / (b - a) * 100;
+    el('span', '', axis, { left: Math.max(4, p) + '%' }).textContent = new Date(t).getHours() + '時';
+  }
+  el('span', '', axis, { left: '96%', fontWeight: 700 }).textContent = '今';
+}
+function drawDaily() {
+  const st = dayStats();
+  for (const [id, span] of signDays) {
+    const a = st && st.islands.find(x => x.isl.id === id);
+    span.innerHTML = a && a.ms >= 60e3 ? CLOCK_ICON + '今日 ' + esc(hm(a.ms)) : '';
+  }
+  if (!dailyEl) return;
+  dailyEl.replaceChildren();
+  // 黒板ぜんたいを押せるように、中身の上に透明なボタンを重ねる（中身はボタンの外なので読み上げられる）
+  const open = el('button', 'open', dailyEl);
+  open.type = 'button';
+  open.setAttribute('aria-label', '今日の日報を大きく開く');
+  open.addEventListener('click', openDay);
+  const hd = el('div', 'hd', dailyEl);
+  el('h2', '', hd).textContent = '今日の日報';
+  el('small', '', hd).textContent = dateLabel(today ? today.now : Date.now()) + (st && st.first !== Infinity ? ' ' + hhmm(st.first) + '〜' : '');
+  if (!st) { el('div', 'none', dailyEl).textContent = '読み込んでいます…'; return; }
+  if (!st.total && !st.prompts) { el('div', 'none', dailyEl).textContent = 'まだだれも動いていません。指示を出すと、ここに今日の時間が積み上がります'; return; }
+  const big = el('div', 'big', dailyEl);
+  el('small', '', big).textContent = 'のべ';
+  el('b', '', big).textContent = hm(st.total);
+  el('small', '', big).textContent = '指示 ' + st.prompts + '回';
+  let rows = st.islands.filter(a => a.ms > 0);
+  if (rows.length > 4) {
+    const rest = rows.slice(3);
+    rows = [...rows.slice(0, 3), { isl: { label: 'ほか ' + rest.length + 'つ', color: '#B9AE9E' }, ms: rest.reduce((n, a) => n + a.ms, 0) }];
+  }
+  const max = Math.max(...rows.map(a => a.ms), 1);
+  for (const a of rows) {
+    const r = el('div', 'r', dailyEl);
+    el('i', '', r).style.background = a.isl.color;
+    el('span', '', r).textContent = a.isl.label;
+    el('u', '', el('span', 'bar', r)).style.cssText = `width:${a.ms / max * 100}%;background:${a.isl.color}`;
+    el('span', 't', r).textContent = hm(a.ms);
+  }
+  if (!dayEl.hidden) drawDay();
+}
+// 押すと大きく開く：合計と、いちばん時間を使った島（ひとこと）・島ごとの1日の流れ（帯）・よく動いたセッション
+const dayEl = document.getElementById('day');
+function drawDay() {
+  const st = dayStats(), box = dayEl.querySelector('.box');
+  box.querySelector('.date').textContent = dateLabel(today ? today.now : Date.now()) + (st && st.first !== Infinity ? '　' + hhmm(st.first) + '〜' + hhmm(Date.now()) : '');
+  box.querySelector('.n').textContent = st ? hm(st.total) : '—';
+  box.querySelector('.sub').textContent = st ? '指示 ' + st.prompts + '回・セッション ' + st.sessions.filter(x => x.ms > 0 || x.prompts > 0).length + 'つ' : '';
+  const top = box.querySelector('.top'), lanes = box.querySelector('.lanes'), who = box.querySelector('.who');
+  top.replaceChildren(); lanes.replaceChildren(); who.replaceChildren();
+  if (!st || !st.total) { lanes.textContent = 'まだだれも動いていません'; return; }
+  const best = st.islands[0];
+  top.innerHTML = CROWN + '<span>いちばん時間を使ったのは <b></b>　' + esc(hm(best.ms)) + '（全体の ' + Math.round(best.ms / st.total * 100) + '%）</span>';
+  top.querySelector('b').textContent = best.isl.label;
+  for (const a of st.islands.filter(a => a.ms > 0)) {
+    const nm = el('div', 'nm', lanes);
+    el('i', '', nm).style.background = a.isl.color;
+    el('span', '', nm).textContent = a.isl.label;
+    drawLane(el('div', 'lane', lanes), a.spans, a.isl.color, st.start, st.end, st.end);
+    el('div', 't', lanes).textContent = hm(a.ms);
+  }
+  el('div', '', lanes);
+  drawAxis(el('div', 'axis', lanes), st.start, st.end);
+  el('div', '', lanes);
+  for (const x of st.sessions.filter(x => x.ms > 0).slice(0, 5)) {
+    el('span', '', who).textContent = x.name;
+    el('span', 'n', who).textContent = hm(x.ms);
+    el('span', 'p', who).textContent = '指示 ' + x.prompts + '回';
+  }
+}
+function openDay() { if (selectedKey) select(selectedKey); drawDay(); dayEl.hidden = false; dayEl.querySelector('.close').focus(); }
+function closeDay() { dayEl.hidden = true; dailyEl?.querySelector('.open')?.focus(); }
+dayEl.querySelector('.close').addEventListener('click', closeDay);
+dayEl.addEventListener('click', e => { if (e.target === dayEl) closeDay(); });
+// カードの「今日」：このセッションの時間・指示・全体のうちの割合と、1日の帯
+function fillCardToday(m) {
+  const box = card.querySelector('.today'), st = dayStats();
+  const x = st && st.sessions.find(s => s.key === m.key);
+  box.hidden = !x || (!x.ms && !x.prompts);
+  if (box.hidden) return;
+  const stats = box.querySelector('.stats');
+  stats.replaceChildren();
+  [['動いた時間', hm(x.ms)], ['指示', x.prompts + '回'], ['今日の全体のうち', (st.total ? Math.round(x.ms / st.total * 100) : 0) + '%']].forEach(([k, v]) => {
+    const d = el('div', '', stats);
+    el('small', '', d).textContent = k;
+    el('b', '', d).textContent = v;
+  });
+  drawLane(box.querySelector('.lane'), x.spans, m.island.color, st.start, st.end);
+  drawAxis(box.querySelector('.axis'), st.start, st.end);
+}
+
 function buildWall(roomW) {
   const wall = el('div', 'abs wall scenery', room);
   el('div', 'abs top', wall); el('div', 'abs base', wall);
-  [64].forEach(x => { const w = el('div', 'abs win', wall, { left: x + 'px' }); el('i', '', w); el('i', '', w); });
-  svg(wall, SHELF, '', { left: (roomW - 178) + 'px', top: '72px' });
-  clockEl = el('div', 'abs clock', room);
+  // 左は今日の日報（前は窓）、右端は時計（前は本棚）
+  dailyEl = el('section', 'abs daily', room);
+  dailyEl.setAttribute('aria-label', '今日の日報');
+  drawDaily();
+  // 時計はホワイトボードの右に入るときだけ（狭い画面ではボードの下に隠れるので出さない）
+  clockEl = el('div', 'abs clock', room, { left: (roomW - 110) + 'px' });
+  if (roomW - 110 < Math.max(680, roomW - 760) + 560 + 10) clockEl.style.display = 'none';
   boardEl = el('div', 'abs board', room, { left: Math.max(680, roomW - 760) + 'px' });
   usageEl = el('div', 'abs usage', room);
   drawUsage();
@@ -622,6 +828,7 @@ function build(list) {
   const P = plan(list, roomW);
   room.replaceChildren();
   refs.clear();
+  signDays.clear();
   drops = [];
   room.style.width = roomW + 'px';
   const floor = el('div', 'abs floor scenery', room, { top: WALL + 'px' });
@@ -653,6 +860,7 @@ function build(list) {
     el('b', '', sign).style.background = isl.color;
     sign.append(isl.label);
     el('small', '', sign).textContent = members.filter(m => m.state !== 'gone').length + '人';
+    signDays.set(isl.id, el('span', 'day', sign));
     if (!members.length) { el('div', 'abs empty', box, { left: '24px', top: '58px' }).textContent = 'いまはだれもいません'; continue; }
     if (isl.id === OTHER.id && members.some(m => m.state !== 'gone')) el('div', 'abs draghint', box, { right: '16px', top: '6px' }).textContent = rawIslands.length ? '島へドラッグで移せます' : '「＋ 島を作る」へドラッグで、島を作って移せます';
     members.forEach((m, i) => buildCell(box, m, 6 + (i % PER_ROW) * CELL_W, 50 + Math.floor(i / PER_ROW) * CELL_H));
@@ -702,6 +910,7 @@ function update(list, now) {
   });
   if (rows.length > max) el('div', 'none', boardEl).textContent = 'ほか ' + (rows.length - max) + ' 人';
 
+  drawDaily();
   const d = new Date(now);
   clockEl.textContent = d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
   document.getElementById('strip').classList.toggle('on', turn.length > 0);
@@ -778,6 +987,7 @@ function fillCard(now) {
   const c = m.ctx;
   card.querySelector('.cwd').textContent = (m.cwd || m.dir || '') + (c ? '・コンテキスト ' + Math.round(c.used) + '%（' + tok(c.tokens) + ' / ' + tok(c.size) + '）' : m.state === 'gone' ? '' : '・コンテキスト —（話しかけると出ます）');
   card.querySelector('.text').textContent = m.excerpt || '';
+  fillCardToday(m);
   const hint = card.querySelector('.hint');
   const btn = card.querySelector('.primary');
   hint.replaceChildren();
@@ -828,6 +1038,7 @@ card.querySelector('.leave').addEventListener('click', async () => {
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
   if (madeEl.contains(document.activeElement)) closeMade();
+  else if (!dayEl.hidden) closeDay();
   else if (drag) cancelDrag();
   else if (mv) cancelMove();
   else if (card.dataset.mode === 'island') closeIsland();
@@ -1106,9 +1317,20 @@ moveEl.querySelector('.copy').addEventListener('click', copyMove);
 moveEl.querySelector('.cancel').addEventListener('click', cancelMove);
 moveEl.addEventListener('click', e => { if (e.target === moveEl) cancelMove(); });
 
+// 今日の日報は別に読む（最初の1回は会話の記録を全部読むので時間がかかる。そのあいだも部屋は動かす）
+let todayBusy = false;
+async function loadToday() {
+  if (todayBusy) return;
+  todayBusy = true; todayAt = Date.now();
+  try {
+    const r = await fetch('/api/today', { cache: 'no-store' });
+    if (r.ok) { today = await r.json(); drawDaily(); if (selectedKey) fillCard(Date.now()); }
+  } catch (e) {} finally { todayBusy = false; }
+}
 async function tick() {
   if (document.hidden) return;
   try {
+    if (Date.now() - todayAt >= DAY_MS) loadToday();
     const [ri, rc, ru] = await Promise.all([fetch('/api/islands', { cache: 'no-store' }), fetch('/api/crew', { cache: 'no-store' }), fetch('/api/usage', { cache: 'no-store' })]);
     if (ru.ok) { usage = await ru.json(); drawUsage(); }
     if (!ri.ok) throw new Error(await ri.text());

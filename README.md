@@ -38,6 +38,7 @@ claude-office puts that scattered state into one office.
 | Card | Click a character to see its working directory, the start of its last reply, and a button to copy its session name. For closed sessions, the command to resume |
 | Context | A usage gauge under each name tag (yellow at 60%, red at 80% with a "time to /compact" hint) |
 | Usage | On the top wall, usage of the 5-hour and weekly limits and time until reset |
+| Today | A "今日の日報" (daily report) board on the wall: total time sessions spent working today, number of prompts, and time per island. Island signs show "今日 2時間10分", and the card shows that session's time with a timeline of when it worked. Click the board for the full day by island and the busiest sessions |
 | Other | Zoom, plus "全体" (fit all islands on one screen); the room goes dark in dark mode; the browser tab shows how many are waiting |
 
 ## Install
@@ -106,6 +107,7 @@ Tested with Claude Code 2.1.29x.
 
 - Running sessions are read from `~/.claude/sessions/<pid>.json` (state, name, working directory), and the last reply from the tail of the conversation log (`~/.claude/projects/*/<session id>.jsonl`). **Neither is a published Claude Code spec.** A Claude Code update may break reading them.
 - Context and usage come straight from `context_window.used_percentage` and `rate_limits`, which Claude Code passes to the status line. The numbers appear once that session's screen has redrawn at least once after registration.
+- Today's time is counted from the timestamps in the conversation logs: from a prompt until Claude finishes replying (the log's `turn_duration` marker). A stretch of more than 30 minutes with nothing happening is not counted; while a tool is running (a subagent, a long build) it waits up to 3 hours, so a permission prompt left unanswered for a long time is counted until it is answered. `/compact` summaries are not counted as prompts, and lines copied into a new file by `--fork-session` are counted once. Time from sessions running at once is added up, so the total can exceed the clock time. A day starts at local midnight. When a session is renamed with `/rename`, time from then on goes to the new island; time before the first name goes to that first name.
 - If `CLAUDE_CONFIG_DIR` is set, it is read instead of `~/.claude`.
 - Editing islands and "退出させる" (dismiss) are accepted only from this screen (`127.0.0.1`, `localhost`, or `[::1]` on the same port). Writes sent to your local port from other sites are refused.
 - Reads are answered only when the page is opened as `127.0.0.1`, `localhost`, or `[::1]` (this stops another site from pointing its own hostname at 127.0.0.1 to read conversation excerpts).
