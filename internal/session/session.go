@@ -1,4 +1,5 @@
-package main
+// Package session は、手元で動いている Claude Code のセッションを ~/.claude から読み、画面に出す1人ずつにする。
+package session
 
 import (
 	"bytes"
@@ -11,41 +12,35 @@ import (
 	"sync"
 	"time"
 	"unicode/utf8"
+
+	"github.com/jose-sugisawa/claude-office/internal/claudehome"
 )
 
 // Member は画面に出す1人（1つの Claude セッション）。
 type Member struct {
-	Key     string `json:"key"`     // sessionId
-	Name    string `json:"name"`    // claude -n で付けた係名（なければ Claude Code が付けた名前）
-	Status  string `json:"status"`  // busy / idle / waiting（許可などの確認待ち）は Claude Code が書いたまま。終了したら gone
-	Since   int64  `json:"since"`   // 今の状態になった時刻（ミリ秒）
-	Line    string `json:"line"`    // 最後の返事の1行目
-	Excerpt string `json:"excerpt"` // 最後の返事の頭の数行（カードに出す）
-	Dir     string `json:"dir"`     // 作業ディレクトリの名前
-	Cwd     string `json:"cwd"`     // 作業ディレクトリ（ホームは ~）
-	Named   bool   `json:"named"`   // claude -n や /rename で名前を付けたか（false は自動の名前）
-	Waiting string `json:"waiting"` // status が waiting のとき、何を待っているか（permission など）
-	Ctx     *Ctx   `json:"ctx"`     // コンテキストの使用率（ステータスラインが書いたもの。まだ無ければ null）
+	Key     string          `json:"key"`     // sessionId
+	Name    string          `json:"name"`    // claude -n で付けた係名（なければ Claude Code が付けた名前）
+	Status  string          `json:"status"`  // busy / idle / waiting（許可などの確認待ち）は Claude Code が書いたまま。終了したら gone
+	Since   int64           `json:"since"`   // 今の状態になった時刻（ミリ秒）
+	Line    string          `json:"line"`    // 最後の返事の1行目
+	Excerpt string          `json:"excerpt"` // 最後の返事の頭の数行（カードに出す）
+	Dir     string          `json:"dir"`     // 作業ディレクトリの名前
+	Cwd     string          `json:"cwd"`     // 作業ディレクトリ（ホームは ~）
+	Named   bool            `json:"named"`   // claude -n や /rename で名前を付けたか（false は自動の名前）
+	Waiting string          `json:"waiting"` // status が waiting のとき、何を待っているか（permission など）
+	Ctx     *claudehome.Ctx `json:"ctx"`     // コンテキストの使用率（ステータスラインが書いたもの。まだ無ければ null）
 }
 
-// Ctx は statusline サブコマンドが <Claude の設定>/office/ctx/<セッションID>.json に書く、コンテキストの使用率。
-// used は Claude Code の context_window.used_percentage そのまま。
-type Ctx struct {
-	Used   float64 `json:"used"`
-	Size   int64   `json:"size"`
-	Tokens int64   `json:"tokens"`
-	At     int64   `json:"at"` // 書いた時刻（秒）
-}
-
-func (w *Watcher) ctxOf(sessionID string) *Ctx {
-	if !safeID.MatchString(sessionID) {
+func (w *Watcher) ctxOf(sessionID string) *claudehome.Ctx {
+	path, ok := claudehome.CtxPath(claudehome.Office(w.root), sessionID)
+	if !ok {
 		return nil
 	}
-	b, err := os.ReadFile(filepath.Join(w.root, "office", "ctx", sessionID+".json"))
+	b, err := os.ReadFile(path)
 	if err != nil {
 		return nil
 	}
-	var c Ctx
+	var c claudehome.Ctx
 	if json.Unmarshal(b, &c) != nil {
 		return nil
 	}
@@ -87,10 +82,12 @@ type Watcher struct {
 	logs map[string]logCache // sessionId ごとの会話ログの読み取り結果
 }
 
+// NewWatcher は root（~/.claude）を読む Watcher を作る。
 func NewWatcher(root string) *Watcher {
 	return &Watcher{root: root, seen: map[string]Member{}, gone: map[string]int64{}, logs: map[string]logCache{}}
 }
 
+// Snapshot は、動いている人と今日いて閉じた人を、名前の順に返す。
 func (w *Watcher) Snapshot(now time.Time) []Member {
 	w.mu.Lock()
 	defer w.mu.Unlock()
@@ -174,7 +171,7 @@ func (w *Watcher) Dismiss(key string) {
 func (w *Watcher) lastReplyOf(sessionID string) (string, string) {
 	c := w.logs[sessionID]
 	if c.path == "" {
-		if !safeID.MatchString(sessionID) { // ファイル名と Glob に使うので、* や ../ を含む ID は読まない
+		if !claudehome.ValidSessionID(sessionID) { // ファイル名と Glob に使うので、* や ../ を含む ID は読まない
 			return "", ""
 		}
 		found, _ := filepath.Glob(filepath.Join(w.root, "projects", "*", sessionID+".jsonl"))

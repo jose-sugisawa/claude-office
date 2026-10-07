@@ -1,10 +1,11 @@
-package main
+// Package server は、オフィスの画面と API（/api/crew・/api/islands・/api/usage・/api/dismiss）を手元に出す。
+// 読むだけの API と、この画面からの書き換えだけを受け付ける（guard・sameOrigin）。
+package server
 
 import (
-	_ "embed"
 	"encoding/json"
-	"flag"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"os"
@@ -12,56 +13,71 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/jose-sugisawa/claude-office/internal/claudehome"
+	"github.com/jose-sugisawa/claude-office/internal/island"
+	"github.com/jose-sugisawa/claude-office/internal/session"
+	"github.com/jose-sugisawa/claude-office/web"
 )
 
-//go:embed index.html
-var embeddedPage []byte
+// Config は serve のフラグで決まる設定。
+type Config struct {
+	Addr        string // 待ち受けるアドレス（手元だけで開く）
+	Home        string // Claude Code の設定ディレクトリ（~/.claude）
+	Islands     string // 島の一覧のファイル（無ければ見本を置く）
+	Dev         string // 開発用：index.html をこのディレクトリから毎回読む
+	Demo        bool   // 見本のデータで動かす（Claude Code のセッションを読まない）
+	AllowRemote bool   // 127.0.0.1・localhost 以外でも待ち受ける
+}
 
-//go:embed islands.example.json
-var exampleIslands []byte
-
-func serve(args []string) error {
-	fs := flag.NewFlagSet("serve", flag.ExitOnError)
-	addr := fs.String("addr", "127.0.0.1:7777", "待ち受けるアドレス（手元だけで開く）")
-	islandsPath := fs.String("islands", filepath.Join(officeDir(), "islands.json"), "島の一覧のファイル（無ければ見本を置く）")
-	dev := fs.String("dev", "", "開発用：index.html をこのディレクトリから毎回読む")
-	demo := fs.Bool("demo", false, "見本のデータで動かす（Claude Code のセッションを読まない）")
-	allowRemote := fs.Bool("allow-remote", false, "127.0.0.1・localhost 以外でも待ち受ける（パスワードは無いので、同じネットワークの誰でも会話の抜粋を見られます）")
-	fs.Parse(args)
-
-	if _, err := checkAddr(*addr); err != nil {
+// Run は cfg を確かめ、島の一覧を用意して、止められるまで待ち受ける。
+func Run(cfg Config, stdout, stderr io.Writer) error {
+	if _, err := CheckAddr(cfg.Addr); err != nil {
 		return err
 	}
-	if !*allowRemote {
-		if err := checkLoopback(*addr); err != nil {
+	if !cfg.AllowRemote {
+		if err := CheckLoopback(cfg.Addr); err != nil {
 			return err
 		}
 	}
 
-	if *demo {
+	if cfg.Demo {
 		dir, err := os.MkdirTemp("", "claude-office-demo")
 		if err != nil {
 			return err
 		}
 		defer os.RemoveAll(dir)
-		*islandsPath = filepath.Join(dir, "islands.json")
-		if err := os.WriteFile(*islandsPath, demoIslands, 0o644); err != nil {
+		cfg.Islands = filepath.Join(dir, claudehome.IslandsFile)
+		if err := os.WriteFile(cfg.Islands, demoIslands, 0o644); err != nil {
 			return err
 		}
-	} else if err := ensureIslands(*islandsPath, exampleIslands); err != nil {
+	} else if err := island.Ensure(cfg.Islands, island.Example); err != nil {
 		return fmt.Errorf("島の一覧を置けません: %w", err)
 	}
 
-	w := NewWatcher(claudeDir())
+	ln, err := net.Listen("tcp", cfg.Addr)
+	if err != nil {
+		return fmt.Errorf("%s で待ち受けられません（もう起動していませんか？）: %w", cfg.Addr, err)
+	}
+	if cfg.AllowRemote {
+		fmt.Fprintf(stderr, "注意: %s で待ち受けます。パスワードは無いので、ここに届く人は誰でも会話の抜粋を見られます。\n", cfg.Addr)
+	}
+	fmt.Fprintf(stdout, "オフィスを開きました: http://%s （止めるときは Ctrl-C）\n", cfg.Addr)
+	srv := &http.Server{Handler: Handler(cfg, session.NewWatcher(cfg.Home)), ReadHeaderTimeout: 5 * time.Second}
+	return srv.Serve(ln)
+}
+
+// Handler は画面と API をまとめ、guard を前に置いたハンドラーを返す。
+func Handler(cfg Config, w *session.Watcher) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
 			http.NotFound(rw, r)
 			return
 		}
-		page := embeddedPage
-		if *dev != "" {
-			page = readOr(filepath.Join(*dev, "index.html"), embeddedPage)
+		page := web.Index
+		if cfg.Dev != "" {
+			page = readOr(filepath.Join(cfg.Dev, "index.html"), web.Index)
 		}
 		rw.Header().Set("Content-Type", "text/html; charset=utf-8")
 		rw.Header().Set("Cache-Control", "no-store")
@@ -69,23 +85,23 @@ func serve(args []string) error {
 	})
 	mux.HandleFunc("/api/islands", func(rw http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
-			if !sameOrigin(r, *addr) {
+			if !sameOrigin(r, cfg.Addr) {
 				http.Error(rw, "このページ以外からの書き換えは受け付けません", http.StatusForbidden)
 				return
 			}
-			var list []Island
+			var list []island.Island
 			if err := json.NewDecoder(http.MaxBytesReader(rw, r.Body, 64<<10)).Decode(&list); err != nil {
 				http.Error(rw, "島の一覧が読めません: "+err.Error(), http.StatusBadRequest)
 				return
 			}
-			if err := SaveIslands(*islandsPath, list); err != nil {
+			if err := island.Save(cfg.Islands, list); err != nil {
 				http.Error(rw, err.Error(), http.StatusBadRequest)
 				return
 			}
 			rw.WriteHeader(http.StatusNoContent)
 			return
 		}
-		islands, err := LoadIslands(readOr(*islandsPath, exampleIslands))
+		islands, err := island.Load(readOr(cfg.Islands, island.Example))
 		if err != nil {
 			http.Error(rw, err.Error(), http.StatusInternalServerError)
 			return
@@ -93,7 +109,7 @@ func serve(args []string) error {
 		writeJSON(rw, islands)
 	})
 	mux.HandleFunc("/api/crew", func(rw http.ResponseWriter, r *http.Request) {
-		if *demo {
+		if cfg.Demo {
 			writeJSON(rw, demoCrew(time.Now()))
 			return
 		}
@@ -102,9 +118,9 @@ func serve(args []string) error {
 	// 使用量の枠（5時間・1週間）。statusline が <Claude の設定>/office/usage.json に書いたものをそのまま返す（まだ無ければ null）
 	mux.HandleFunc("/api/usage", func(rw http.ResponseWriter, r *http.Request) {
 		b := []byte("null")
-		if *demo {
+		if cfg.Demo {
 			b = demoUsage(time.Now())
-		} else if f, err := os.ReadFile(filepath.Join(officeDir(), "usage.json")); err == nil && json.Valid(f) {
+		} else if f, err := os.ReadFile(filepath.Join(claudehome.Office(cfg.Home), claudehome.UsageFile)); err == nil && json.Valid(f) {
 			b = f
 		}
 		rw.Header().Set("Content-Type", "application/json; charset=utf-8")
@@ -112,30 +128,20 @@ func serve(args []string) error {
 		rw.Write(b)
 	})
 	mux.HandleFunc("/api/dismiss", func(rw http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost || !sameOrigin(r, *addr) {
+		if r.Method != http.MethodPost || !sameOrigin(r, cfg.Addr) {
 			http.Error(rw, "このページからの POST だけ受け付けます", http.StatusForbidden)
 			return
 		}
 		w.Dismiss(r.URL.Query().Get("key"))
 		rw.WriteHeader(http.StatusNoContent)
 	})
-
-	ln, err := net.Listen("tcp", *addr)
-	if err != nil {
-		return fmt.Errorf("%s で待ち受けられません（もう起動していませんか？）: %w", *addr, err)
-	}
-	if *allowRemote {
-		fmt.Fprintf(os.Stderr, "注意: %s で待ち受けます。パスワードは無いので、ここに届く人は誰でも会話の抜粋を見られます。\n", *addr)
-	}
-	fmt.Printf("オフィスを開きました: http://%s （止めるときは Ctrl-C）\n", *addr)
-	srv := &http.Server{Handler: guard(mux, *allowRemote), ReadHeaderTimeout: 5 * time.Second}
-	return srv.Serve(ln)
+	return guard(mux, cfg.AllowRemote)
 }
 
-// checkLoopback は、待ち受けるアドレスが手元（127.0.0.1・::1・localhost）だけかを確かめる。
+// CheckLoopback は、待ち受けるアドレスが手元（127.0.0.1・::1・localhost）だけかを確かめる。
 // 0.0.0.0 や LAN の IP で待ち受けると、同じネットワークの誰でも会話の抜粋を見られてしまうため。
-func checkLoopback(addr string) error {
-	host, err := checkAddr(addr)
+func CheckLoopback(addr string) error {
+	host, err := CheckAddr(addr)
 	if err != nil {
 		return err
 	}
@@ -145,9 +151,9 @@ func checkLoopback(addr string) error {
 	return nil
 }
 
-// checkAddr は -addr が「ホスト:ポート」の形で、ポートが 1〜65535 の数字かを確かめ、ホストを返す。
+// CheckAddr は -addr が「ホスト:ポート」の形で、ポートが 1〜65535 の数字かを確かめ、ホストを返す。
 // 自動起動の設定（systemd の unit・vbs）にそのまま書くので、空白や改行の入った値をここで断る。
-func checkAddr(addr string) (string, error) {
+func CheckAddr(addr string) (string, error) {
 	host, port, err := net.SplitHostPort(addr)
 	if err != nil {
 		return "", fmt.Errorf("-addr %q が読めません（127.0.0.1:7777 のように書いてください）: %w", addr, err)

@@ -1,8 +1,11 @@
-package main
+package server
 
 import (
 	"encoding/json"
 	"time"
+
+	"github.com/jose-sugisawa/claude-office/internal/claudehome"
+	"github.com/jose-sugisawa/claude-office/internal/session"
 )
 
 // -demo で使う見本。Claude Code のセッションを読まずに、画面の見え方を確かめるためのもの。
@@ -15,10 +18,12 @@ var demoIslands = []byte(`[
 ]
 `)
 
-func demoCrew(now time.Time) []Member {
+func demoCrew(now time.Time) []session.Member {
 	ms := func(d time.Duration) int64 { return now.Add(-d).UnixMilli() }
-	ctx := func(p float64) *Ctx { return &Ctx{Used: p, Size: 1_000_000, Tokens: int64(p * 10_000), At: now.Unix()} }
-	return []Member{
+	ctx := func(p float64) *claudehome.Ctx {
+		return &claudehome.Ctx{Used: p, Size: 1_000_000, Tokens: int64(p * 10_000), At: now.Unix()}
+	}
+	return []session.Member{
 		{Key: "demo-1", Name: "app@review", Status: "idle", Since: ms(3 * time.Minute), Line: "PR #42 はマージしてよいですか？ CI は通っています。", Excerpt: "PR #42 はマージしてよいですか？\nCI は通っていて、レビューの指摘も直しました。", Dir: "app", Cwd: "~/src/app", Named: true, Ctx: ctx(34)},
 		{Key: "demo-2", Name: "app@api", Status: "busy", Since: ms(12 * time.Minute), Dir: "app", Cwd: "~/src/app", Named: true, Ctx: ctx(58)},
 		{Key: "demo-3", Name: "app@ios", Status: "waiting", Waiting: "permission", Since: ms(1 * time.Minute), Dir: "app", Cwd: "~/src/app", Named: true, Ctx: ctx(22)},

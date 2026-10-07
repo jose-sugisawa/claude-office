@@ -117,8 +117,21 @@ Tested with Claude Code 2.1.29x.
 
 ```sh
 go test ./...
-go run . serve -dev .     # reads index.html from disk on every request (edit and reload)
+go run . serve -dev web   # reads web/index.html from disk on every request (edit and reload)
 go run . serve -demo      # with sample data
+```
+
+```
+main.go              subcommands and flags only; hands off to internal/
+web/                 the page (index.html), embedded into the binary
+internal/
+  claudehome/        where ~/.claude lives, and the files claude-office keeps under office/
+  atomicfile/        writes files so an interrupted write never leaves a broken one
+  session/           reads running sessions and the last reply from ~/.claude
+  island/            reads, checks, and writes islands.json
+  statusline/        the status line, and registering it in settings.json
+  autostart/         launchd / systemd / Windows startup
+  server/            the HTTP API, the Host/Origin checks, and -demo data
 ```
 
 ## Issues and requests
