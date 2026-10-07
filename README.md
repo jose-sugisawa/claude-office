@@ -20,7 +20,7 @@ claude-office puts that scattered state into one office.
 - **See context usage**: each session has a usage gauge, so you can `/compact` or start a fresh conversation before it gets heavy.
 - **Spend fewer tokens as a side effect**: you stop working in bloated contexts, notice and close idle sessions, and stop re-explaining the same thing in another session. The tool itself never calls Claude, so it uses zero tokens.
 
-![Opened with sample data](docs/screenshot.png)
+![Claude Code sessions running in terminal tabs, laid out in the claude-office office (sample data)](docs/why.en.png)
 
 - **Read-only**: you keep giving instructions in the terminal. This screen sends nothing to Claude.
 - **No tokens**: it never calls Claude. It only reads local files.
