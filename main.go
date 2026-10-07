@@ -29,7 +29,8 @@ const usage = `claude-office — Claude Code のセッションをドット絵�
 `
 
 // version はリリースのビルドが -ldflags "-X main.version=…" で入れる。
-// 入っていなければ go install …@vX が埋め込んだ版を使い、それも無ければ dev（clone して go build したもの）。
+// 入っていなければ Go が埋め込んだ版を使う（go install …@vX ならその版。clone して go build したものは、
+// Go 1.24 からは git から決めた仮の版 0.1.1-0.<日時>-<コミット> になる）。どちらも無ければ dev。
 var version = ""
 
 func versionString() string {
