@@ -4,8 +4,8 @@
 
 English | [日本語](README.ja.md)
 
-A local tool that lays out your running Claude Code sessions as pixel-art coworkers in an office.
-It is for people who run many Claude sessions at once, like a small team, and want to see at a glance, when they come back to their desk, who is working and who is waiting on them.
+A local tool that lays out your running Claude Code sessions in a pixel-art office.
+It is for people who give each of many Claude Code sessions its own role, to keep the work clearly divided and moving efficiently. When you come back to your desk, you can see at a glance which sessions are working and which are waiting on you.
 
 The UI is currently in Japanese.
 
