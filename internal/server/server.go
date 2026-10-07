@@ -1,4 +1,4 @@
-// Package server は、オフィスの画面と API（/api/crew・/api/islands・/api/usage・/api/dismiss）を手元に出す。
+// Package server は、オフィスの画面と API（/api/crew・/api/islands・/api/usage・/api/today・/api/dismiss）を手元に出す。
 // 読むだけの API と、この画面からの書き換えだけを受け付ける（guard・sameOrigin）。
 package server
 
@@ -17,6 +17,7 @@ import (
 	"github.com/jose-sugisawa/claude-office/internal/claudehome"
 	"github.com/jose-sugisawa/claude-office/internal/island"
 	"github.com/jose-sugisawa/claude-office/internal/session"
+	"github.com/jose-sugisawa/claude-office/internal/worklog"
 	"github.com/jose-sugisawa/claude-office/web"
 )
 
@@ -70,6 +71,7 @@ func Run(cfg Config, stdout, stderr io.Writer) error {
 // Handler は画面と API をまとめ、guard を前に置いたハンドラーを返す。
 func Handler(cfg Config, w *session.Watcher) http.Handler {
 	mux := http.NewServeMux()
+	wl := worklog.NewReader(cfg.Home)
 	mux.HandleFunc("/", func(rw http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
 			http.NotFound(rw, r)
@@ -126,6 +128,14 @@ func Handler(cfg Config, w *session.Watcher) http.Handler {
 		rw.Header().Set("Content-Type", "application/json; charset=utf-8")
 		rw.Header().Set("Cache-Control", "no-store")
 		rw.Write(b)
+	})
+	// 今日の日報：セッションごとの、今日動いていた区間（会話の記録の時刻から数える）
+	mux.HandleFunc("/api/today", func(rw http.ResponseWriter, r *http.Request) {
+		if cfg.Demo {
+			writeJSON(rw, demoToday(time.Now()))
+			return
+		}
+		writeJSON(rw, wl.Today(time.Now()))
 	})
 	mux.HandleFunc("/api/dismiss", func(rw http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost || !sameOrigin(r, cfg.Addr) {

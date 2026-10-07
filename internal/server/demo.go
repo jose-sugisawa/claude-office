@@ -6,6 +6,7 @@ import (
 
 	"github.com/jose-sugisawa/claude-office/internal/claudehome"
 	"github.com/jose-sugisawa/claude-office/internal/session"
+	"github.com/jose-sugisawa/claude-office/internal/worklog"
 )
 
 // -demo で使う見本。Claude Code のセッションを読まずに、画面の見え方を確かめるためのもの。
@@ -33,6 +34,28 @@ func demoCrew(now time.Time) []session.Member {
 		{Key: "demo-7", Name: "shop@inventory", Status: "gone", Since: ms(10 * time.Minute), Dir: "shop", Cwd: "~/src/shop", Named: true},
 		{Key: "demo-8", Name: "src-4f", Status: "idle", Since: ms(5 * time.Hour), Line: "片づけが終わりました。", Dir: "src", Cwd: "~/src", Named: false},
 	}
+}
+
+// demoToday は今日の日報の見本。今から8時間前を朝として、島ごとに働いた区間を置く。
+func demoToday(now time.Time) worklog.Day {
+	from := now.Add(-8 * time.Hour)
+	at := func(h float64) int64 { return from.Add(time.Duration(h * float64(time.Hour))).UnixMilli() }
+	span := func(name string, a, b float64, prompts int) worklog.Span {
+		return worklog.Span{Name: name, Start: at(a), End: at(b), Prompts: prompts}
+	}
+	s := func(key string, spans ...worklog.Span) worklog.Session {
+		return worklog.Session{Key: key, Spans: spans}
+	}
+	return worklog.Day{From: from.UnixMilli(), Now: now.UnixMilli(), Sessions: []worklog.Session{
+		s("demo-1", span("app@review", 0.3, 1.1, 4), span("app@review", 5.2, 6.0, 3), span("app@review", 7.6, 7.9, 1)),
+		s("demo-2", span("app@api", 0.2, 0.9, 3), span("app@api", 1.5, 2.6, 5), span("app@api", 4.8, 6.2, 6), span("app@api", 7.6, 8, 2)),
+		s("demo-3", span("app@ios", 2.0, 2.8, 4), span("app@ios", 7.8, 7.98, 1)),
+		s("demo-4", span("app@docs", 3.0, 3.6, 2)),
+		s("demo-5", span("blog@draft", 3.5, 5.1, 6), span("blog@draft", 7.2, 8, 2)),
+		s("demo-6", span("research@market", 0.8, 1.4, 3), span("research@market", 5.6, 7.5, 5)),
+		s("demo-7", span("shop@inventory", 6.3, 6.7, 2)),
+		s("demo-8", span("src-4f", 2.4, 2.7, 1)),
+	}}
 }
 
 func demoUsage(now time.Time) []byte {

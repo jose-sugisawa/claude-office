@@ -75,7 +75,7 @@ func TestHandlerDemo(t *testing.T) {
 		h.ServeHTTP(rec, r)
 		return rec
 	}
-	for path, want := range map[string]string{"/": "Claude オフィス", "/api/crew": "app@review", "/api/islands": "ネットショップ", "/api/usage": "five_hour"} {
+	for path, want := range map[string]string{"/": "Claude オフィス", "/api/crew": "app@review", "/api/islands": "ネットショップ", "/api/usage": "five_hour", "/api/today": "blog@draft"} {
 		if rec := do("GET", path, ""); rec.Code != 200 || !strings.Contains(rec.Body.String(), want) {
 			t.Errorf("GET %s: %d に %q が無い", path, rec.Code, want)
 		}
