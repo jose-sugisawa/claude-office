@@ -13,6 +13,8 @@ package main
 import (
 	"fmt"
 	"os"
+	"runtime/debug"
+	"strings"
 )
 
 const usage = `claude-office — Claude Code のセッションをドット絵のオフィスで見る
@@ -26,7 +28,20 @@ const usage = `claude-office — Claude Code のセッションをドット絵�
   claude-office version
 `
 
-var version = "0.1.0"
+// version はリリースのビルドが -ldflags "-X main.version=…" で入れる。
+// 入っていなければ Go が埋め込んだ版を使う（go install …@vX ならその版。clone して go build したものは、
+// Go 1.24 からは git から決めた仮の版 0.1.1-0.<日時>-<コミット> になる）。どちらも無ければ dev。
+var version = ""
+
+func versionString() string {
+	if version != "" {
+		return version
+	}
+	if bi, ok := debug.ReadBuildInfo(); ok && bi.Main.Version != "" && bi.Main.Version != "(devel)" {
+		return strings.TrimPrefix(bi.Main.Version, "v")
+	}
+	return "dev"
+}
 
 func main() {
 	if err := run(os.Args[1:]); err != nil {
@@ -57,7 +72,7 @@ func run(args []string) error {
 		runStatusline(os.Stdin, os.Stdout)
 		return nil
 	case "version", "-v", "--version":
-		fmt.Println("claude-office", version)
+		fmt.Println("claude-office", versionString())
 		return nil
 	case "help", "-h", "--help":
 		fmt.Print(usage)
