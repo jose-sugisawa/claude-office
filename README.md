@@ -98,7 +98,7 @@ claude -n blog@draft
 |---|---|---|---|
 | macOS | ○ | launchd | Used daily on real hardware |
 | Linux | ○ | systemd --user | CI (GitHub Actions): tests and startup, plus install and uninstall with install.sh |
-| Windows | ○ | Startup folder | CI (GitHub Actions, the manually run ci-all-os workflow): tests and startup. **install.ps1 and autostart are untested on real hardware** |
+| Windows | ○ | Startup folder | CI (GitHub Actions, on every PR): tests and startup. **install.ps1 and autostart are untested on real hardware** |
 
 Tested with Claude Code 2.1.29x.
 
