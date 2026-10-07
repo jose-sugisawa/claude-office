@@ -10,7 +10,7 @@
 :root{
   --ink:#2A1E1A; --night:#1F2340; --night2:#2E345C; --paper:#FBFAF6; --mute:#B4BAD4;
   --busy:#4C8DF6; --turn:#F2A93B; --sleep:#9AA0B2; --gone:#C9CCD6;
-  --wall:#EFE4CC; --floor:#C99A6B; --floorLine:#B4865A;
+  --wall:#FBF6EA; --floor:#E9D2AE; --floorLine:#DCC198; --wood:#B08A66; --woodDark:#9A7553;
 }
 body{margin:0;background:var(--night);font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;color:var(--ink)}
 #stage{overflow:hidden}
@@ -25,27 +25,27 @@ body{margin:0;background:var(--night);font-family:-apple-system,BlinkMacSystemFo
 #strip.on{display:block}
 
 /* 部屋（夜は暗くして、人と名札だけを明るいまま残す） */
-.floor{left:0;width:100%;background-color:var(--floor);background-image:repeating-linear-gradient(0deg,var(--floorLine) 0 3px,transparent 3px 24px),repeating-linear-gradient(90deg,rgba(60,36,20,.10) 0 3px,transparent 3px 144px)}
-.wall{left:0;top:0;width:100%;height:228px;background-color:var(--wall);background-image:repeating-linear-gradient(90deg,rgba(150,120,80,.10) 0 6px,transparent 6px 24px)}
-.wall .top{left:0;top:0;width:100%;height:18px;background:#4A3A2E;border-bottom:3px solid #6B5442}
-.wall .base{left:0;top:210px;width:100%;height:18px;background:#8A6446;border-top:3px solid #A57B57}
-.win{top:44px;width:204px;height:110px;background:#6B4E36;padding:6px;box-sizing:border-box;display:grid;grid-template-columns:1fr 1fr;gap:6px;box-shadow:0 6px 0 #4A3A2E}
-.win i{background:#A9DCF5;position:relative}
+.floor{left:0;width:100%;background-color:var(--floor);background-image:repeating-linear-gradient(0deg,var(--floorLine) 0 3px,transparent 3px 24px),repeating-linear-gradient(90deg,rgba(120,80,40,.07) 0 3px,transparent 3px 144px)}
+.wall{left:0;top:0;width:100%;height:228px;background-color:var(--wall);background-image:repeating-linear-gradient(90deg,rgba(150,120,80,.06) 0 6px,transparent 6px 24px)}
+.wall .top{left:0;top:0;width:100%;height:18px;background:var(--wood);border-bottom:3px solid #C9A47E}
+.wall .base{left:0;top:210px;width:100%;height:18px;background:#D2AE86;border-top:3px solid #E2C29C}
+.win{top:44px;width:204px;height:110px;background:var(--wood);padding:6px;box-sizing:border-box;display:grid;grid-template-columns:1fr 1fr;gap:6px;box-shadow:0 6px 0 var(--woodDark)}
+.win i{background:#BFE8FA;position:relative}
 .win i:first-child::after{content:'';position:absolute;left:18px;top:26px;width:36px;height:9px;background:#fff;box-shadow:9px -9px 0 -0px #fff}
-.clock{left:290px;top:62px;width:72px;height:72px;border-radius:50%;background:var(--paper);border:6px solid #4A3A2E;box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700}
+.clock{left:290px;top:62px;width:72px;height:72px;border-radius:50%;background:var(--paper);border:6px solid var(--wood);box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700}
 .rug{box-sizing:border-box;border:6px solid}
 .sign{display:flex;align-items:center;gap:8px;padding:4px 12px;background:#F6EBD3;border:3px solid var(--ink);box-shadow:0 3px 0 var(--ink);font-size:15px;font-weight:700;z-index:7;white-space:nowrap}
 .sign b{width:11px;height:11px;border-radius:50%;border:2px solid var(--ink);display:inline-block}
 .sign small{font-weight:400;color:#6B5442;font-size:13px}
 .empty{color:#6B5442;font-size:14px}
 @media (prefers-color-scheme: dark){
-  .scenery{filter:brightness(.55) saturate(.85)}
+  .scenery{filter:brightness(.8) saturate(.95)}
   .lamp{display:block!important}
 }
 .lamp{display:none;left:-20px;top:20px;width:190px;height:150px;border-radius:50%;background:radial-gradient(rgba(255,214,140,.45),rgba(255,214,140,0) 70%);pointer-events:none;z-index:1}
 
 /* 使用量の掲示板（5時間・1週間の枠） */
-.usage{left:382px;top:30px;width:280px;height:168px;box-sizing:border-box;padding:10px 14px;background:var(--night);border:6px solid #6B4E36;box-shadow:0 6px 0 #4A3A2E;color:#F4F1E8;display:flex;flex-direction:column;gap:8px}
+.usage{left:382px;top:30px;width:280px;height:168px;box-sizing:border-box;padding:10px 14px;background:#34416F;border:6px solid var(--wood);box-shadow:0 6px 0 var(--woodDark);color:#F4F1E8;display:flex;flex-direction:column;gap:8px}
 .usage h2{margin:0;font-size:13px;color:var(--mute);font-weight:700}
 .usage .m{display:grid;grid-template-columns:44px minmax(0,1fr) 40px;gap:8px;align-items:center;font-size:13px;font-weight:700}
 .usage .bar{height:10px;border-radius:5px;background:var(--night2);overflow:hidden}
@@ -54,7 +54,7 @@ body{margin:0;background:var(--night);font-family:-apple-system,BlinkMacSystemFo
 .usage .sub{grid-column:2 / 4;font-size:11px;font-weight:400;color:var(--mute);margin-top:-4px}
 .usage .none{font-size:12px;color:var(--mute)}
 /* ホワイトボード */
-.board{left:680px;top:22px;width:560px;height:186px;background:var(--paper);border:6px solid #9097B0;box-sizing:border-box;padding:8px 16px;display:flex;flex-direction:column;gap:2px;box-shadow:0 6px 0 #6E7590;overflow:hidden}
+.board{left:680px;top:22px;width:560px;height:186px;background:var(--paper);border:6px solid #B6BCD2;box-sizing:border-box;padding:8px 16px;display:flex;flex-direction:column;gap:2px;box-shadow:0 6px 0 #9AA1BB;overflow:hidden}
 .board h2{margin:0 0 2px;font-size:17px;color:#C2410C}
 .board .row{display:grid;grid-template-columns:12px 170px minmax(0,1fr) 66px;gap:10px;align-items:center;font-size:14px}
 .board .row span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
@@ -334,7 +334,7 @@ function mix(hex, to, t) {
 function setIslands(list) {
   islandsSig = JSON.stringify(list);
   rawIslands = list;
-  ISLANDS = [...list.map(i => ({ ...i, color: i.hex })), OTHER].map(i => ({ ...i, label: i.name, rug: mix(i.color, '#E8E0CC', 0.55), edge: mix(i.color, '#7A6A55', 0.35) }));
+  ISLANDS = [...list.map(i => ({ ...i, color: i.hex })), OTHER].map(i => ({ ...i, label: i.name, rug: mix(i.color, '#F6F0E2', 0.6), edge: mix(i.color, '#7A6A55', 0.35) }));
 }
 const LOOKS = [
   { hair: '#2B1D14', hairHi: '#4A3526', skin: '#F6CFAE', shirt: '#E9874E', shirtDk: '#C76A35', pants: '#3B3F58' },
@@ -567,7 +567,7 @@ function buildOnboarding(roomW, islandsBottom) {
   // 例の島：作った島があれば最初の島、なければ「アプリ開発（app）」
   const first = ISLANDS.find(i => i.id !== OTHER.id);
   const ex = first ? { id: first.prefixes[0] || first.id, name: first.label, color: first.color, rug: first.rug, edge: first.edge }
-                   : { id: 'app', name: 'アプリ開発', color: '#4C7FD6', rug: '#AFC0E6', edge: '#7E92C4' };
+                   : { id: 'app', name: 'アプリ開発', color: '#4C7FD6', rug: '#B2C3DD', edge: '#7E92C4' };
   const id = esc(ex.id), w = Math.min(1300, roomW - 80), top = islandsBottom + 16; // 島の下に置く（人を隠さない）
   const roles = [['review', 'レビュー係：PR を見る', '#2B1D14', '#E9874E', '#F2A93B'], ['api', 'API 係：サーバーを作る', '#6B3E26', '#5C8EDB', '#4C8DF6'], ['docs', '説明書係：README を書く', '#D69A45', '#A781D0', '#4C8DF6']];
   // 「claude -n」「app」「@」「review」の幅から、線と説明の位置を決める（等幅 30px ＝ 1文字 18px）
