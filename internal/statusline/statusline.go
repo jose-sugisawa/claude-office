@@ -1,9 +1,10 @@
-package main
+// Package statusline は Claude Code のステータスライン（各セッションのいちばん下の行）を出し、
+// オフィスが読むコンテキストと使用量を office/ に書く。settings.json への登録・解除もここで行う。
+package statusline
 
 import (
 	"bytes"
 	"encoding/json"
-	"flag"
 	"fmt"
 	"io"
 	"os"
@@ -13,9 +14,11 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/jose-sugisawa/claude-office/internal/atomicfile"
+	"github.com/jose-sugisawa/claude-office/internal/claudehome"
 )
 
-// Claude Code のステータスライン（各セッションのいちばん下の行）。
 // Claude Code は描くたびに、このコマンドの標準入力へセッションの情報を JSON で渡す。
 // ここでは「セッション名 · ctx ███████░░░ 72%」を出し、オフィスが読むよう次の2つを書く。
 //   <Claude の設定>/office/ctx/<セッションID>.json  コンテキストの使用率（context_window.used_percentage）
@@ -45,15 +48,14 @@ type statuslineInput struct {
 	RateLimits json.RawMessage `json:"rate_limits"`
 }
 
-var safeID = regexp.MustCompile(`^[A-Za-z0-9-]+$`)
-
-// runStatusline は失敗しても何かを出して終わる（ステータスラインが空になるより、名前だけでも出るほうがよい）。
-func runStatusline(in io.Reader, out io.Writer) {
+// Run は標準入力の JSON を読んで1行出し、office に書く。
+// 失敗しても何かを出して終わる（ステータスラインが空になるより、名前だけでも出るほうがよい）。
+func Run(in io.Reader, out io.Writer, office string) {
 	b, _ := io.ReadAll(io.LimitReader(in, 4<<20))
-	fmt.Fprint(out, statusline(b, officeDir(), time.Now()))
+	fmt.Fprint(out, render(b, office, time.Now()))
 }
 
-func statusline(b []byte, dir string, now time.Time) string {
+func render(b []byte, dir string, now time.Time) string {
 	var s statuslineInput
 	if json.Unmarshal(b, &s) != nil {
 		return "claude-office: 入力が読めません"
@@ -69,7 +71,7 @@ func statusline(b []byte, dir string, now time.Time) string {
 
 	if len(s.RateLimits) > 0 && string(s.RateLimits) != "null" {
 		u, _ := json.Marshal(map[string]any{"rate_limits": s.RateLimits, "at": now.Unix()})
-		writeFileAtomic(filepath.Join(dir, "usage.json"), append(u, '\n'))
+		atomicfile.Write(filepath.Join(dir, claudehome.UsageFile), append(u, '\n'))
 	}
 
 	cw := s.ContextWindow
@@ -77,13 +79,13 @@ func statusline(b []byte, dir string, now time.Time) string {
 		return name + " · ctx —"
 	}
 	pct := *cw.UsedPercent
-	if safeID.MatchString(s.SessionID) {
+	if path, ok := claudehome.CtxPath(dir, s.SessionID); ok {
 		var tokens int64
 		if u := cw.CurrentUsage; u != nil {
 			tokens = u.Input + u.CacheCreation + u.CacheRead
 		}
-		c, _ := json.Marshal(Ctx{Used: pct, Size: cw.Size, Tokens: tokens, At: now.Unix()})
-		writeFileAtomic(filepath.Join(dir, "ctx", s.SessionID+".json"), append(c, '\n'))
+		c, _ := json.Marshal(claudehome.Ctx{Used: pct, Size: cw.Size, Tokens: tokens, At: now.Unix()})
+		atomicfile.Write(path, append(c, '\n'))
 	}
 
 	p := int(pct + 0.5)
@@ -113,19 +115,15 @@ func statusline(b []byte, dir string, now time.Time) string {
 
 // ---- settings.json への登録 ----
 
-func settingsPath() string { return filepath.Join(claudeDir(), "settings.json") }
+func settingsPath(root string) string { return filepath.Join(root, "settings.json") }
 
-// statuslineCommand は settings.json に書くコマンド。Claude Code はシェルで実行するので、
+// command は settings.json に書くコマンド。Claude Code はシェルで実行するので、
 // パスに空白や $ があっても動くよう、macOS・Linux はシングルクォートで、Windows は二重引用符で囲む。
-func statuslineCommand() (string, error) {
-	exe, err := stableExecutable()
-	if err != nil {
-		return "", err
-	}
+func command(exe string) string {
 	if runtime.GOOS == "windows" {
-		return strconv.Quote(exe) + " statusline", nil
+		return strconv.Quote(exe) + " statusline"
 	}
-	return "'" + strings.ReplaceAll(exe, "'", `'\''`) + "' statusline", nil
+	return "'" + strings.ReplaceAll(exe, "'", `'\''`) + "' statusline"
 }
 
 // ownStatusline は、登録されているステータスラインが claude-office のもの（… claude-office statusline）かを見る。
@@ -140,26 +138,24 @@ func isOwnStatusline(raw json.RawMessage) bool {
 }
 
 // 置き換えた元のステータスライン。uninstall で元に戻すために取っておく。
-func prevStatuslinePath() string { return filepath.Join(officeDir(), "statusline-before.json") }
+func prevStatuslinePath(root string) string {
+	return filepath.Join(claudehome.Office(root), "statusline-before.json")
+}
 
-func installStatusline(args []string) error {
-	fs := flag.NewFlagSet("statusline install", flag.ExitOnError)
-	force := fs.Bool("force", false, "ほかのステータスラインが登録されていても置き換える")
-	fs.Parse(args)
-	cmd, err := statuslineCommand()
-	if err != nil {
-		return err
-	}
-	path := settingsPath()
+// Install は root（Claude の設定ディレクトリ）の settings.json に、exe を使うステータスラインを登録する。
+// ほかのステータスラインが登録されていれば、force のときだけ置き換える（uninstall で戻せるよう取っておく）。
+func Install(out io.Writer, root, exe string, force bool) error {
+	cmd := command(exe)
+	path := settingsPath(root)
 	pairs, err := readSettings(path)
 	if err != nil {
 		return err
 	}
 	if old, ok := lookup(pairs, "statusLine"); ok && !isOwnStatusline(old) {
-		if !*force {
+		if !force {
 			return fmt.Errorf("%s にはもう別のステータスラインが登録されています：%s\n置き換えるなら -force を付けてください（uninstall で元に戻せるよう取っておきます）", path, compact(old))
 		}
-		if err := writeFileAtomic(prevStatuslinePath(), old); err != nil {
+		if err := atomicfile.Write(prevStatuslinePath(root), old); err != nil {
 			return fmt.Errorf("元のステータスラインを取っておけません: %w", err)
 		}
 	}
@@ -168,41 +164,42 @@ func installStatusline(args []string) error {
 	if err := backupAndWrite(path, pairs); err != nil {
 		return err
 	}
-	fmt.Printf("Claude Code のステータスラインに登録しました（%s）。\n動いているセッションにも、次に画面が動いたときから出ます。\n", path)
+	fmt.Fprintf(out, "Claude Code のステータスラインに登録しました（%s）。\n動いているセッションにも、次に画面が動いたときから出ます。\n", path)
 	return nil
 }
 
-func uninstallStatusline() error {
-	path := settingsPath()
+// Uninstall は claude-office のステータスラインを外す。置き換える前のものを取ってあれば戻す。
+func Uninstall(out io.Writer, root string) error {
+	path := settingsPath(root)
 	pairs, err := readSettings(path)
 	if err != nil {
 		return err
 	}
 	old, ok := lookup(pairs, "statusLine")
 	if !ok || !isOwnStatusline(old) {
-		fmt.Println("claude-office のステータスラインは登録されていません。")
+		fmt.Fprintln(out, "claude-office のステータスラインは登録されていません。")
 		return nil
 	}
 	// 置き換える前のものを取ってあれば戻し、なければキーごと外す
-	prev, err := os.ReadFile(prevStatuslinePath())
+	prev, err := os.ReadFile(prevStatuslinePath(root))
 	if err == nil && json.Valid(prev) {
 		if err := backupAndWrite(path, set(pairs, "statusLine", bytes.TrimSpace(prev))); err != nil {
 			return err
 		}
-		os.Remove(prevStatuslinePath())
-		fmt.Println("ステータスラインを、claude-office を入れる前のものに戻しました。")
+		os.Remove(prevStatuslinePath(root))
+		fmt.Fprintln(out, "ステータスラインを、claude-office を入れる前のものに戻しました。")
 		return nil
 	}
-	var out []kv
+	var rest []kv
 	for _, p := range pairs {
 		if p.k != "statusLine" {
-			out = append(out, p)
+			rest = append(rest, p)
 		}
 	}
-	if err := backupAndWrite(path, out); err != nil {
+	if err := backupAndWrite(path, rest); err != nil {
 		return err
 	}
-	fmt.Println("ステータスラインの登録を外しました。")
+	fmt.Fprintln(out, "ステータスラインの登録を外しました。")
 	return nil
 }
 
@@ -293,11 +290,11 @@ func backupAndWrite(path string, pairs []kv) error {
 	}
 	// settings.json の env に API キーなどを書く人がいるので、控えは本人だけが読めるように（0600）書く
 	if b, err := os.ReadFile(path); err == nil {
-		if err := writeFileAtomic(path+".bak", b); err != nil {
+		if err := atomicfile.Write(path+".bak", b); err != nil {
 			return fmt.Errorf("元の設定を残せません: %w", err)
 		}
 	}
-	return writeFileAtomic(path, encodeSettings(pairs))
+	return atomicfile.Write(path, encodeSettings(pairs))
 }
 
 func compact(b []byte) string {

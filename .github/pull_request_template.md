@@ -17,7 +17,7 @@
 <!-- Commands you ran and what you checked by hand. Leave unchecked anything you did not verify. -->
 
 - [ ] `go vet ./...` and `go test ./...` pass
-- [ ] Checked in the browser with `claude-office serve -demo -dev .` (no page errors)
+- [ ] Checked in the browser with `go run . serve -demo -dev web` (no page errors)
 - [ ] README.md, README.ja.md, and docs/features.md updated if behavior changed
 
 ## Impact & risks

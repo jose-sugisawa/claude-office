@@ -1,13 +1,23 @@
-package main
+// Package island は島の一覧（islands.json）を読み、確かめ、書く。
+// 係名が島の prefixes のどれかで始まる人が、その島に座る。
+package island
 
 import (
 	"bytes"
+	_ "embed"
 	"encoding/json"
 	"fmt"
 	"os"
 	"regexp"
 	"strings"
+
+	"github.com/jose-sugisawa/claude-office/internal/atomicfile"
 )
+
+// Example は、島の一覧がまだ無い人に置く見本。
+//
+//go:embed example.json
+var Example []byte
 
 // Island は islands.json の1行。係名が prefixes のどれかで始まる人がこの島に座る。
 type Island struct {
@@ -29,9 +39,9 @@ var (
 	islandID = regexp.MustCompile(`^[a-z0-9][a-z0-9-]*$`)
 )
 
-// LoadIslands は islands.json を読み、画面で使う色（Hex）と省略した prefixes を埋めて返す。
+// Load は islands.json を読み、画面で使う色（Hex）と省略した prefixes を埋めて返す。
 // 書き方の誤りは、どの行かを添えて返す。
-func LoadIslands(b []byte) ([]Island, error) {
+func Load(b []byte) ([]Island, error) {
 	var list []Island
 	if err := json.Unmarshal(b, &list); err != nil {
 		return nil, fmt.Errorf("islands.json が JSON として読めません: %w", err)
@@ -73,9 +83,9 @@ func LoadIslands(b []byte) ([]Island, error) {
 	return list, nil
 }
 
-// SaveIslands は確かめたうえで islands.json を書き換える（1島1行。途中で止まっても壊れないよう、別名で書いてから置き換える）。
-func SaveIslands(path string, list []Island) error {
-	if _, err := LoadIslands(mustJSON(list)); err != nil {
+// Save は確かめたうえで islands.json を書き換える（1島1行。途中で止まっても壊れないよう、別名で書いてから置き換える）。
+func Save(path string, list []Island) error {
+	if _, err := Load(mustJSON(list)); err != nil {
 		return err
 	}
 	var buf bytes.Buffer
@@ -94,15 +104,15 @@ func SaveIslands(path string, list []Island) error {
 		buf.WriteString("\n")
 	}
 	buf.WriteString("]\n")
-	return writeFileAtomic(path, buf.Bytes())
+	return atomicfile.Write(path, buf.Bytes())
 }
 
-// ensureIslands は、島の一覧がまだ無ければ見本を置く。
-func ensureIslands(path string, example []byte) error {
+// Ensure は、島の一覧がまだ無ければ example を置く。
+func Ensure(path string, example []byte) error {
 	if _, err := os.Stat(path); err == nil {
 		return nil
 	}
-	return writeFileAtomic(path, example)
+	return atomicfile.Write(path, example)
 }
 
 func mustJSON(v any) []byte {

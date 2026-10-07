@@ -115,8 +115,21 @@ Claude Code 2.1.29x で確かめています。
 
 ```sh
 go test ./...
-go run . serve -dev .     # index.html をディスクから毎回読む（書き換えて再読み込みするだけで反映）
+go run . serve -dev web   # web/index.html をディスクから毎回読む（書き換えて再読み込みするだけで反映）
 go run . serve -demo      # 見本のデータで
+```
+
+```
+main.go              サブコマンドとフラグだけ。中身は internal/ に渡す
+web/                 画面（index.html）。実行ファイルに埋め込む
+internal/
+  claudehome/        ~/.claude の場所と、claude-office が office/ に置くファイルの形
+  atomicfile/        途中で止まっても壊れたファイルを残さない書き方
+  session/           動いているセッションと最後の返事を ~/.claude から読む
+  island/            islands.json を読む・確かめる・書く
+  statusline/        ステータスラインと、settings.json への登録
+  autostart/         launchd・systemd・Windows のスタートアップ
+  server/            HTTP の API、Host・Origin の確かめ、-demo の見本
 ```
 
 ## 不具合・要望について
