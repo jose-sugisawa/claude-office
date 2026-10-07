@@ -7,6 +7,8 @@ English | [日本語](README.ja.md)
 A local tool that lays out your running Claude Code sessions in a pixel-art office.
 It is for people who give each of many Claude Code sessions its own role, to keep the work clearly divided and moving efficiently. When you come back to your desk, you can see at a glance which sessions are working and which are waiting on you.
 
+![Demo: start a session with a name, see who is waiting, the context gauge, the last reply, and today's time per island](docs/demo.gif)
+
 The UI is currently in Japanese.
 
 ## Why
