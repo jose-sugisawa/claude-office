@@ -1,6 +1,7 @@
 name: ci
-# 非公開のあいだは Actions の分数に上限がある（macOS は 10 倍・Windows は 2 倍で数えられる）。
-# ふだんは ubuntu の 1 ジョブだけ。macOS・Windows で実際に動かすのは ci-all-os を手で回す。
+# 公開リポジトリは GitHub のランナーの分数を数えないので、PR ごとに ubuntu・macOS・Windows の実機で確かめる。
+#   check     ubuntu：vet（各 OS 向け・最低の版）・テスト・見本の画面・install.sh・govulncheck
+#   other-os  macOS・Windows：テストと見本の画面。macOS は install.sh も
 on:
   # ブランチへの push と PR で同じものが 2 回走らないよう、push は main だけ
   push:
@@ -8,6 +9,8 @@ on:
     paths-ignore: ['**.md', 'docs/**', 'LICENSE', '.github/dependabot.yml']
   pull_request:
     paths-ignore: ['**.md', 'docs/**', 'LICENSE', '.github/dependabot.yml']
+  # docs だけの変更のあとでも、リリースのタグを打つ前に Actions の画面から回せるように
+  workflow_dispatch:
 
 # 同じ PR に続けて push したら、古い方は止める（main は止めない。どのコミットで壊れたか分からなくなるので）
 concurrency:
@@ -72,3 +75,38 @@ jobs:
           ! grep -q 'claude-office' ~/.claude/settings.json
       # Go 本体と標準ライブラリの既知の脆弱性（依存は標準ライブラリだけ）
       - run: go run golang.org/x/vuln/cmd/govulncheck@v1.8.0 ./...
+
+  other-os:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: stable
+      - run: go test ./...
+      - name: 見本の画面で起動して、API が返るか確かめる
+        shell: bash
+        run: |
+          exe="./claude-office$(go env GOEXE)"
+          go build -o "$exe" .
+          "$exe" serve -demo -addr 127.0.0.1:7799 &
+          for i in $(seq 1 30); do curl -sf http://127.0.0.1:7799/api/islands >/dev/null && break; sleep 1; done
+          curl -sf http://127.0.0.1:7799/ | grep 'Claude オフィス' >/dev/null
+          curl -sf http://127.0.0.1:7799/api/crew | grep 'app@review' >/dev/null
+          echo '{"session_id":"ci","session_name":"app@ci","context_window":{"context_window_size":1000,"used_percentage":42}}' | "$exe" statusline | grep '42%' >/dev/null
+      - name: install.sh（macOS）
+        if: runner.os == 'macOS'
+        run: |
+          ./install.sh -y
+          test -x ~/.local/bin/claude-office
+          curl -sf http://127.0.0.1:7777/api/islands >/dev/null || { ~/.local/bin/claude-office serve & sleep 2; }
+          curl -sf http://127.0.0.1:7777/ | grep 'Claude オフィス' >/dev/null
+          ./install.sh uninstall
+          test ! -e ~/.local/bin/claude-office
