@@ -129,3 +129,21 @@ func TestCtxOf(t *testing.T) {
 		t.Errorf("セッション ID でディレクトリの外を読んだ: %+v", c)
 	}
 }
+
+func TestLastAsk(t *testing.T) {
+	ask := `{"type":"user","timestamp":"2026-10-07T01:00:00Z","message":{"content":"Another Claude session sent a message:\n<cross-session-message from=\"uds:/tmp/cc-socks/1.sock\" from-name=\"boss\">\nAPI の続きを進めてください\n</cross-session-message>"}}`
+	tool := `{"type":"assistant","message":{"content":[{"type":"tool_use","name":"Bash"}]}}
+{"type":"user","message":{"content":[{"type":"tool_result","content":"ok"}]}}
+{"type":"user","message":{"content":"<task-notification>done</task-notification>"}}
+{"type":"assistant","message":{"content":[{"type":"text","text":"進めました"}]}}`
+	a := lastAsk([]byte(`{"type":"user","message":{"content":"テストを足して"}}` + "\n" + ask + "\n" + tool + "\n"))
+	if a == nil || a.Line != "API の続きを進めてください" || a.At != time.Date(2026, 10, 7, 1, 0, 0, 0, time.UTC).UnixMilli() {
+		t.Errorf("ボスからの指示の続きなのに %+v", a)
+	}
+	if a := lastAsk([]byte(ask + "\n" + `{"type":"user","message":{"content":"次はドキュメント"}}` + "\n")); a != nil {
+		t.Errorf("人が次に指示したのに %+v", a)
+	}
+	if a := lastAsk([]byte(`{"type":"user","message":{"content":"進めて"}}` + "\n")); a != nil {
+		t.Errorf("ふつうの指示なのに %+v", a)
+	}
+}

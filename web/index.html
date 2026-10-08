@@ -29,6 +29,7 @@ body{margin:0;background:var(--night);font-family:-apple-system,BlinkMacSystemFo
 .wall{left:0;top:0;width:100%;height:228px;background-color:var(--wall);background-image:repeating-linear-gradient(90deg,rgba(150,120,80,.06) 0 6px,transparent 6px 24px)}
 .wall .top{left:0;top:0;width:100%;height:18px;background:var(--wood);border-bottom:3px solid #C9A47E}
 .wall .base{left:0;top:210px;width:100%;height:18px;background:#D2AE86;border-top:3px solid #E2C29C}
+.clock.small{top:70px;width:58px;height:58px;border-width:5px;font-size:13px}
 .clock{top:62px;width:72px;height:72px;border-radius:50%;background:var(--paper);border:6px solid var(--wood);box-sizing:border-box;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700}
 .rug{box-sizing:border-box;border:6px solid}
 .sign{display:flex;align-items:center;gap:8px;padding:4px 12px;background:#F6EBD3;border:3px solid var(--ink);box-shadow:0 3px 0 var(--ink);font-size:15px;font-weight:700;z-index:7;white-space:nowrap}
@@ -327,6 +328,46 @@ code b.r,.onb b.r{color:#FFD27A}
 #day .acts{display:flex;justify-content:flex-end}
 #day button.close{font:inherit;font-size:14px;font-weight:700;min-height:44px;padding:0 18px;border:0;border-radius:10px;background:var(--night2);color:#F4F1E8;box-shadow:0 4px 0 #171A33;cursor:pointer}
 @media (max-width:600px){#day .lanes{grid-template-columns:80px minmax(0,1fr) 70px}#day .sum .n{font-size:34px}}
+/* ボスの席（壁際・ホワイトボードの横。狭い画面では床の上） */
+.bossdesk{width:190px;height:214px;z-index:6}
+.bossdesk .crew.stand{left:62px;top:30px;width:66px;height:93px}
+.bossdesk .crew.podium{left:35px;top:104px;width:120px;height:66px;z-index:3}
+.bossdesk .bubble{left:95px;bottom:auto;top:0;max-width:178px}
+.bossdesk .tag{left:95px;top:176px;max-width:184px;border-color:#2E3A66}
+.bossdesk .tag.turn{border-color:var(--turn)}
+.bossdesk .tag small{font-weight:400;color:#6B5442;white-space:nowrap}
+.bossdesk .gauge{left:51px;top:203px}
+.bossdesk .gpct{left:143px;top:198px}
+.bossdesk.drop,.bossseat.drop{outline:6px solid #FFD27A;outline-offset:2px;border-radius:12px}
+.bubble.idle{background:#EDEAE2;font-weight:400}
+.bossseat{display:none;z-index:12;width:190px;height:214px;box-sizing:border-box;border:4px dashed #2E3A66;border-radius:12px;background:rgba(220,227,247,.85);color:#2E3A66;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:700;text-align:center;pointer-events:none}
+.bossseat small{font-size:12px;font-weight:400}
+#room.dragging .bossseat{display:flex}
+.mega{display:inline-flex;align-items:center;justify-content:center;flex:none;width:18px;height:18px;border-radius:50%;background:#2E3A66}
+.tag i.mega{width:18px;height:18px;margin-right:-6px}
+.flight{position:absolute;left:0;top:0;z-index:11;pointer-events:none;overflow:visible}
+.flight path.trail{fill:none;stroke:#2E3A66;stroke-width:3;stroke-dasharray:2 9;stroke-linecap:round;animation:trail 2.2s ease-out forwards}
+.flight .plane{offset-rotate:auto;animation:fly 1.2s ease-in-out forwards}
+@keyframes fly{from{offset-distance:0%}to{offset-distance:100%}}
+@keyframes trail{0%,60%{opacity:1}100%{opacity:0}}
+#card .asked{display:flex;gap:10px;align-items:flex-start;border-top:1px solid var(--night2);padding-top:10px}
+#card .asked[hidden],#card .asks[hidden]{display:none}
+#card .asked .mega{width:24px;height:24px;background:#FFD27A}
+#card .asked small{display:block;font-size:12px;color:#FFD27A;font-weight:700}
+#card .asked span{font-size:14px;line-height:1.55;color:#E3E5EE}
+#card .asks{display:flex;flex-direction:column;gap:6px;border-top:1px solid var(--night2);padding-top:10px}
+#card .asks .hd{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+#card .asks .hd b{font-size:13px;color:#FFD27A}
+#card .asks .hd small{font-size:12px;color:var(--mute)}
+#card .asks .r{width:100%;display:grid;grid-template-columns:10px minmax(80px,150px) minmax(0,1fr) 64px;gap:10px;align-items:center;min-height:32px;padding:0 6px;border:0;border-radius:8px;background:none;box-shadow:none;color:#F4F1E8;font:inherit;font-size:13px;font-weight:400;text-align:left;cursor:pointer}
+#card .asks .r:hover{background:var(--night2)}
+#card .asks .r[disabled]{cursor:default;background:none}
+#card .asks .r i{width:10px;height:10px;border-radius:50%}
+#card .asks .r b{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#card .asks .r span{color:var(--mute);overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#card .asks .r .at{text-align:right}
+#card .asks .none{font-size:13px;color:var(--mute)}
+#move label[hidden]{display:none}
 @media (prefers-reduced-motion: reduce){*{animation:none!important}}
 </style>
 </head>
@@ -340,8 +381,8 @@ code b.r,.onb b.r{color:#FFD27A}
 <div id="move" hidden><div class="box" role="dialog" aria-modal="true" aria-labelledby="move-t">
   <div class="who"><span class="from"></span></div>
   <h2 id="move-t"></h2>
-  <p>この画面からは Claude に送れません。<strong>このセッションのタブ</strong>で次のコマンドを打つと、島に移ります。</p>
-  <label>係名（名札に出る役割。日本語でもかまいません）<input type="text" name="role" maxlength="40" placeholder="review" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
+  <p class="say"></p>
+  <label class="rolelab">係名（名札に出る役割。日本語でもかまいません）<input type="text" name="role" maxlength="40" placeholder="review" autocomplete="off" autocapitalize="off" spellcheck="false"></label>
   <div class="row"><code></code><button type="button" class="copy">コピー</button></div>
   <div class="formerr" role="alert"></div>
   <div class="wait" hidden role="status"><i></i><span></span></div>
@@ -364,7 +405,9 @@ code b.r,.onb b.r{color:#FFD27A}
     <div class="meta"><b></b><span class="where"></span></div>
     <div class="name"></div>
     <div class="cwd"></div>
+    <div class="asked" hidden><i class="mega"></i><div><small></small><span></span></div></div>
     <div class="text"></div>
+    <div class="asks" hidden><div class="hd"><b>今日 頼んだ係</b><small></small></div><div class="list"></div></div>
     <div class="today" hidden><div class="lab">今日</div><div class="stats"></div><div class="lane"></div><div class="axis"></div></div>
     <div class="hint"></div>
     <div class="acts"><button type="button" class="primary"></button><button type="button" class="ghost leave" hidden>退出させる</button><button type="button" class="ghost close">閉じる</button></div>
@@ -394,6 +437,10 @@ const ZMIN = 0.6, ZMAX = 1.4;
 
 // 島は islands.json から読む（/api/islands）。最後に必ず「その他」を足す。ラグは島の色を淡くした色
 const OTHER = { id: 'other', name: 'その他', color: '#3FA7A2', prefixes: [] };
+// ボス：ほかのセッションを見回って指示を出すセッション。名前が boss（boss@… も）なら、島ではなく壁際のボスの席に立つ
+const BOSS = { id: '__boss', name: 'ボス', label: 'ボス', color: '#6E7FC0', prefixes: ['boss'] };
+const BOSS_W = 190, BOSS_H = 214;
+function isBoss(name) { const n = name.trim().toLowerCase(); return n.startsWith('boss') && !/^[a-z0-9]/.test(n.slice(4)); }
 let ISLANDS = [OTHER], islandsSig = '', rawIslands = [];
 function mix(hex, to, t) {
   const a = [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16)), b = [1, 3, 5].map(i => parseInt(to.slice(i, i + 2), 16));
@@ -418,7 +465,7 @@ const RANK = { turn: 0, busy: 1, sleep: 2, gone: 3 };
 
 const room = document.getElementById('room');
 const stage = document.getElementById('stage');
-let lastSig = '', refs = new Map(), drops = [], boardEl = null, clockEl = null, usageEl = null, usage = null, roomH = 600;
+let roomW0 = 1440, lastSig = '', refs = new Map(), drops = [], boardEl = null, clockEl = null, usageEl = null, usage = null, roomH = 600;
 let dailyEl = null, today = null, todayAt = 0, signDays = new Map();
 
 function el(tag, cls, parent, style) {
@@ -440,6 +487,7 @@ function hash(s) { let h = 0; for (const c of s) h = (h * 31 + c.codePointAt(0))
 // APP・app-review・app@review・SHOPセール は島に入り、appx のような別の単語は入らない
 // 複数の島に当てはまるときは、呼び名のいちばん長い島（shop-cf-x は shop ではなく shop-cf の島）
 function islandOf(name) {
+  if (isBoss(name)) return BOSS;
   const n = name.toLowerCase();
   let best = ISLANDS[ISLANDS.length - 1], len = 0;
   for (const i of ISLANDS) for (const k of i.prefixes) {
@@ -449,6 +497,8 @@ function islandOf(name) {
 }
 function stateOf(m, now) {
   if (m.status === 'gone') return 'gone';
+  // ボスは見回りの合間に待つのが仕事なので、待っていても「あなたの番」や放置にしない（確認待ちだけは知らせる）
+  if (m.boss) return m.status === 'idle' ? 'idle' : m.status === 'busy' || m.status === 'shell' ? 'busy' : 'turn';
   if (m.status === 'idle') return now - m.since <= FRESH_MIN * 60e3 ? 'turn' : 'sleep';
   if (m.status === 'busy' || m.status === 'shell') return 'busy';
   return 'turn'; // waiting（許可などの確認待ち）と知らない状態は、こちらの番として目立たせる
@@ -499,6 +549,22 @@ ${on ? '<rect x="22" y="3" width="4" height="1" fill="#fff" opacity=".8"/><rect 
 <rect x="2" y="12" width="3" height="3" fill="#F4F1E8"/><rect x="1" y="22" width="30" height="6" fill="#A8774A"/><rect x="1" y="27" width="30" height="1" fill="#8A5E38"/>
 <rect x="22" y="23" width="7" height="3" fill="#B98757"/><rect x="24" y="24" width="3" height="1" fill="${O}"/></svg>`;
 }
+// ボス：紺の帽子とネクタイ、クリップボード。確認待ちのときは手を挙げる
+function bossSvg(up) {
+  return `<svg width="66" height="93" viewBox="0 0 17 24" shape-rendering="crispEdges" aria-hidden="true">
+<rect x="1" y="1" width="14" height="3" fill="${O}"/><rect x="2" y="1" width="12" height="2" fill="#2E3A66"/><rect x="0" y="3" width="10" height="1" fill="${O}"/>
+<rect x="1" y="4" width="14" height="8" fill="${O}"/><rect x="2" y="4" width="12" height="7" fill="#F6CFAE"/><rect x="2" y="4" width="2" height="3" fill="#5A3A26"/><rect x="12" y="4" width="2" height="3" fill="#5A3A26"/>
+<rect x="5" y="7" width="1" height="2" fill="${O}"/><rect x="10" y="7" width="1" height="2" fill="${O}"/><rect x="4" y="9" width="1" height="1" fill="#F2A7A0"/><rect x="11" y="9" width="1" height="1" fill="#F2A7A0"/>
+<rect x="3" y="12" width="10" height="9" fill="${O}"/><rect x="4" y="12" width="8" height="8" fill="#2E3A66"/><rect x="7" y="12" width="2" height="5" fill="#F2A93B"/>
+${up ? `<rect x="0" y="3" width="3" height="10" fill="${O}"/><rect x="1" y="5" width="1" height="7" fill="#2E3A66"/><rect x="1" y="4" width="1" height="1" fill="#F6CFAE"/>` : ''}
+<rect x="11" y="13" width="5" height="7" fill="${O}"/><rect x="12" y="14" width="3" height="5" fill="#FBF6EA"/><rect x="12" y="15" width="3" height="1" fill="#9AA1BB"/><rect x="12" y="17" width="3" height="1" fill="#9AA1BB"/></svg>`;
+}
+function podiumSvg(on) {
+  return `<svg width="120" height="66" viewBox="0 0 40 22" shape-rendering="crispEdges" aria-hidden="true">
+<rect x="0" y="0" width="40" height="22" fill="${O}"/><rect x="1" y="1" width="38" height="7" fill="#6B4A33"/><rect x="1" y="8" width="38" height="13" fill="#8A5E3F"/>
+<rect x="12" y="11" width="16" height="7" fill="${O}"/><rect ${on ? 'class="glow" ' : ''}x="13" y="12" width="14" height="5" fill="${on ? '#F2A93B' : '#C9A47E'}"/></svg>`;
+}
+const MEGA = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11v2a1 1 0 0 0 1 1h3l5 4V6L7 10H4a1 1 0 0 0-1 1z"/><path d="M16 9a4 4 0 0 1 0 6"/></svg>';
 const CHAIR = `<svg width="60" height="48" viewBox="0 0 20 16" shape-rendering="crispEdges" aria-hidden="true">
 <rect x="1" y="0" width="18" height="16" fill="${O}"/><rect x="0" y="1" width="20" height="14" fill="${O}"/><rect x="1" y="1" width="18" height="14" fill="#3D4F7A"/><rect x="2" y="2" width="16" height="2" fill="#56699A"/></svg>`;
 const PLANT = `<svg width="48" height="60" viewBox="0 0 16 20" shape-rendering="crispEdges" aria-hidden="true">
@@ -655,6 +721,29 @@ function openDay() { if (selectedKey) select(selectedKey); drawDay(); dayEl.hidd
 function closeDay() { dayEl.hidden = true; dailyEl?.querySelector('.open')?.focus(); }
 dayEl.querySelector('.close').addEventListener('click', closeDay);
 dayEl.addEventListener('click', e => { if (e.target === dayEl) closeDay(); });
+// ボスのカード：今日頼んだ係（新しい順）と、見回りの回数。行を押すとその人のカードへ
+function fillCardAsks(m, now) {
+  const box = card.querySelector('.asks');
+  box.hidden = !m.boss;
+  if (box.hidden) return;
+  const asks = todayAsks(), st = dayStats(), me = st && st.sessions.find(s => s.key === m.key);
+  box.querySelector('small').textContent = (me ? '見回り ' + me.prompts + '回・' : '') + '頼んだ ' + asks.length + '件';
+  const list = box.querySelector('.list');
+  list.replaceChildren();
+  if (!asks.length) { el('div', 'none', list).textContent = today ? 'まだだれにも頼んでいません' : '読み込んでいます…'; return; }
+  const max = 6;
+  for (const a of asks.slice(0, max)) {
+    const live = lastList.find(x => x.key === a.key);
+    const r = el('button', 'r', list);
+    r.type = 'button';
+    el('i', '', r).style.background = live ? live.island.color : islandOf(a.name).color;
+    el('b', '', r).textContent = a.name;
+    el('span', '', r).textContent = a.line;
+    el('span', 'at', r).textContent = ago(now - a.at);
+    if (live) r.addEventListener('click', () => select(a.key)); else r.disabled = true;
+  }
+  if (asks.length > max) el('div', 'none', list).textContent = 'ほか ' + (asks.length - max) + '件';
+}
 // カードの「今日」：このセッションの時間・指示・全体のうちの割合と、1日の帯
 function fillCardToday(m) {
   const box = card.querySelector('.today'), st = dayStats();
@@ -672,7 +761,19 @@ function fillCardToday(m) {
   drawAxis(box.querySelector('.axis'), st.start, st.end);
 }
 
-function buildWall(roomW) {
+// 壁の並べ方。ボスがいれば右端にボスの席を空け、ホワイトボードを詰めて時計を小さくする。入らなければ null（ボスは床に立つ）
+function wallPlan(roomW, withBoss) {
+  if (!withBoss) {
+    const left = Math.max(680, roomW - 760);
+    return { board: left, boardW: 560, clock: roomW - 110 >= left + 570 ? roomW - 110 : null, small: false, boss: null };
+  }
+  const boss = roomW - BOSS_W - 16, room0 = boss - 12 - 680;
+  if (room0 < 360) return null;
+  const clock = room0 - 72 >= 400;
+  const boardW = Math.min(560, room0 - (clock ? 72 : 0));
+  return { board: 680, boardW, clock: clock ? 680 + boardW + 12 : null, small: true, boss };
+}
+function buildWall(roomW, wp) {
   const wall = el('div', 'abs wall scenery', room);
   el('div', 'abs top', wall); el('div', 'abs base', wall);
   // 左は今日の日報（前は窓）、右端は時計（前は本棚）
@@ -680,9 +781,9 @@ function buildWall(roomW) {
   dailyEl.setAttribute('aria-label', '今日の日報');
   drawDaily();
   // 時計はホワイトボードの右に入るときだけ（狭い画面ではボードの下に隠れるので出さない）
-  clockEl = el('div', 'abs clock', room, { left: (roomW - 110) + 'px' });
-  if (roomW - 110 < Math.max(680, roomW - 760) + 560 + 10) clockEl.style.display = 'none';
-  boardEl = el('div', 'abs board', room, { left: Math.max(680, roomW - 760) + 'px' });
+  clockEl = el('div', 'abs clock' + (wp.small ? ' small' : ''), room, { left: (wp.clock ?? 0) + 'px' });
+  if (wp.clock === null) clockEl.style.display = 'none';
+  boardEl = el('div', 'abs board', room, { left: wp.board + 'px', width: wp.boardW + 'px' });
   usageEl = el('div', 'abs usage', room);
   drawUsage();
 }
@@ -705,6 +806,8 @@ function buildCell(parent, m, x, y) {
   const short = at > 0 && m.name.slice(at + 1) ? m.name.slice(at + 1) : m.name;
   el('span', '', tag).textContent = m.pending ? '移り待ち' : m.state === 'gone' ? short + '（閉じた）' : short;
   tag.title = m.name;
+  // ボスに頼まれた作業の途中なら、名札にメガホンの印（返事を終えたら消える）
+  if (asking(m)) { el('i', 'mega', tag).innerHTML = MEGA; tag.querySelector('.mega').style.color = '#FBF6EA'; tag.title = m.name + '（ボスに頼まれた作業の途中）'; }
 
   let btn;
   if (m.state === 'gone') {
@@ -734,6 +837,68 @@ function buildCell(parent, m, x, y) {
   refs.set(m.key, { bubble, btn, gauge, gpct });
 }
 
+function asking(m) { return !!m.asked && m.state === 'busy'; }
+
+// ボスの席：帽子のキャラと演台。押すとカード、ドラッグで島へ移せる（ほかの人と同じ）
+let bossEl = null;
+function buildBoss(m, x, y) {
+  const d = el('div', 'abs bossdesk', room, { left: x + 'px', top: y + 'px' });
+  bossEl = d;
+  let bubble = null, btn;
+  if (m.state !== 'gone') {
+    bubble = el('div', 'bubble ' + m.state, d);
+    svg(d, podiumSvg(m.state === 'busy'), 'scenery', { left: '35px', top: '104px', zIndex: 3 });
+    btn = el('button', 'crew stand' + (m.state === 'turn' ? ' hop' : ''), d);
+    btn.innerHTML = bossSvg(m.state === 'turn');
+    btn.addEventListener('pointerdown', e => press(e, m, btn));
+  } else {
+    btn = el('button', 'crew podium', d);
+    btn.innerHTML = podiumSvg(false);
+  }
+  btn.type = 'button';
+  btn.setAttribute('aria-label', m.name + (m.state === 'gone' ? '（ボス・閉じた）' : '（ボス）') + ' のカードを開く');
+  btn.addEventListener('click', () => select(m.key));
+  if (m.key === selectedKey) btn.classList.add('sel');
+  const tag = el('div', 'tag ' + m.state, d);
+  el('i', 'mega', tag).innerHTML = MEGA;
+  tag.querySelector('.mega').style.color = '#FBF6EA';
+  el('span', '', tag).textContent = m.state === 'gone' ? m.name + '（閉じた）' : m.name;
+  const n = todayAsks().length;
+  if (n && m.state !== 'gone') el('small', '', tag).textContent = '今日 ' + n + '件';
+  tag.title = m.name;
+  let gauge = null, gpct = null;
+  if (m.state !== 'gone') { gauge = el('i', '', el('div', 'gauge', d)); gpct = el('span', 'gpct', d); }
+  refs.set(m.key, { bubble, btn, gauge, gpct });
+  if (m.state === 'gone') drops.push({ boss: true, el: d });
+}
+// ボスがいないときは、ドラッグしている間だけボスの席の枠を出す（落とすと /rename boss）
+function buildBossSeat(x, y) {
+  const d = el('div', 'abs bossseat', room, { left: x + 'px', top: y + 'px' });
+  d.innerHTML = MEGA.replace('width="11" height="11"', 'width="22" height="22"') + 'ボスの席<small>ここに落とすとボスに</small>';
+  drops.push({ boss: true, el: d });
+}
+// 今日ボスから届いた指示（新しい順）。/api/today の asks から
+function todayAsks() {
+  if (!today) return [];
+  const names = new Map(lastMembers.map(m => [m.key, m.name]));
+  const out = [];
+  for (const s of today.sessions || []) for (const a of s.asks || []) out.push({ key: s.key, name: names.get(s.key) || s.spans[s.spans.length - 1]?.name || s.key.slice(0, 8), ...a });
+  return out.sort((a, b) => b.at - a.at);
+}
+// ボスが新しく指示を送ったら、ボスの席からその人へ紙ひこうきを1回飛ばす
+const seenAsk = new Map();
+function fly(key) {
+  const to = refs.get(key)?.btn;
+  if (!bossEl || !to || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const rr = room.getBoundingClientRect(), a = bossEl.getBoundingClientRect(), b = to.getBoundingClientRect();
+  const x1 = (a.left + a.width / 2 - rr.left) / curZ, y1 = (a.top + a.height - 30 - rr.top) / curZ;
+  const x2 = (b.left + b.width / 2 - rr.left) / curZ, y2 = (b.top - rr.top) / curZ;
+  const d = `M${x1} ${y1} C ${x1 - 80} ${y1 + 40}, ${x2 + 60} ${y2 - 120}, ${x2} ${y2}`;
+  const f = svg(room, `<svg class="flight" width="${roomW0}" height="${roomH}" viewBox="0 0 ${roomW0} ${roomH}"><path class="trail" d="${d}"/>
+<path class="plane" style="offset-path:path('${d}')" d="M-16 0 L16 -10 L4 12 L0 3 Z M0 3 L16 -10" fill="#FBF6EA" stroke="#2E3A66" stroke-width="2.5" stroke-linejoin="round"/></svg>`, '', { left: 0, top: 0, zIndex: 11 });
+  setTimeout(() => f.remove(), 2400);
+}
+
 function islandHeight(n) { return n ? 58 + Math.ceil(n / PER_ROW) * CELL_H + 8 : EMPTY_H; }
 
 // 島の並べ方：画面の幅に入るだけ列を作り、いちばん短い列に順に積む（誰もいない島は低くする）
@@ -741,16 +906,20 @@ function roomWidth(z) { return Math.max(ISLAND_W * 2 + 50, Math.floor(window.inn
 function plan(list, roomW) {
   const cols = Math.max(1, Math.floor((roomW - 6) / (ISLAND_W + 12)));
   const colY = Array(cols).fill(WALL + 24);
-  const out = [...ISLANDS, { add: true }].map(isl => {
-    const members = isl.add ? [] : list.filter(m => m.island === isl).sort((a, b) => RANK[a.state] - RANK[b.state] || a.name.localeCompare(b.name));
-    const h = islandHeight(members.length);
+  const boss = list.find(m => m.island === BOSS) || null;
+  const wall = wallPlan(roomW, !!boss);
+  // 壁に入らないほど狭いときは、ボスは島の並びの先頭（床の上）に立つ
+  const slots = [...(boss && !wall ? [{ boss: true }] : []), ...ISLANDS, { add: true }];
+  const out = slots.map(isl => {
+    const members = isl.add || isl.boss ? [] : list.filter(m => m.island === isl).sort((a, b) => RANK[a.state] - RANK[b.state] || a.name.localeCompare(b.name));
+    const h = isl.boss ? BOSS_H + 30 : islandHeight(members.length);
     let c = 0;
     for (let k = 1; k < cols; k++) if (colY[k] < colY[c]) c = k;
     const p = { isl, members, x: 18 + c * (ISLAND_W + 12), y: colY[c], h };
     colY[c] += h + GAP;
     return p;
   });
-  return { out, height: Math.max(...colY) - GAP + 110 }; // 下はカードの分だけ空ける
+  return { out, height: Math.max(...colY) - GAP + 110, boss, wall: wall || wallPlan(roomW, false), seat: wallPlan(roomW, true)?.boss ?? null }; // 下はカードの分だけ空ける
 }
 
 // 大きさ：手で選んだ倍率（zoom）か、「全体」なら全部の島が1画面に入るいちばん大きい倍率。どちらもこのブラウザに覚える
@@ -768,7 +937,7 @@ function chooseZoom(list) {
 // ---- はじめの案内（島と係）。島に名前付きで座っている人がいなくて、まだ「わかった」を押していないときだけ出す ----
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]); }
 function showOnboarding(list) {
-  return !load('office.onboarded', false) && !list.some(m => m.island.id !== OTHER.id && m.state !== 'gone');
+  return !load('office.onboarded', false) && !list.some(m => m.island.id !== OTHER.id && m.island !== BOSS && m.state !== 'gone');
 }
 function miniSvg(hair, shirt, hop) {
   return `<svg ${hop ? 'class="hop" ' : ''}width="34" height="48" viewBox="0 0 17 24" shape-rendering="crispEdges" aria-hidden="true"><rect x="1" y="2" width="14" height="9" fill="${O}"/><rect x="2" y="2" width="12" height="9" fill="#F6CFAE"/><rect x="2" y="2" width="12" height="2" fill="${hair}"/><rect x="5" y="6" width="1" height="2" fill="${O}"/><rect x="10" y="6" width="1" height="2" fill="${O}"/><rect x="3" y="12" width="10" height="8" fill="${O}"/><rect x="4" y="12" width="8" height="7" fill="${shirt}"/></svg>`;
@@ -835,10 +1004,18 @@ function build(list) {
   signDays.clear();
   drops = [];
   room.style.width = roomW + 'px';
+  roomW0 = roomW;
+  bossEl = null;
   const floor = el('div', 'abs floor scenery', room, { top: WALL + 'px' });
-  buildWall(roomW);
+  buildWall(roomW, P.wall);
+  if (P.boss && P.wall.boss !== null) buildBoss(P.boss, P.wall.boss, 22);
+  if (!P.boss && P.seat !== null) buildBossSeat(P.seat, 8);
   const onb = showOnboarding(list);
   for (const { isl, members, x, y, h } of P.out) {
+    if (isl.boss) {
+      buildBoss(P.boss, x + (ISLAND_W - BOSS_W) / 2, y + 10);
+      continue;
+    }
     if (isl.add) {
       const b = el('button', 'abs addisle' + (onb ? ' glow' : ''), room, { left: x + 'px', top: (y + 18) + 'px', width: ISLAND_W + 'px', height: (h - 18) + 'px' });
       b.type = 'button';
@@ -885,7 +1062,9 @@ function update(list, now) {
     let text = '';
     const used = m.ctx ? Math.round(m.ctx.used) : null;
     const hot = used !== null && used >= CTX_HOT;
-    if (m.state === 'busy') text = '作業中 ' + dur(now - m.since);
+    if (m.boss && m.state === 'busy') text = '見回り中 ' + dur(now - m.since);
+    else if (m.boss && m.state === 'idle') text = '見回り ' + ago(now - m.since);
+    else if (m.state === 'busy') text = '作業中 ' + dur(now - m.since);
     else if (m.state === 'turn') text = m.status === 'waiting' ? '確認待ち ' + ago(now - m.since) : ago(now - m.since) + '・' + (hot ? '' : (m.line || '返事があります'));
     else if (m.state === 'sleep') text = '放置 ' + dur(now - m.since);
     if (hot) text += (m.state === 'turn' ? '' : '・') + 'ctx ' + used + '% そろそろ /compact';
@@ -931,13 +1110,23 @@ function render(members, now) {
     if (p && island.id === p.island) { pending.delete(m.key); moved(m, island); }
     else if (p && now > p.until) pending.delete(m.key);
     else if (p) { const to = ISLANDS.find(i => i.id === p.island); if (to) { island = to; pend = true; } }
-    return { ...m, state: stateOf(m, now), island, pending: pend };
+    return { ...m, island, pending: pend };
   });
-  const sig = islandsSig + JSON.stringify(list.map(m => [m.key, m.name, m.state, m.pending]));
+  // ボスの席は1つ。ボスの名前のセッションが何人かいたら、動いている中でいちばん新しい人を席に、ほかは「その他」に
+  const bosses = list.filter(m => m.island === BOSS).sort((a, b) => (a.status === 'gone') - (b.status === 'gone') || b.since - a.since);
+  bosses.slice(1).forEach(m => { m.island = OTHER; });
+  if (bosses[0]) bosses[0].boss = true;
+  list.forEach(m => { m.state = stateOf(m, now); });
+  const sig = islandsSig + JSON.stringify(list.map(m => [m.key, m.name, m.state, m.pending, m.island.id, asking(m)])) + todayAsks().length;
   // ドラッグ中は部屋を作り直さない（つかんでいる人と島の場所が変わらないように）
   if (sig !== lastSig && !drag) { build(list); lastSig = sig; }
   update(list, now);
   lastList = list;
+  for (const m of list) {
+    const at = m.asked ? m.asked.at : 0, prev = seenAsk.get(m.key);
+    if (prev !== undefined && at && at !== prev && now - at < 60e3) fly(m.key);
+    seenAsk.set(m.key, at);
+  }
   if (selectedKey) fillCard(now);
 }
 
@@ -970,7 +1159,7 @@ function copyText(text, msg) {
 }
 
 // キャラを押すと下にカードを出す。中身は読み直すたびに新しくする
-const STATE_LABEL = { busy: '作業中', turn: 'あなたの番', sleep: '放置', gone: '閉じた' };
+const STATE_LABEL = { busy: '作業中', turn: 'あなたの番', sleep: '放置', gone: '閉じた', idle: '待機中' };
 let selectedKey = '', lastList = [];
 const card = document.getElementById('card');
 function select(key) {
@@ -984,13 +1173,23 @@ function fillCard(now) {
   if (!m) { selectedKey = ''; if (card.dataset.mode === 'person') card.classList.remove('open'); return; }
   card.dataset.mode = 'person';
   card.querySelector('.meta b').style.background = m.island.color;
-  const label = m.status === 'waiting' ? '確認待ち（' + (m.waiting || '許可') + '）' : STATE_LABEL[m.state];
-  const when = m.state === 'busy' ? '始めて ' + dur(now - m.since) : ago(now - m.since);
+  const label = m.status === 'waiting' ? '確認待ち（' + (m.waiting || '許可') + '）' : m.boss && m.state === 'busy' ? '見回り中' : STATE_LABEL[m.state];
+  const when = m.state === 'busy' ? '始めて ' + dur(now - m.since) : m.boss && m.state === 'idle' ? '最後の見回り ' + ago(now - m.since) : ago(now - m.since);
   card.querySelector('.where').textContent = m.island.label + '・' + label + '・' + when;
   card.querySelector('.name').textContent = m.name;
   const c = m.ctx;
   card.querySelector('.cwd').textContent = (m.cwd || m.dir || '') + (c ? '・コンテキスト ' + Math.round(c.used) + '%（' + tok(c.tokens) + ' / ' + tok(c.size) + '）' : m.state === 'gone' ? '' : '・コンテキスト —（話しかけると出ます）');
   card.querySelector('.text').textContent = m.excerpt || '';
+  // ボスに頼まれたこと（人が次に指示するまで残す）
+  const asked = card.querySelector('.asked');
+  asked.hidden = !m.asked || m.boss;
+  if (!asked.hidden) {
+    asked.querySelector('.mega').innerHTML = MEGA.replace('width="11" height="11"', 'width="14" height="14"');
+    asked.querySelector('.mega').style.color = '#2E3A66';
+    asked.querySelector('small').textContent = 'ボスから・' + ago(now - m.asked.at);
+    asked.querySelector('span').textContent = m.asked.line;
+  }
+  fillCardAsks(m, now);
   fillCardToday(m);
   const hint = card.querySelector('.hint');
   const btn = card.querySelector('.primary');
@@ -1021,6 +1220,13 @@ function fillCard(now) {
           el('small', '', b).textContent = is.name;
           b.addEventListener('click', () => copyText('/rename ' + (is.prefixes[0] || is.id) + '@', '/rename ' + (is.prefixes[0] || is.id) + '@ をコピーしました。タブに貼って、続けて係名を打ってください'));
         });
+        if (!lastList.some(x => x.boss && x.state !== 'gone')) {
+          const b = el('button', 'chip', chips); b.type = 'button';
+          el('i', '', b).style.background = BOSS.color;
+          el('code', '', b).innerHTML = '/rename <b class="h">boss</b>';
+          el('small', '', b).textContent = 'ボス（ほかのセッションを見回る役）';
+          b.addEventListener('click', () => copyText('/rename boss', '/rename boss をコピーしました。タブに貼って Enter を押すと、ボスの席に立ちます'));
+        }
       } else {
         p.textContent = 'まず島を作ってから、このセッションのタブで /rename 島の呼び名@係名 と打つと移ります';
         const b = el('button', 'chip', chips); b.type = 'button'; b.textContent = '＋ 島を作る';
@@ -1192,6 +1398,7 @@ form.addEventListener('submit', e => {
   }
   const id = form.elements.id.value.trim();
   if (!/^[a-z0-9][a-z0-9-]*$/.test(id)) { err.textContent = '島の呼び名は英小文字・数字・- で入れてください（例：shop）'; return; }
+  if (id === 'boss') { err.textContent = '「boss」はボスの席に使うので、島の呼び名にはできません'; return; }
   const dup = rawIslands.find(i => i.prefixes.includes(id));
   if (dup) { err.textContent = '「' + id + '」は「' + dup.name + '」の島の呼び名と同じです'; return; }
   saveIslands([...rawIslands, { id, name, color }], '', { id, name });
@@ -1220,20 +1427,22 @@ window.addEventListener('pointermove', e => {
     if (Math.hypot(e.clientX - press0.x, e.clientY - press0.y) < 6) return; // 少し動いただけなら、押した（カードを開く）とみなす
     drag = { ...press0, hit: null, from: islandOf(press0.m.name).id };
     drag.btn.classList.add('lifted');
+    if (drag.from !== BOSS.id) room.classList.add('dragging');
     ghost.querySelector('.fig').innerHTML = drag.btn.innerHTML;
     ghost.classList.add('on');
   }
   ghost.style.left = e.clientX + 'px';
   ghost.style.top = e.clientY + 'px';
   const hit = drops.find(d => { const r = d.el.getBoundingClientRect(); return e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom; }) || null;
-  const ok = hit && (hit.add || hit.isl.id !== drag.from) ? hit : null;
+  const ok = hit && (hit.add || (hit.boss ? drag.from !== BOSS.id : hit.isl.id !== drag.from)) ? hit : null;
   if (ok !== drag.hit) { drag.hit?.el.classList.remove('drop'); ok?.el.classList.add('drop'); drag.hit = ok; }
   const to = ghost.querySelector('.to');
   to.className = 'to' + (ok ? '' : ' no');
   to.replaceChildren();
   if (ok && ok.add) to.textContent = '新しい島を作って移す';
+  else if (ok && ok.boss) { el('i', '', to).style.background = BOSS.color; to.append('ボスにする'); }
   else if (ok) { el('i', '', to).style.background = ok.isl.color; to.append('「' + ok.isl.label + '」へ移す'); }
-  else to.textContent = hit ? 'いまいる島です' : '島の上で離す';
+  else to.textContent = hit ? (hit.boss ? 'いまボスです' : 'いまいる島です') : '島の上で離す';
 });
 window.addEventListener('pointerup', () => {
   press0 = null;
@@ -1242,12 +1451,14 @@ window.addEventListener('pointerup', () => {
   noClick = true; setTimeout(() => { noClick = false; }, 0); // 離したときの click でカードが開かないように
   cancelDrag();
   if (hit && hit.add) { openIsland(null); afterMake = m.key; }
+  else if (hit && hit.boss) openMove(m.key, BOSS);
   else if (hit) openMove(m.key, hit.isl);
 });
 window.addEventListener('pointercancel', () => { press0 = null; if (drag) cancelDrag(); });
 window.addEventListener('click', e => { if (noClick) { e.stopPropagation(); e.preventDefault(); } }, true);
 function cancelDrag() {
   ghost.classList.remove('on');
+  room.classList.remove('dragging');
   drag.btn.classList.remove('lifted');
   drag.hit?.el.classList.remove('drop');
   drag = null; press0 = null;
@@ -1269,13 +1480,15 @@ function openMove(key, isl) {
   if (!m) return;
   if (selectedKey) select(selectedKey);
   clearTimeout(moveTimer);
-  mv = { key, head: isl.prefixes[0] || isl.id, copied: false };
+  mv = { key, head: isl.prefixes[0] || isl.id, copied: false, boss: isl === BOSS };
   pending.set(key, { island: isl.id, until: Date.now() + PENDING_MS });
   const from = islandOf(m.name);
   moveEl.querySelector('.from').replaceChildren('セッション ' + m.name + '（いまは「' + from.label + '」）→ ');
   const dot = el('b', '', moveEl.querySelector('.from')); dot.style.background = isl.color;
   moveEl.querySelector('.from').append(isl.label);
-  moveEl.querySelector('h2').textContent = '「' + isl.label + '」の島へ移す';
+  moveEl.querySelector('h2').textContent = mv.boss ? 'ボスにする' : '「' + isl.label + '」の島へ移す';
+  moveEl.querySelector('.say').innerHTML = 'この画面からは Claude に送れません。<strong>このセッションのタブ</strong>で次のコマンドを打つと、' + (mv.boss ? 'ボスの席に立ちます。' : '島に移ります。');
+  moveEl.querySelector('.rolelab').hidden = mv.boss;
   roleIn.value = roleOf(m);
   moveEl.querySelector('.formerr').textContent = '';
   const w = moveEl.querySelector('.wait'); w.hidden = true; w.classList.remove('ok');
@@ -1283,17 +1496,20 @@ function openMove(key, isl) {
   moveEl.querySelector('.cancel').textContent = 'やめる';
   drawCmd();
   moveEl.hidden = false;
-  roleIn.focus(); roleIn.select();
+  if (mv.boss) moveEl.querySelector('.copy').focus(); else { roleIn.focus(); roleIn.select(); }
   relayout();
 }
 function drawCmd() {
+  if (mv.boss) { moveEl.querySelector('code').innerHTML = '/rename <b class="h">boss</b>'; return; }
   moveEl.querySelector('code').innerHTML = `/rename <b class="h">${esc(mv.head)}</b>@<b class="r">${esc(roleIn.value.trim() || '係名')}</b>`;
 }
 function copyMove() {
   const r = roleIn.value.trim(), err = moveEl.querySelector('.formerr');
-  if (!r) { err.textContent = '係名を入れてください（例：review）'; roleIn.focus(); return; }
-  if (!ROLE_OK.test(r)) { err.textContent = '空白や ! * # などは使えません（- _ . と日本語は大丈夫です）'; roleIn.focus(); return; }
-  copyText('/rename ' + mv.head + '@' + r, 'コピーしました。このセッションのタブに貼って Enter を押してください');
+  if (mv.boss) {
+    copyText('/rename boss', 'コピーしました。このセッションのタブに貼って Enter を押してください');
+  } else if (!r) { err.textContent = '係名を入れてください（例：review）'; roleIn.focus(); return; }
+  else if (!ROLE_OK.test(r)) { err.textContent = '空白や ! * # などは使えません（- _ . と日本語は大丈夫です）'; roleIn.focus(); return; }
+  else copyText('/rename ' + mv.head + '@' + r, 'コピーしました。このセッションのタブに貼って Enter を押してください');
   mv.copied = true;
   const p = pending.get(mv.key); if (p) p.until = Date.now() + PENDING_MS;
   const w = moveEl.querySelector('.wait'); w.hidden = false;
@@ -1313,7 +1529,7 @@ function moved(m, island) {
     w.querySelector('span').textContent = '移りました：' + m.name;
     moveEl.querySelector('.acts').hidden = true;
     moveTimer = setTimeout(closeMove, 1600);
-  } else copyToast('「' + m.name + '」が「' + island.label + '」に移りました');
+  } else copyToast(island === BOSS ? '「' + m.name + '」がボスの席に立ちました' : '「' + m.name + '」が「' + island.label + '」に移りました');
 }
 roleIn.addEventListener('input', () => { moveEl.querySelector('.formerr').textContent = ''; drawCmd(); });
 roleIn.addEventListener('keydown', e => { if (e.key === 'Enter') copyMove(); });

@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/jose-sugisawa/claude-office/internal/atomicfile"
+	"github.com/jose-sugisawa/claude-office/internal/boss"
 )
 
 // Example は、島の一覧がまだ無い人に置く見本。
@@ -41,12 +42,15 @@ var (
 
 // Load は islands.json を読み、画面で使う色（Hex）と省略した prefixes を埋めて返す。
 // 書き方の誤りは、どの行かを添えて返す。
+// 呼び名 boss はボスの席に使うので、島からは黙って外す（外して呼び名が残らない島は出さない）。
+// 前の版で boss の島を作っていても、エラーで画面が開けなくならないように。
 func Load(b []byte) ([]Island, error) {
 	var list []Island
 	if err := json.Unmarshal(b, &list); err != nil {
 		return nil, fmt.Errorf("islands.json が JSON として読めません: %w", err)
 	}
 	seen := map[string]string{}
+	out := list[:0]
 	for i := range list {
 		is := &list[i]
 		is.ID = strings.TrimSpace(is.ID)
@@ -68,24 +72,35 @@ func Load(b []byte) ([]Island, error) {
 		if len(is.Prefixes) == 0 {
 			is.Prefixes = []string{is.ID}
 		}
-		for j, p := range is.Prefixes {
+		var prefixes []string
+		for _, p := range is.Prefixes {
 			p = strings.ToLower(strings.TrimSpace(p))
 			if !islandID.MatchString(p) {
 				return nil, fmt.Errorf("%s（%s）：prefixes の %q は英小文字・数字・- で書いてください", at, is.Name, p)
+			}
+			if p == boss.Prefix {
+				continue
 			}
 			if other, ok := seen[p]; ok {
 				return nil, fmt.Errorf("%s（%s）：係名の頭 %q は「%s」の島と同じです", at, is.Name, p, other)
 			}
 			seen[p] = is.Name
-			is.Prefixes[j] = p
+			prefixes = append(prefixes, p)
 		}
+		if len(prefixes) == 0 {
+			continue
+		}
+		is.Prefixes = prefixes
+		out = append(out, *is)
 	}
-	return list, nil
+	return out, nil
 }
 
 // Save は確かめたうえで islands.json を書き換える（1島1行。途中で止まっても壊れないよう、別名で書いてから置き換える）。
-func Save(path string, list []Island) error {
-	if _, err := Load(mustJSON(list)); err != nil {
+// 書くのは Load で確かめた後の一覧（呼び名 boss を外したもの）。
+func Save(path string, in []Island) error {
+	list, err := Load(mustJSON(in))
+	if err != nil {
 		return err
 	}
 	var buf bytes.Buffer

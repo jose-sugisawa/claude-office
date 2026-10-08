@@ -152,7 +152,7 @@ func TestKindOf(t *testing.T) {
 		{`"[Request interrupted by user]"`, true, false},
 	}
 	for _, c := range cases {
-		if s, p := kindOf([]byte(c.raw)); s != c.start || p != c.prompt {
+		if s, p, _ := kindOf([]byte(c.raw)); s != c.start || p != c.prompt {
 			t.Errorf("kindOf(%s) = %v,%v want %v,%v", c.raw, s, p, c.start, c.prompt)
 		}
 	}
@@ -206,5 +206,28 @@ func TestTodayCompactAndFork(t *testing.T) {
 	}
 	if ms != 15*60e3 || prompts != 1 {
 		t.Fatalf("合計 %d 分・指示 %d 回, want 15 分・1 回", ms/60e3, prompts)
+	}
+}
+
+func TestTodayBossAsks(t *testing.T) {
+	root := t.TempDir()
+	ask := func(from, body string) string {
+		return "Another Claude session sent a message:\n<cross-session-message from=\"uds:/tmp/cc-socks/1.sock\" from-name=\"" + from + "\">\n" + body + "\n</cross-session-message>"
+	}
+	writeLog(t, root, "s1",
+		user(day.Add(-time.Hour).UTC().Format(time.RFC3339Nano), ask("boss", "昨日の指示")), // 0時より前は数えない
+		user(at(9, 0), "テストを足して"),
+		assistant(at(9, 10)),
+		user(at(10, 0), ask("boss@見回り", "API の続きを進めてください")),
+		assistant(at(10, 20)),
+		user(at(11, 0), ask("app@review", "レビューしました")), // ボス以外からは数えない
+	)
+	d := NewReader(root).Today(day.Add(18 * time.Hour))
+	if len(d.Sessions) != 1 {
+		t.Fatalf("sessions = %+v", d.Sessions)
+	}
+	asks := d.Sessions[0].Asks
+	if len(asks) != 1 || asks[0].Line != "API の続きを進めてください" || asks[0].At != day.Add(10*time.Hour).UnixMilli() {
+		t.Errorf("asks = %+v", asks)
 	}
 }

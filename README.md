@@ -35,6 +35,7 @@ claude-office puts that scattered state into one office.
 |---|---|
 | Four states | Working (typing at the desk) / Your turn (a reply arrived, or it is waiting for a permission prompt; raises a hand and bounces) / Idle (30 minutes since the last reply; dozing off) / Closed (an empty chair; disappears after an hour) |
 | Islands | The island name (the part of the session name before `@`) decides which island (business or project) it sits at. Create, edit, and delete islands from the screen |
+| Boss | A session named `boss` (or `boss@…`) stands at the boss desk by the wall instead of sitting at an island: a session that looks over the others and tells them what to do next. When the boss sends a session an instruction, that session's name tag shows a megaphone and its card shows the instruction |
 | Drag to move | Drag a character onto an island to get the `/rename` command for it, ready to copy. It waits there as "移り待ち" (moving) until you run the command in that tab |
 | Whiteboard | Sessions on "your turn", longest-waiting first. Orange after 10 minutes |
 | Card | Click a character to see its working directory, the start of its last reply, and a button to copy its session name. For closed sessions, the command to resume |
@@ -89,7 +90,10 @@ claude -n blog@draft
 - The part before `@` is the island name, the part after is the role name. Joining with `-`, as in `app-review`, also seats it at that island. Case-insensitive.
 - Forgot to name it? Type `/rename app@review` in that session and it moves to the island. You can also drag the character onto an island: the screen shows the `/rename` command to copy (with the role name filled in), and tells you once it has moved. Dropping it on "＋ 島を作る" creates a new island first.
 - Names that match no island sit at "その他" (Other).
+- A session named `boss` (anything may follow `@`, as in `boss@patrol`) stands at the boss desk instead of an island. See "Boss" below. `boss` cannot be used as an island name (an existing `boss` island is ignored).
 - Spaces, `!`, `*`, `#` and the like in names mean something else to the shell. `-` `_` `@` `.` and Japanese are fine.
+
+**Boss**: you can set one session as the boss, a session that looks over the others and asks them to carry on. Start it with `claude -n boss`, or type `/rename boss` in a running session (dragging a character onto the boss desk by the wall shows that command too), and it stands next to the whiteboard. Waiting between rounds is the boss's job, so an idle boss is never listed under "あなたの番" (your turn) and never falls asleep; only a permission prompt is shown. When the boss sends another session an instruction with Claude Code's cross-session messages, that session's name tag shows a megaphone until it finishes replying, and its card shows "ボスから" (from the boss) with the first line of the instruction. A paper plane flies from the boss desk at the moment it is sent. The boss's card lists the sessions it asked today. The boss session sends the instructions itself; this screen never sends anything.
 
 **Create islands**: use "＋ 島を作る" (create island) at the end of the island row, type the island name (lowercase letters, digits, `-`) into the blank in the start command, then choose the sign name and a color. Matching the color to your terminal tab color makes sessions easier to find. Right after creating it, type a role name into the notice that appears to copy the full start command, such as `claude -n app@review` (as many as you like, one after another). Click an island's sign to rename it, change its color, or delete it.
 
@@ -110,6 +114,7 @@ Tested with Claude Code 2.1.29x.
 - Running sessions are read from `~/.claude/sessions/<pid>.json` (state, name, working directory), and the last reply from the tail of the conversation log (`~/.claude/projects/*/<session id>.jsonl`). **Neither is a published Claude Code spec.** A Claude Code update may break reading them.
 - Context and usage come straight from `context_window.used_percentage` and `rate_limits`, which Claude Code passes to the status line. The numbers appear once that session's screen has redrawn at least once after registration.
 - Today's time is counted from the timestamps in the conversation logs: from a prompt until Claude finishes replying (the log's `turn_duration` marker). A stretch of more than 30 minutes with nothing happening is not counted; while a tool is running (a subagent, a long build) it waits up to 3 hours, so a permission prompt left unanswered for a long time is counted until it is answered. `/compact` summaries are not counted as prompts, and lines copied into a new file by `--fork-session` are counted once. Time from sessions running at once is added up, so the total can exceed the clock time. A day starts at local midnight. When a session is renamed with `/rename`, time from then on goes to the new island; time before the first name goes to that first name.
+- Instructions from the boss are recognized by the sender name in the `<cross-session-message from-name="…">` that Claude Code writes into the conversation log. It does not depend on how the boss is built (which skill or prompt it patrols with).
 - If `CLAUDE_CONFIG_DIR` is set, it is read instead of `~/.claude`.
 - Editing islands and "退出させる" (dismiss) are accepted only from this screen (`127.0.0.1`, `localhost`, or `[::1]` on the same port). Writes sent to your local port from other sites are refused.
 - Reads are answered only when the page is opened as `127.0.0.1`, `localhost`, or `[::1]` (this stops another site from pointing its own hostname at 127.0.0.1 to read conversation excerpts).
@@ -133,6 +138,8 @@ internal/
   atomicfile/        writes files so an interrupted write never leaves a broken one
   session/           reads running sessions and the last reply from ~/.claude
   island/            reads, checks, and writes islands.json
+  boss/              recognizes the boss by name and reads instructions it sent
+  worklog/           today's report (time worked, counted from log timestamps)
   statusline/        the status line, and registering it in settings.json
   autostart/         launchd / systemd / Windows startup
   server/            the HTTP API, the Host/Origin checks, and -demo data
