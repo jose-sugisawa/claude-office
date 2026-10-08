@@ -12,6 +12,7 @@ import (
 	"strings"
 
 	"github.com/jose-sugisawa/claude-office/internal/atomicfile"
+	"github.com/jose-sugisawa/claude-office/internal/boss"
 )
 
 // Example は、島の一覧がまだ無い人に置く見本。
@@ -72,6 +73,9 @@ func Load(b []byte) ([]Island, error) {
 			p = strings.ToLower(strings.TrimSpace(p))
 			if !islandID.MatchString(p) {
 				return nil, fmt.Errorf("%s（%s）：prefixes の %q は英小文字・数字・- で書いてください", at, is.Name, p)
+			}
+			if p == boss.Prefix {
+				return nil, fmt.Errorf("%s（%s）：係名の頭 %q はボスの席に使うので、島には付けられません", at, is.Name, p)
 			}
 			if other, ok := seen[p]; ok {
 				return nil, fmt.Errorf("%s（%s）：係名の頭 %q は「%s」の島と同じです", at, is.Name, p, other)

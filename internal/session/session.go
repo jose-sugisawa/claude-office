@@ -13,6 +13,7 @@ import (
 	"time"
 	"unicode/utf8"
 
+	"github.com/jose-sugisawa/claude-office/internal/boss"
 	"github.com/jose-sugisawa/claude-office/internal/claudehome"
 )
 
@@ -29,6 +30,7 @@ type Member struct {
 	Named   bool            `json:"named"`   // claude -n や /rename で名前を付けたか（false は自動の名前）
 	Waiting string          `json:"waiting"` // status が waiting のとき、何を待っているか（permission など）
 	Ctx     *claudehome.Ctx `json:"ctx"`     // コンテキストの使用率（ステータスラインが書いたもの。まだ無ければ null）
+	Asked   *boss.Ask       `json:"asked"`   // いちばん新しい指示がボスから届いたものなら、その指示（人が次に指示したら null）
 }
 
 func (w *Watcher) ctxOf(sessionID string) *claudehome.Ctx {
@@ -66,6 +68,7 @@ type logCache struct {
 	size    int64
 	line    string
 	excerpt string
+	asked   *boss.Ask
 }
 
 // goneKeep は閉じた人を空いた席として残す長さ。
@@ -109,19 +112,20 @@ func (w *Watcher) Snapshot(now time.Time) []Member {
 		if json.Unmarshal(b, &s) != nil || s.SessionID == "" || !processAlive(s.PID) {
 			continue
 		}
-		line, excerpt := w.lastReplyOf(s.SessionID)
+		log := w.lastReplyOf(s.SessionID)
 		m := Member{
 			Key:     s.SessionID,
 			Name:    s.Name,
 			Status:  s.Status,
 			Since:   firstNonZero(s.StatusUpdatedAt, s.UpdatedAt, s.StartedAt),
-			Line:    line,
-			Excerpt: excerpt,
+			Line:    log.line,
+			Excerpt: log.excerpt,
 			Dir:     filepath.Base(s.Cwd),
 			Cwd:     tildePath(s.Cwd, filepath.Dir(w.root)),
 			Named:   s.NameSource == "user",
 			Waiting: s.WaitingFor,
 			Ctx:     w.ctxOf(s.SessionID),
+			Asked:   log.asked,
 		}
 		if m.Name == "" {
 			m.Name = m.Dir
@@ -167,26 +171,27 @@ func (w *Watcher) Dismiss(key string) {
 	}
 }
 
-// lastReplyOf は会話ログの末尾から最後の返事の1行目と頭の数行を返す。ファイルの大きさが変わらなければ前の結果を使う。
-func (w *Watcher) lastReplyOf(sessionID string) (string, string) {
+// lastReplyOf は会話ログの末尾から、最後の返事の1行目と頭の数行、いちばん新しい指示がボスからかを返す。
+// ファイルの大きさが変わらなければ前の結果を使う。
+func (w *Watcher) lastReplyOf(sessionID string) logCache {
 	c := w.logs[sessionID]
 	if c.path == "" {
 		if !claudehome.ValidSessionID(sessionID) { // ファイル名と Glob に使うので、* や ../ を含む ID は読まない
-			return "", ""
+			return c
 		}
 		found, _ := filepath.Glob(filepath.Join(w.root, "projects", "*", sessionID+".jsonl"))
 		if len(found) == 0 {
-			return "", ""
+			return c
 		}
 		c.path = found[0]
 	}
 	st, err := os.Stat(c.path)
 	if err != nil || st.Size() == c.size {
-		return c.line, c.excerpt
+		return c
 	}
 	f, err := os.Open(c.path)
 	if err != nil {
-		return c.line, c.excerpt
+		return c
 	}
 	defer f.Close()
 	const tail = 512 << 10
@@ -195,9 +200,72 @@ func (w *Watcher) lastReplyOf(sessionID string) (string, string) {
 	}
 	data, _ := io.ReadAll(f)
 	text := lastReply(data)
-	c.size, c.line, c.excerpt = st.Size(), firstLine(text), excerpt(text)
+	c.size, c.line, c.excerpt, c.asked = st.Size(), firstLine(text), excerpt(text), lastAsk(data)
 	w.logs[sessionID] = c
-	return c.line, c.excerpt
+	return c
+}
+
+// lastAsk は会話ログの末尾から、いちばん新しい指示（人の発言として記録されたもの）を探し、
+// それがボスから届いたメッセージならその指示を返す。人が打った指示やほかのセッションからなら nil。
+// ツールの結果・スラッシュコマンド・裏の作業の知らせは指示ではないので飛ばす。
+func lastAsk(data []byte) *boss.Ask {
+	lines := bytes.Split(data, []byte("\n"))
+	for i := len(lines) - 1; i >= 0; i-- {
+		if !bytes.Contains(lines[i], []byte(`"type":"user"`)) {
+			continue
+		}
+		var e struct {
+			Type             string    `json:"type"`
+			IsSidechain      bool      `json:"isSidechain"`
+			IsMeta           bool      `json:"isMeta"`
+			IsCompactSummary bool      `json:"isCompactSummary"`
+			Timestamp        time.Time `json:"timestamp"`
+			Message          struct {
+				Content json.RawMessage `json:"content"`
+			} `json:"message"`
+		}
+		if json.Unmarshal(lines[i], &e) != nil || e.Type != "user" || e.IsSidechain || e.IsMeta || e.IsCompactSummary {
+			continue
+		}
+		text, ok := promptText(e.Message.Content)
+		if !ok {
+			continue
+		}
+		if line, ok := boss.Parse(text); ok {
+			return &boss.Ask{At: e.Timestamp.UnixMilli(), Line: line}
+		}
+		return nil
+	}
+	return nil
+}
+
+// promptText は user の行が指示ならその文を返す（ツールの結果・スラッシュコマンド・裏の作業の知らせは ok=false）。
+func promptText(raw json.RawMessage) (string, bool) {
+	var s string
+	if json.Unmarshal(raw, &s) != nil {
+		var blocks []struct {
+			Type string `json:"type"`
+			Text string `json:"text"`
+		}
+		if json.Unmarshal(raw, &blocks) != nil {
+			return "", false
+		}
+		for _, b := range blocks {
+			if b.Type == "tool_result" {
+				return "", false
+			}
+			if b.Type == "text" && s == "" {
+				s = b.Text
+			}
+		}
+	}
+	t := strings.TrimSpace(s)
+	for _, p := range []string{"<command-", "<local-command-", "<task-notification", "<system-reminder", "<bash-", "[Request interrupted"} {
+		if strings.HasPrefix(t, p) {
+			return "", false
+		}
+	}
+	return s, t != ""
 }
 
 // lastReply は会話ログ（JSON Lines）の末尾から、Claude の最後の文章の返事を探して返す。

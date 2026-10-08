@@ -18,6 +18,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/jose-sugisawa/claude-office/internal/boss"
 )
 
 // Gap は、1つの指示の中でもこれより長く何も起きなければ、動いていないとみなす長さ。
@@ -37,8 +39,9 @@ type Span struct {
 
 // Session は1つのセッションの今日の区間。
 type Session struct {
-	Key   string `json:"key"` // セッション ID
-	Spans []Span `json:"spans"`
+	Key   string     `json:"key"` // セッション ID
+	Spans []Span     `json:"spans"`
+	Asks  []boss.Ask `json:"asks,omitempty"` // 今日ボスから届いた指示（古い順）
 }
 
 // Day は今日の分（From＝手元の時刻の0時から Now まで）。
@@ -56,6 +59,7 @@ type file struct {
 	spans  []Span
 	cur    *Span
 	tool   bool // ツールを呼んで、まだ結果が返っていない
+	asks   []boss.Ask
 }
 
 // Reader は会話の記録を、前に読んだ続きから読む。日付が変わったら読み直す。
@@ -97,8 +101,8 @@ func (r *Reader) Today(now time.Time) Day {
 		if st.Size() > f.offset {
 			f.read(p, from, r.seen)
 		}
-		if spans := f.result(now.UnixMilli()); len(spans) > 0 {
-			day.Sessions = append(day.Sessions, Session{Key: strings.TrimSuffix(filepath.Base(p), ".jsonl"), Spans: spans})
+		if spans := f.result(now.UnixMilli()); len(spans) > 0 || len(f.asks) > 0 {
+			day.Sessions = append(day.Sessions, Session{Key: strings.TrimSuffix(filepath.Base(p), ".jsonl"), Spans: spans, Asks: f.asks})
 		}
 	}
 	sort.Slice(day.Sessions, func(i, j int) bool { return day.Sessions[i].Key < day.Sessions[j].Key })
@@ -191,9 +195,13 @@ func (f *file) add(line []byte, from int64, fromISO []byte, seen map[string]bool
 	}
 	start, prompt := false, false
 	if e.Type == "user" && !e.IsSidechain {
-		start, prompt = kindOf(e.Message.Content)
+		var text string
+		start, prompt, text = kindOf(e.Message.Content)
 		if e.IsCompactSummary || e.IsVisibleInTranscriptOnly {
 			prompt = false
+		}
+		if line, ok := boss.Parse(text); prompt && ok {
+			f.asks = append(f.asks, boss.Ask{At: t, Line: line})
 		}
 	}
 	long := f.cur != nil && t-f.cur.End > f.gap()
@@ -253,23 +261,23 @@ func (f *file) result(now int64) []Span {
 
 // kindOf は、user の行が新しい区間を始めるか（start）と、人が打った指示か（prompt）を返す。
 // ツールの結果は Claude の作業の続き。スラッシュコマンドや裏で動いた作業の知らせは、区間は始めるが指示には数えない。
-func kindOf(raw json.RawMessage) (start, prompt bool) {
+// text は指示の文（ボスからのメッセージを見分けるのに使う）。
+func kindOf(raw json.RawMessage) (start, prompt bool, text string) {
 	var s string
 	if json.Unmarshal(raw, &s) == nil {
-		return true, isPrompt(s)
+		return true, isPrompt(s), s
 	}
 	var blocks []struct {
 		Type string `json:"type"`
 		Text string `json:"text"`
 	}
 	if json.Unmarshal(raw, &blocks) != nil {
-		return false, false
+		return false, false, ""
 	}
-	text := ""
 	for _, b := range blocks {
 		switch b.Type {
 		case "tool_result":
-			return false, false
+			return false, false, ""
 		case "text":
 			if text == "" {
 				text = b.Text
@@ -281,9 +289,9 @@ func kindOf(raw json.RawMessage) (start, prompt bool) {
 		}
 	}
 	if text == "" {
-		return false, false
+		return false, false, ""
 	}
-	return true, isPrompt(text)
+	return true, isPrompt(text), text
 }
 
 func isPrompt(s string) bool {

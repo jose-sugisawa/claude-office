@@ -22,6 +22,8 @@ func TestLoad(t *testing.T) {
 		`[{"id":"x","color":"green"}]`,
 		`[{"id":"x","name":"X","color":"green"},{"id":"x","name":"Y","color":"red"}]`,
 		`{"id":"x"}`,
+		`[{"id":"boss","name":"ボス","color":"green"}]`, // boss はボスの席に使う
+		`[{"id":"x","name":"X","color":"green","prefixes":["x","boss"]}]`,
 	} {
 		if _, err := Load([]byte(bad)); err == nil {
 			t.Errorf("誤りを見逃した: %s", bad)
