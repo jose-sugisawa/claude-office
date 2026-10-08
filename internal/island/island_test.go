@@ -22,12 +22,15 @@ func TestLoad(t *testing.T) {
 		`[{"id":"x","color":"green"}]`,
 		`[{"id":"x","name":"X","color":"green"},{"id":"x","name":"Y","color":"red"}]`,
 		`{"id":"x"}`,
-		`[{"id":"boss","name":"ボス","color":"green"}]`, // boss はボスの席に使う
-		`[{"id":"x","name":"X","color":"green","prefixes":["x","boss"]}]`,
 	} {
 		if _, err := Load([]byte(bad)); err == nil {
 			t.Errorf("誤りを見逃した: %s", bad)
 		}
+	}
+	// 呼び名 boss はボスの席に使うので、エラーにせず島から外す（呼び名が残らない島は出さない）
+	got, err = Load([]byte(`[{"id":"boss","name":"ボス","color":"green"},{"id":"mgr","name":"管理","color":"red","prefixes":["Boss","mgr"]}]`))
+	if err != nil || len(got) != 1 || got[0].ID != "mgr" || len(got[0].Prefixes) != 1 || got[0].Prefixes[0] != "mgr" {
+		t.Errorf("boss の島を外せていない: %+v %v", got, err)
 	}
 	if _, err := Load(Example); err != nil {
 		t.Errorf("同梱の見本が読めない: %v", err)
