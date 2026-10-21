@@ -33,7 +33,6 @@ func demoCrew(now time.Time) []session.Member {
 		{Key: "demo-4", Name: "app@docs", Status: "idle", Since: ms(2 * time.Hour), Line: "README を直しました。", Dir: "app", Cwd: "~/src/app", Named: true, Ctx: ctx(12), Asked: ask(150*time.Minute, "README を新しい API に合わせてください。")},
 		{Key: "demo-5", Name: "blog@draft", Status: "busy", Since: ms(4 * time.Minute), Dir: "blog", Cwd: "~/src/blog", Named: true, Ctx: ctx(86), Asked: ask(4*time.Minute, "下書きの続きを、見出し3まで進めてください。")},
 		{Key: "demo-6", Name: "research@market", Status: "idle", Since: ms(18 * time.Minute), Line: "競合を3社まとめました。どの観点で深掘りしますか？", Dir: "notes", Cwd: "~/notes", Named: true, Ctx: ctx(67)},
-		{Key: "demo-7", Name: "shop@inventory", Status: "gone", Since: ms(10 * time.Minute), Dir: "shop", Cwd: "~/src/shop", Named: true},
 		{Key: "demo-9", Name: "boss", Status: "idle", Since: ms(4 * time.Minute), Line: "api・docs・draft に続きを頼みました。", Excerpt: "api・docs・draft に続きを頼みました。\nreview は PR のマージ待ちなので触っていません。", Dir: "src", Cwd: "~/src", Named: true, Ctx: ctx(31)},
 		{Key: "demo-8", Name: "src-4f", Status: "idle", Since: ms(5 * time.Hour), Line: "片づけが終わりました。", Dir: "src", Cwd: "~/src", Named: false},
 	}

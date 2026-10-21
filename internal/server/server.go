@@ -1,4 +1,4 @@
-// Package server は、オフィスの画面と API（/api/crew・/api/islands・/api/usage・/api/today・/api/dismiss）を手元に出す。
+// Package server は、オフィスの画面と API（/api/crew・/api/islands・/api/usage・/api/today）を手元に出す。
 // 読むだけの API と、この画面からの書き換えだけを受け付ける（guard・sameOrigin）。
 package server
 
@@ -115,7 +115,7 @@ func Handler(cfg Config, w *session.Watcher) http.Handler {
 			writeJSON(rw, demoCrew(time.Now()))
 			return
 		}
-		writeJSON(rw, w.Snapshot(time.Now()))
+		writeJSON(rw, w.Snapshot())
 	})
 	// 使用量の枠（5時間・1週間）。statusline が <Claude の設定>/office/usage.json に書いたものをそのまま返す（まだ無ければ null）
 	mux.HandleFunc("/api/usage", func(rw http.ResponseWriter, r *http.Request) {
@@ -136,14 +136,6 @@ func Handler(cfg Config, w *session.Watcher) http.Handler {
 			return
 		}
 		writeJSON(rw, wl.Today(time.Now()))
-	})
-	mux.HandleFunc("/api/dismiss", func(rw http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPost || !sameOrigin(r, cfg.Addr) {
-			http.Error(rw, "このページからの POST だけ受け付けます", http.StatusForbidden)
-			return
-		}
-		w.Dismiss(r.URL.Query().Get("key"))
-		rw.WriteHeader(http.StatusNoContent)
 	})
 	return guard(mux, cfg.AllowRemote)
 }

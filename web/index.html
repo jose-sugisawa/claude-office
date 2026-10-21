@@ -9,7 +9,7 @@
 <style>
 :root{
   --ink:#2A1E1A; --night:#1F2340; --night2:#2E345C; --paper:#FBFAF6; --mute:#B4BAD4;
-  --busy:#4C8DF6; --turn:#F2A93B; --sleep:#9AA0B2; --gone:#C9CCD6;
+  --busy:#4C8DF6; --turn:#F2A93B; --sleep:#9AA0B2;
   --wall:#FBF6EA; --floor:#E9D2AE; --floorLine:#DCC198; --wood:#B08A66; --woodDark:#9A7553;
 }
 body{margin:0;background:var(--night);font-family:-apple-system,BlinkMacSystemFont,'Hiragino Sans','Hiragino Kaku Gothic ProN','Noto Sans JP',sans-serif;color:var(--ink)}
@@ -69,7 +69,6 @@ body{margin:0;background:var(--night);font-family:-apple-system,BlinkMacSystemFo
 .crew.sel{outline:3px solid var(--turn);outline-offset:4px;border-radius:6px}
 .crew.stand{left:50px;top:46px;width:51px;height:72px;z-index:2}
 .crew.sleeper{left:42px;top:70px;width:66px;height:40px;z-index:5}
-.crew.chair{left:46px;top:40px;width:60px;height:48px;z-index:5}
 .bubble{position:absolute;left:75px;bottom:156px;transform:translateX(-50%);width:max-content;max-width:138px;max-height:calc(2.7em + 8px);box-sizing:border-box;font-size:12px;font-weight:700;line-height:1.35;padding:4px 9px;border:2px solid var(--ink);border-radius:8px;box-shadow:0 3px 0 var(--ink);z-index:9;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;pointer-events:none;text-align:left}
 .bubble.busy{background:#CFE0FF}
 .bubble.turn{background:#FFE3A3}
@@ -79,7 +78,6 @@ body{margin:0;background:var(--night);font-family:-apple-system,BlinkMacSystemFo
 .tag span{overflow:hidden;text-overflow:ellipsis}
 .tag i{width:9px;height:9px;border-radius:50%}
 .tag.turn{border-color:var(--turn)}
-.tag.gone{opacity:.65;font-weight:400}
 .gauge{position:absolute;left:30px;top:187px;width:88px;height:6px;border-radius:3px;background:rgba(42,30,26,.25);overflow:hidden;pointer-events:none;z-index:8}
 .gauge i{display:block;height:100%;width:0}
 .gpct{position:absolute;left:122px;top:182px;font-size:10px;font-weight:700;color:#6B5442;pointer-events:none;z-index:8}
@@ -331,7 +329,6 @@ code b.r,.onb b.r{color:#FFD27A}
 /* ボスの席（壁際・ホワイトボードの横。狭い画面では床の上） */
 .bossdesk{width:190px;height:214px;z-index:6}
 .bossdesk .crew.stand{left:62px;top:30px;width:66px;height:93px}
-.bossdesk .crew.podium{left:35px;top:104px;width:120px;height:66px;z-index:3}
 .bossdesk .bubble{left:95px;bottom:auto;top:0;max-width:178px}
 .bossdesk .tag{left:95px;top:176px;max-width:184px;border-color:#2E3A66}
 .bossdesk .tag.turn{border-color:var(--turn)}
@@ -410,7 +407,7 @@ code b.r,.onb b.r{color:#FFD27A}
     <div class="asks" hidden><div class="hd"><b>今日 頼んだ係</b><small></small></div><div class="list"></div></div>
     <div class="today" hidden><div class="lab">今日</div><div class="stats"></div><div class="lane"></div><div class="axis"></div></div>
     <div class="hint"></div>
-    <div class="acts"><button type="button" class="primary"></button><button type="button" class="ghost leave" hidden>退出させる</button><button type="button" class="ghost close">閉じる</button></div>
+    <div class="acts"><button type="button" class="primary"></button><button type="button" class="ghost close">閉じる</button></div>
   </div>
   <form class="isl" novalidate>
     <div class="ttl"></div>
@@ -428,7 +425,7 @@ code b.r,.onb b.r{color:#FFD27A}
 </section>
 <script>
 'use strict';
-// 状態：busy=作業中 / waiting=確認待ち（あなたの番） / idle で FRESH_MIN 分以内=あなたの番 / それを過ぎた=放置 / gone=閉じた
+// 状態：busy=作業中 / waiting=確認待ち（あなたの番） / idle で FRESH_MIN 分以内=あなたの番 / それを過ぎた=放置（閉じた人はサーバーが出さない）
 const FRESH_MIN = Number(new URLSearchParams(location.search).get('fresh')) || 30;
 const LATE_MIN = 10; // ホワイトボードで「何分前」を目立たせる長さ
 const POLL_MS = 3000;
@@ -461,7 +458,7 @@ const LOOKS = [
   { hair: '#2B1D14', hairHi: '#4A3526', skin: '#EDBE95', shirt: '#4FB3AE', shirtDk: '#35908B', pants: '#3B3F58' },
   { hair: '#6E7387', hairHi: '#9095A8', skin: '#F8D9BD', shirt: '#F4F1E8', shirtDk: '#D6D2C6', pants: '#2E3142' },
 ];
-const RANK = { turn: 0, busy: 1, sleep: 2, gone: 3 };
+const RANK = { turn: 0, busy: 1, sleep: 2 };
 
 const room = document.getElementById('room');
 const stage = document.getElementById('stage');
@@ -480,8 +477,6 @@ function svg(parent, html, cls, style) {
   d.innerHTML = html;
   return d;
 }
-// shq はシェルに貼るときの引用。英数字と @._- だけならそのまま、それ以外はシングルクォートで包む（; や $ を含む名前を貼っても別のコマンドにならない）
-function shq(s) { return /^[A-Za-z0-9@._-]+$/.test(s) ? s : "'" + s.replace(/'/g, "'\\''") + "'"; }
 function hash(s) { let h = 0; for (const c of s) h = (h * 31 + c.codePointAt(0)) >>> 0; return h; }
 // セッション名が島の呼び名で始まり、続きが英数字でなければその島（大文字小文字は区別しない）
 // APP・app-review・app@review・SHOPセール は島に入り、appx のような別の単語は入らない
@@ -496,7 +491,6 @@ function islandOf(name) {
   return best;
 }
 function stateOf(m, now) {
-  if (m.status === 'gone') return 'gone';
   // ボスは見回りの合間に待つのが仕事なので、待っていても「あなたの番」や放置にしない（確認待ちだけは知らせる）
   if (m.boss) return m.status === 'idle' ? 'idle' : m.status === 'busy' || m.status === 'shell' ? 'busy' : 'turn';
   if (m.status === 'idle') return now - m.since <= FRESH_MIN * 60e3 ? 'turn' : 'sleep';
@@ -792,11 +786,11 @@ function buildCell(parent, m, x, y) {
   const cell = el('div', 'abs cell' + (m.pending ? ' pending' : ''), parent, { left: x + 'px', top: y + 'px' });
   const look = LOOKS[hash(m.name) % LOOKS.length];
   if (m.state === 'busy' || m.state === 'turn') el('div', 'abs lamp', cell);
-  if (m.state !== 'gone') svg(cell, CHAIR, 'scenery', { left: '46px', top: '40px', zIndex: 1 });
+  svg(cell, CHAIR, 'scenery', { left: '46px', top: '40px', zIndex: 1 });
   svg(cell, deskSvg(m.state === 'busy'), 'scenery', { left: '27px', top: '62px', zIndex: 3 });
 
   let bubble = null;
-  if (m.state !== 'gone') bubble = el('div', 'bubble ' + m.state, cell);
+  bubble = el('div', 'bubble ' + m.state, cell);
   if (m.state === 'turn') el('div', 'bang', cell).textContent = '!';
 
   const tag = el('div', 'tag ' + m.state, cell);
@@ -804,17 +798,13 @@ function buildCell(parent, m, x, y) {
   // 「島の呼び名@係名」なら、島に座っているので名札は係名だけにする（カードとボードはセッション名の全体）
   const at = m.island.id !== OTHER.id ? m.name.indexOf('@') : -1;
   const short = at > 0 && m.name.slice(at + 1) ? m.name.slice(at + 1) : m.name;
-  el('span', '', tag).textContent = m.pending ? '移り待ち' : m.state === 'gone' ? short + '（閉じた）' : short;
+  el('span', '', tag).textContent = m.pending ? '移り待ち' : short;
   tag.title = m.name;
   // ボスに頼まれた作業の途中なら、名札にメガホンの印（返事を終えたら消える）
   if (asking(m)) { el('i', 'mega', tag).innerHTML = MEGA; tag.querySelector('.mega').style.color = '#FBF6EA'; tag.title = m.name + '（ボスに頼まれた作業の途中）'; }
 
   let btn;
-  if (m.state === 'gone') {
-    btn = el('button', 'crew chair', cell);
-    btn.innerHTML = CHAIR;
-    btn.setAttribute('aria-label', m.name + '（閉じた）のカードを開く');
-  } else if (m.state === 'sleep') {
+  if (m.state === 'sleep') {
     btn = el('button', 'crew sleeper', cell);
     btn.innerHTML = sleepSvg(look);
     btn.setAttribute('aria-label', m.name + ' のカードを開く');
@@ -827,13 +817,10 @@ function buildCell(parent, m, x, y) {
   }
   btn.type = 'button';
   btn.addEventListener('click', () => select(m.key));
-  if (m.state !== 'gone') btn.addEventListener('pointerdown', e => press(e, m, btn));
+  btn.addEventListener('pointerdown', e => press(e, m, btn));
   if (m.key === selectedKey) btn.classList.add('sel');
-  let gauge = null, gpct = null;
-  if (m.state !== 'gone') {
-    gauge = el('i', '', el('div', 'gauge', cell));
-    gpct = el('span', 'gpct', cell);
-  }
+  const gauge = el('i', '', el('div', 'gauge', cell));
+  const gpct = el('span', 'gpct', cell);
   refs.set(m.key, { bubble, btn, gauge, gpct });
 }
 
@@ -844,32 +831,24 @@ let bossEl = null;
 function buildBoss(m, x, y) {
   const d = el('div', 'abs bossdesk', room, { left: x + 'px', top: y + 'px' });
   bossEl = d;
-  let bubble = null, btn;
-  if (m.state !== 'gone') {
-    bubble = el('div', 'bubble ' + m.state, d);
-    svg(d, podiumSvg(m.state === 'busy'), 'scenery', { left: '35px', top: '104px', zIndex: 3 });
-    btn = el('button', 'crew stand' + (m.state === 'turn' ? ' hop' : ''), d);
-    btn.innerHTML = bossSvg(m.state === 'turn');
-    btn.addEventListener('pointerdown', e => press(e, m, btn));
-  } else {
-    btn = el('button', 'crew podium', d);
-    btn.innerHTML = podiumSvg(false);
-  }
+  const bubble = el('div', 'bubble ' + m.state, d);
+  svg(d, podiumSvg(m.state === 'busy'), 'scenery', { left: '35px', top: '104px', zIndex: 3 });
+  const btn = el('button', 'crew stand' + (m.state === 'turn' ? ' hop' : ''), d);
+  btn.innerHTML = bossSvg(m.state === 'turn');
+  btn.addEventListener('pointerdown', e => press(e, m, btn));
   btn.type = 'button';
-  btn.setAttribute('aria-label', m.name + (m.state === 'gone' ? '（ボス・閉じた）' : '（ボス）') + ' のカードを開く');
+  btn.setAttribute('aria-label', m.name + '（ボス）のカードを開く');
   btn.addEventListener('click', () => select(m.key));
   if (m.key === selectedKey) btn.classList.add('sel');
   const tag = el('div', 'tag ' + m.state, d);
   el('i', 'mega', tag).innerHTML = MEGA;
   tag.querySelector('.mega').style.color = '#FBF6EA';
-  el('span', '', tag).textContent = m.state === 'gone' ? m.name + '（閉じた）' : m.name;
+  el('span', '', tag).textContent = m.name;
   const n = todayAsks().length;
-  if (n && m.state !== 'gone') el('small', '', tag).textContent = '今日 ' + n + '件';
+  if (n) el('small', '', tag).textContent = '今日 ' + n + '件';
   tag.title = m.name;
-  let gauge = null, gpct = null;
-  if (m.state !== 'gone') { gauge = el('i', '', el('div', 'gauge', d)); gpct = el('span', 'gpct', d); }
+  const gauge = el('i', '', el('div', 'gauge', d)), gpct = el('span', 'gpct', d);
   refs.set(m.key, { bubble, btn, gauge, gpct });
-  if (m.state === 'gone') drops.push({ boss: true, el: d });
 }
 // ボスがいないときは、ドラッグしている間だけボスの席の枠を出す（落とすと /rename boss）
 function buildBossSeat(x, y) {
@@ -937,7 +916,7 @@ function chooseZoom(list) {
 // ---- はじめの案内（島と係）。島に名前付きで座っている人がいなくて、まだ「わかった」を押していないときだけ出す ----
 function esc(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]); }
 function showOnboarding(list) {
-  return !load('office.onboarded', false) && !list.some(m => m.island.id !== OTHER.id && m.island !== BOSS && m.state !== 'gone');
+  return !load('office.onboarded', false) && !list.some(m => m.island.id !== OTHER.id && m.island !== BOSS);
 }
 function miniSvg(hair, shirt, hop) {
   return `<svg ${hop ? 'class="hop" ' : ''}width="34" height="48" viewBox="0 0 17 24" shape-rendering="crispEdges" aria-hidden="true"><rect x="1" y="2" width="14" height="9" fill="${O}"/><rect x="2" y="2" width="12" height="9" fill="#F6CFAE"/><rect x="2" y="2" width="12" height="2" fill="${hair}"/><rect x="5" y="6" width="1" height="2" fill="${O}"/><rect x="10" y="6" width="1" height="2" fill="${O}"/><rect x="3" y="12" width="10" height="8" fill="${O}"/><rect x="4" y="12" width="8" height="7" fill="${shirt}"/></svg>`;
@@ -1040,10 +1019,10 @@ function build(list) {
     }
     el('b', '', sign).style.background = isl.color;
     sign.append(isl.label);
-    el('small', '', sign).textContent = members.filter(m => m.state !== 'gone').length + '人';
+    el('small', '', sign).textContent = members.length + '人';
     signDays.set(isl.id, el('span', 'day', sign));
     if (!members.length) { el('div', 'abs empty', box, { left: '24px', top: '58px' }).textContent = 'いまはだれもいません'; continue; }
-    if (isl.id === OTHER.id && members.some(m => m.state !== 'gone')) el('div', 'abs draghint', box, { right: '16px', top: '6px' }).textContent = rawIslands.length ? '島へドラッグで移せます' : '「＋ 島を作る」へドラッグで、島を作って移せます';
+    if (isl.id === OTHER.id && members.length) el('div', 'abs draghint', box, { right: '16px', top: '6px' }).textContent = rawIslands.length ? '島へドラッグで移せます' : '「＋ 島を作る」へドラッグで、島を作って移せます';
     members.forEach((m, i) => buildCell(box, m, 6 + (i % PER_ROW) * CELL_W, 50 + Math.floor(i / PER_ROW) * CELL_H));
   }
   svg(room, PLANT, 'scenery', { left: '2px', top: (WALL - 40) + 'px', zIndex: 6 });
@@ -1113,7 +1092,7 @@ function render(members, now) {
     return { ...m, island, pending: pend };
   });
   // ボスの席は1つ。ボスの名前のセッションが何人かいたら、動いている中でいちばん新しい人を席に、ほかは「その他」に
-  const bosses = list.filter(m => m.island === BOSS).sort((a, b) => (a.status === 'gone') - (b.status === 'gone') || b.since - a.since);
+  const bosses = list.filter(m => m.island === BOSS).sort((a, b) => b.since - a.since);
   bosses.slice(1).forEach(m => { m.island = OTHER; });
   if (bosses[0]) bosses[0].boss = true;
   list.forEach(m => { m.state = stateOf(m, now); });
@@ -1159,7 +1138,7 @@ function copyText(text, msg) {
 }
 
 // キャラを押すと下にカードを出す。中身は読み直すたびに新しくする
-const STATE_LABEL = { busy: '作業中', turn: 'あなたの番', sleep: '放置', gone: '閉じた', idle: '待機中' };
+const STATE_LABEL = { busy: '作業中', turn: 'あなたの番', sleep: '放置', idle: '待機中' };
 let selectedKey = '', lastList = [];
 const card = document.getElementById('card');
 function select(key) {
@@ -1178,7 +1157,7 @@ function fillCard(now) {
   card.querySelector('.where').textContent = m.island.label + '・' + label + '・' + when;
   card.querySelector('.name').textContent = m.name;
   const c = m.ctx;
-  card.querySelector('.cwd').textContent = (m.cwd || m.dir || '') + (c ? '・コンテキスト ' + Math.round(c.used) + '%（' + tok(c.tokens) + ' / ' + tok(c.size) + '）' : m.state === 'gone' ? '' : '・コンテキスト —（話しかけると出ます）');
+  card.querySelector('.cwd').textContent = (m.cwd || m.dir || '') + (c ? '・コンテキスト ' + Math.round(c.used) + '%（' + tok(c.tokens) + ' / ' + tok(c.size) + '）' : '・コンテキスト —（話しかけると出ます）');
   card.querySelector('.text').textContent = m.excerpt || '';
   // ボスに頼まれたこと（人が次に指示するまで残す）
   const asked = card.querySelector('.asked');
@@ -1195,56 +1174,41 @@ function fillCard(now) {
   const btn = card.querySelector('.primary');
   hint.replaceChildren();
   hint.classList.remove('box');
-  const code = t => { const c = document.createElement('code'); c.textContent = t; return c; };
-  card.querySelector('.leave').hidden = m.state !== 'gone';
-  if (m.state === 'gone') {
-    const cmd = 'claude --resume ' + shq(m.key) + ' -n ' + shq(m.name);
-    hint.append('閉じています。続けるならターミナルの新しいタブで ', code(cmd));
-    btn.textContent = '再開のコマンドをコピー';
-    btn.onclick = () => copyText(cmd, '再開のコマンドをコピーしました。ターミナルの新しいタブに貼ってください');
-  } else {
-    if (m.status === 'waiting') hint.append('タブで確認の返事を待っています。許可するかを選んでください');
-    if (m.island.id === OTHER.id) {
-      // どの島にも入っていない人：島ごとの /rename を並べ、押すとコピー
-      hint.classList.add('box');
-      if (m.status === 'waiting') hint.replaceChildren();
-      el('strong', '', hint).textContent = 'この人はどの島にも入っていません';
-      const p = el('div', '', hint);
-      const chips = el('div', 'chips', hint);
-      if (rawIslands.length) {
-        p.textContent = 'このセッションのタブで、入れたい島のコマンドを打つと移ります（@ の後ろは名札に出る係名。自由に付けてください）';
-        rawIslands.forEach(is => {
-          const b = el('button', 'chip', chips); b.type = 'button';
-          el('i', '', b).style.background = is.hex;
-          el('code', '', b).innerHTML = `/rename <b class="h">${esc(is.prefixes[0] || is.id)}</b>@<b class="r">係名</b>`;
-          el('small', '', b).textContent = is.name;
-          b.addEventListener('click', () => copyText('/rename ' + (is.prefixes[0] || is.id) + '@', '/rename ' + (is.prefixes[0] || is.id) + '@ をコピーしました。タブに貼って、続けて係名を打ってください'));
-        });
-        if (!lastList.some(x => x.boss && x.state !== 'gone')) {
-          const b = el('button', 'chip', chips); b.type = 'button';
-          el('i', '', b).style.background = BOSS.color;
-          el('code', '', b).innerHTML = '/rename <b class="h">boss</b>';
-          el('small', '', b).textContent = 'ボス（ほかのセッションを見回る役）';
-          b.addEventListener('click', () => copyText('/rename boss', '/rename boss をコピーしました。タブに貼って Enter を押すと、ボスの席に立ちます'));
-        }
-      } else {
-        p.textContent = 'まず島を作ってから、このセッションのタブで /rename 島の呼び名@係名 と打つと移ります';
-        const b = el('button', 'chip', chips); b.type = 'button'; b.textContent = '＋ 島を作る';
-        b.addEventListener('click', () => openIsland(null));
+  if (m.status === 'waiting') hint.append('タブで確認の返事を待っています。許可するかを選んでください');
+  if (m.island.id === OTHER.id) {
+    // どの島にも入っていない人：島ごとの /rename を並べ、押すとコピー
+    hint.classList.add('box');
+    if (m.status === 'waiting') hint.replaceChildren();
+    el('strong', '', hint).textContent = 'この人はどの島にも入っていません';
+    const p = el('div', '', hint);
+    const chips = el('div', 'chips', hint);
+    if (rawIslands.length) {
+      p.textContent = 'このセッションのタブで、入れたい島のコマンドを打つと移ります（@ の後ろは名札に出る係名。自由に付けてください）';
+      rawIslands.forEach(is => {
+        const b = el('button', 'chip', chips); b.type = 'button';
+        el('i', '', b).style.background = is.hex;
+        el('code', '', b).innerHTML = `/rename <b class="h">${esc(is.prefixes[0] || is.id)}</b>@<b class="r">係名</b>`;
+        el('small', '', b).textContent = is.name;
+        b.addEventListener('click', () => copyText('/rename ' + (is.prefixes[0] || is.id) + '@', '/rename ' + (is.prefixes[0] || is.id) + '@ をコピーしました。タブに貼って、続けて係名を打ってください'));
+      });
+      if (!lastList.some(x => x.boss)) {
+        const b = el('button', 'chip', chips); b.type = 'button';
+        el('i', '', b).style.background = BOSS.color;
+        el('code', '', b).innerHTML = '/rename <b class="h">boss</b>';
+        el('small', '', b).textContent = 'ボス（ほかのセッションを見回る役）';
+        b.addEventListener('click', () => copyText('/rename boss', '/rename boss をコピーしました。タブに貼って Enter を押すと、ボスの席に立ちます'));
       }
+    } else {
+      p.textContent = 'まず島を作ってから、このセッションのタブで /rename 島の呼び名@係名 と打つと移ります';
+      const b = el('button', 'chip', chips); b.type = 'button'; b.textContent = '＋ 島を作る';
+      b.addEventListener('click', () => openIsland(null));
     }
-    btn.textContent = 'セッション名をコピー';
-    btn.onclick = () => copyText(m.name, m.name + ' をコピーしました。ターミナルでこの名前のタブを開いてください');
   }
+  btn.textContent = 'セッション名をコピー';
+  btn.onclick = () => copyText(m.name, m.name + ' をコピーしました。ターミナルでこの名前のタブを開いてください');
   card.classList.add('open');
 }
 card.querySelector('.close').addEventListener('click', () => select(selectedKey));
-card.querySelector('.leave').addEventListener('click', async () => {
-  const key = selectedKey;
-  try { await fetch('/api/dismiss?key=' + encodeURIComponent(key), { method: 'POST' }); } catch (e) {}
-  select(key);
-  tick();
-});
 document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
   if (madeEl.contains(document.activeElement)) closeMade();
@@ -1275,7 +1239,7 @@ function drawPreview() {
   const sign = form.querySelector('.pvsign');
   sign.querySelector('b').style.background = HEX[color] || color;
   sign.querySelector('.pvname').textContent = form.elements.name.value.trim();
-  sign.querySelector('small').textContent = (is ? lastList.filter(m => m.island.id === is.id && m.state !== 'gone').length : 0) + '人';
+  sign.querySelector('small').textContent = (is ? lastList.filter(m => m.island.id === is.id).length : 0) + '人';
   form.querySelector('.pvkeys .h').textContent = head || 'shop';
 }
 function openIsland(id) {

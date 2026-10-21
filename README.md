@@ -33,12 +33,12 @@ claude-office puts that scattered state into one office.
 
 | | |
 |---|---|
-| Four states | Working (typing at the desk) / Your turn (a reply arrived, or it is waiting for a permission prompt; raises a hand and bounces) / Idle (30 minutes since the last reply; dozing off) / Closed (an empty chair; disappears after an hour) |
+| Three states | Working (typing at the desk) / Your turn (a reply arrived, or it is waiting for a permission prompt; raises a hand and bounces) / Idle (30 minutes since the last reply; dozing off). A closed session leaves the office right away |
 | Islands | The island name (the part of the session name before `@`) decides which island (business or project) it sits at. Create, edit, and delete islands from the screen |
 | Boss | A session named `boss` (or `boss@…`) stands at the boss desk by the wall instead of sitting at an island: a session that looks over the others and tells them what to do next. When the boss sends a session an instruction, that session's name tag shows a megaphone and its card shows the instruction |
 | Drag to move | Drag a character onto an island to get the `/rename` command for it, ready to copy. It waits there as "移り待ち" (moving) until you run the command in that tab |
 | Whiteboard | Sessions on "your turn", longest-waiting first. Orange after 10 minutes |
-| Card | Click a character to see its working directory, the start of its last reply, and a button to copy its session name. For closed sessions, the command to resume |
+| Card | Click a character to see its working directory, the start of its last reply, and a button to copy its session name |
 | Context | A usage gauge under each name tag (yellow at 60%, red at 80% with a "time to /compact" hint) |
 | Usage | On the top wall, usage of the 5-hour and weekly limits and time until reset |
 | Today | A "今日の日報" (daily report) board on the wall: total time sessions spent working today, number of prompts, and time per island. Island signs show "今日 2時間10分", and the card shows that session's time with a timeline of when it worked. Click the board for the full day by island and the busiest sessions |
@@ -116,7 +116,7 @@ Tested with Claude Code 2.1.29x.
 - Today's time is counted from the timestamps in the conversation logs: from a prompt until Claude finishes replying (the log's `turn_duration` marker). A stretch of more than 30 minutes with nothing happening is not counted; while a tool is running (a subagent, a long build) it waits up to 3 hours, so a permission prompt left unanswered for a long time is counted until it is answered. `/compact` summaries are not counted as prompts, and lines copied into a new file by `--fork-session` are counted once. Time from sessions running at once is added up, so the total can exceed the clock time. A day starts at local midnight. When a session is renamed with `/rename`, time from then on goes to the new island; time before the first name goes to that first name.
 - Instructions from the boss are recognized by the sender name in the `<cross-session-message from-name="…">` that Claude Code writes into the conversation log. It does not depend on how the boss is built (which skill or prompt it patrols with).
 - If `CLAUDE_CONFIG_DIR` is set, it is read instead of `~/.claude`.
-- Editing islands and "退出させる" (dismiss) are accepted only from this screen (`127.0.0.1`, `localhost`, or `[::1]` on the same port). Writes sent to your local port from other sites are refused.
+- Editing islands is accepted only from this screen (`127.0.0.1`, `localhost`, or `[::1]` on the same port). Writes sent to your local port from other sites are refused.
 - Reads are answered only when the page is opened as `127.0.0.1`, `localhost`, or `[::1]` (this stops another site from pointing its own hostname at 127.0.0.1 to read conversation excerpts).
 - `-addr` accepts local addresses only. Listening on `0.0.0.0` or a LAN IP requires `-allow-remote`. There is no password, so anyone on the same network can see conversation excerpts. Autostart (`install`) is local only.
 - The screen shows the start of each session's last reply. Be careful when showing your screen to others.
