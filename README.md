@@ -39,6 +39,7 @@ claude-office puts that scattered state into one office.
 | Drag to move | Drag a character onto an island to get the `/rename` command for it, ready to copy. It waits there as "移り待ち" (moving) until you run the command in that tab |
 | Whiteboard | Sessions on "your turn", longest-waiting first. Orange after 10 minutes |
 | Card | Click a character to see its working directory, the start of its last reply, and a button to copy its session name |
+| Decision box | Answer the questions the boss leaves, from the "判断箱" button at the top right of the whiteboard: click an option (recommended ones are marked; later, ask, and a memo are always there). You can also write an instruction for a session. The boss passes answers and instructions on |
 | Context | A usage gauge under each name tag (yellow at 60%, red at 80% with a "time to /compact" hint) |
 | Usage | On the top wall, usage of the 5-hour and weekly limits and time until reset |
 | Today | A "今日の日報" (daily report) board on the wall: total time sessions spent working today, number of prompts, and time per island. Island signs show "今日 2時間10分", and the card shows that session's time with a timeline of when it worked. Click the board for the full day by island and the busiest sessions |
@@ -94,6 +95,15 @@ claude -n blog@draft
 - Spaces, `!`, `*`, `#` and the like in names mean something else to the shell. `-` `_` `@` `.` and Japanese are fine.
 
 **Boss**: you can set one session as the boss, a session that looks over the others and asks them to carry on. Start it with `claude -n boss`, or type `/rename boss` in a running session (dragging a character onto the boss desk by the wall shows that command too), and it stands next to the whiteboard. Waiting between rounds is the boss's job, so an idle boss is never listed under "あなたの番" (your turn) and never falls asleep; only a permission prompt is shown. When the boss sends another session an instruction with Claude Code's cross-session messages, that session's name tag shows a megaphone until it finishes replying, and its card shows "ボスから" (from the boss) with the first line of the instruction. A paper plane flies from the boss desk at the moment it is sent. The boss's card lists the sessions it asked today. The boss session sends the instructions itself; this screen never sends anything.
+
+**Decision box**: the boss leaves "things for you to decide" here and you answer on this screen (`~/.claude/office/decisions.json`). Click "判断箱 N" at the top right of the whiteboard and click an option to answer. You can add a memo, choose "あとで" (later) or "相談したい" (ask), or write an instruction for a session. This screen sends nothing to any session: the boss reads the answers and instructions on its next round, passes them on, and marks them. The boss uses these endpoints with curl (a POST without an Origin header, such as from curl, is accepted; a POST from another site's page is refused).
+
+| Endpoint | What it does |
+|---|---|
+| `GET /api/decisions` | Questions, answers, and instructions |
+| `POST /api/decisions/questions` | Add or replace questions (`[{"id","island","title","context","options":[{"v","label","rec"}],"links","due","session","auto"}]`) |
+| `POST /api/decisions/answer` | Answer (`{"id","choice","note","by"}`; set `by` when copying an answer given somewhere else, such as claude.ai) |
+| `POST /api/decisions/relayed` | Mark as passed on (`{"answers":[id],"notes":[id]}`; a question whose chosen answer was passed on is closed) |
 
 **Create islands**: use "＋ 島を作る" (create island) at the end of the island row, type the island name (lowercase letters, digits, `-`) into the blank in the start command, then choose the sign name and a color. Matching the color to your terminal tab color makes sessions easier to find. Right after creating it, type a role name into the notice that appears to copy the full start command, such as `claude -n app@review` (as many as you like, one after another). Click an island's sign to rename it, change its color, or delete it.
 

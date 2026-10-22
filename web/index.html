@@ -325,6 +325,66 @@ code b.r,.onb b.r{color:#FFD27A}
 #day .note{font-size:12px;color:#6B5442;line-height:1.6;margin:0}
 #day .acts{display:flex;justify-content:flex-end}
 #day button.close{font:inherit;font-size:14px;font-weight:700;min-height:44px;padding:0 18px;border:0;border-radius:10px;background:var(--night2);color:#F4F1E8;box-shadow:0 4px 0 #171A33;cursor:pointer}
+/* 判断箱：ホワイトボード右上の札と、紙の窓 */
+.boxbtn{z-index:4;height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;border:0;border-radius:17px;background:#E7E9F2;color:#4A5072;font:inherit;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 3px 0 #B6BCD2}
+.boxbtn b{font-size:15px}
+.boxbtn.has{background:#C2410C;color:#FFF8E7;box-shadow:0 3px 0 #8A2E08}
+.boxbtn:focus-visible{outline:4px solid #FFD27A;outline-offset:3px}
+#dbox{position:fixed;inset:0;z-index:45;background:rgba(12,14,32,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+#dbox[hidden]{display:none}
+#dbox .box{width:min(820px,100%);max-height:calc(100vh - 32px);overflow:auto;box-sizing:border-box;background:#FFF8E7;color:var(--ink);border:6px solid var(--wood);box-shadow:0 10px 0 rgba(0,0,0,.35);padding:20px 24px 22px;display:flex;flex-direction:column;gap:14px}
+#dbox .hd{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+#dbox h2{margin:0;font-size:22px}
+#dbox .hd small{font-size:14px;color:#6B5442}
+#dbox h3{margin:4px 0 0;font-size:14px;color:#6B5442}
+#dbox .chips{display:flex;flex-wrap:wrap;gap:6px}
+#dbox .chips button{font:inherit;font-size:13px;font-weight:700;min-height:36px;padding:0 12px;border:2px solid #E2D3BC;border-radius:18px;background:#FFFDF5;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:6px}
+#dbox .chips button[aria-pressed=true]{border-color:var(--ink);background:var(--ink);color:#FFF8E7}
+#dbox .chips i{width:10px;height:10px;border-radius:50%}
+#dbox .list{display:flex;flex-direction:column;gap:12px}
+#dbox .none{font-size:14px;color:#6B5442}
+#dbox .q{background:#FFFDF5;border:2px solid #E2D3BC;border-left:8px solid var(--c,#9AA0B2);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
+#dbox .q.done{opacity:.7}
+#dbox .q .meta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;font-size:12px;color:#6B5442}
+#dbox .q .meta b{color:var(--ink)}
+#dbox .q .due{color:#C2410C;font-weight:700}
+#dbox .q h4{margin:0;font-size:16px;line-height:1.45}
+#dbox .q .ctx{margin:0;font-size:14px;line-height:1.65;color:#4A3A30;white-space:pre-wrap;overflow-wrap:anywhere}
+#dbox .q .ctx.clip{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+#dbox .q .more{align-self:flex-start;font:inherit;font-size:13px;color:#2F5BB7;background:none;border:0;padding:0;min-height:28px;cursor:pointer}
+#dbox .q .links{display:flex;flex-wrap:wrap;gap:10px;font-size:13px}
+#dbox .q .links a{color:#2F5BB7}
+#dbox .q .auto{font-size:13px;color:#7A4B00;background:#FFF0C9;border-radius:8px;padding:6px 10px}
+#dbox .opts{display:flex;flex-wrap:wrap;gap:8px}
+#dbox .opts button{font:inherit;font-size:14px;font-weight:700;min-height:44px;padding:6px 14px;border:2px solid #CDBFA8;border-radius:10px;background:#fff;color:var(--ink);cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;box-shadow:0 3px 0 #E2D3BC}
+#dbox .opts button:hover{border-color:var(--ink)}
+#dbox .opts button[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#FFF8E7;box-shadow:0 3px 0 #000}
+#dbox .opts button.sub{font-weight:400;font-size:13px;border-style:dashed}
+#dbox .opts button:disabled{opacity:.5;cursor:default}
+#dbox .opts .rec{font-size:11px;font-weight:700;color:#FFF8E7;background:#3FB36B;border-radius:6px;padding:2px 6px;flex:none}
+#dbox .memo{display:flex;gap:8px;align-items:flex-start}
+#dbox textarea{flex:1;font:inherit;font-size:16px;line-height:1.5;min-height:44px;padding:8px 10px;border:2px solid #E2D3BC;border-radius:10px;background:#fff;color:var(--ink);resize:vertical;box-sizing:border-box}
+#dbox textarea:focus,#dbox select:focus{outline:none;border-color:#C2410C}
+#dbox .memo button,#dbox .send button{font:inherit;font-size:14px;font-weight:700;min-height:44px;padding:0 16px;border:0;border-radius:10px;background:var(--night2);color:#F4F1E8;box-shadow:0 4px 0 #171A33;cursor:pointer;flex:none}
+#dbox .memo button:disabled,#dbox .send button:disabled{opacity:.5;cursor:default}
+#dbox .st{font-size:13px;color:#2E7D4F;font-weight:700}
+#dbox .st.wait{color:#7A4B00}
+#dbox .err{font-size:13px;color:#C2410C;font-weight:700}
+#dbox .err:empty{display:none}
+#dbox .send{display:flex;flex-direction:column;gap:8px;background:#EAF0FB;border-radius:10px;padding:12px 14px}
+#dbox .send .row{display:flex;gap:8px;align-items:flex-start}
+#dbox select{font:inherit;font-size:16px;min-height:44px;padding:0 10px;border:2px solid #C8D3EA;border-radius:10px;background:#fff;color:var(--ink);max-width:100%}
+#dbox .send small{font-size:12px;color:#4A5072;line-height:1.6}
+#dbox .notes{display:flex;flex-direction:column;gap:4px;font-size:13px}
+#dbox .notes div{display:grid;grid-template-columns:minmax(0,140px) minmax(0,1fr) auto;gap:10px}
+#dbox .notes span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#dbox .notes .w{color:#7A4B00;font-weight:700}
+#dbox .notes .ok{color:#2E7D4F}
+#dbox details summary{cursor:pointer;font-size:14px;font-weight:700;color:#6B5442;min-height:32px;display:flex;align-items:center}
+#dbox details .list{margin-top:8px}
+#dbox .acts{display:flex;justify-content:flex-end}
+#dbox button.close{font:inherit;font-size:14px;font-weight:700;min-height:44px;padding:0 18px;border:0;border-radius:10px;background:var(--night2);color:#F4F1E8;box-shadow:0 4px 0 #171A33;cursor:pointer}
+@media (max-width:600px){#dbox .box{padding:16px}#dbox .memo,#dbox .send .row{flex-direction:column;align-items:stretch}#dbox .notes div{grid-template-columns:minmax(0,90px) minmax(0,1fr) auto}}
 @media (max-width:600px){#day .lanes{grid-template-columns:80px minmax(0,1fr) 70px}#day .sum .n{font-size:34px}}
 /* ボスの席（壁際・ホワイトボードの横。狭い画面では床の上） */
 .bossdesk{width:190px;height:214px;z-index:6}
@@ -394,6 +454,20 @@ code b.r,.onb b.r{color:#FFD27A}
   <h3>よく動いたセッション</h3>
   <div class="who"></div>
   <p class="note">動いた時間は、指示を出してから Claude が返事を終えるまで。同時に動いた分は足すので「のべ」です。会話の記録の時刻から数えるので、トークンは使いません。</p>
+  <div class="acts"><button type="button" class="close">閉じる</button></div>
+</div></div>
+<div id="dbox" hidden><div class="box" role="dialog" aria-modal="true" aria-labelledby="dbox-t">
+  <div class="hd"><h2 id="dbox-t">判断箱</h2><small></small></div>
+  <div class="chips"></div>
+  <div class="list open"></div>
+  <section class="send" aria-labelledby="dbox-send">
+    <h3 id="dbox-send">係に指示を出す</h3>
+    <div class="row"><select aria-label="宛先"></select><textarea rows="2" maxlength="2000" placeholder="例：#336 は案1で進めて（⌘Enter で送る）" aria-label="指示"></textarea><button type="button">送る</button></div>
+    <div class="err" role="alert"></div>
+    <small>ボスが次の見回りで係に伝えます。お金・外への送信・マージなど Jose さんの判断が要ることは、ボスが止めて判断箱に戻します。</small>
+    <div class="notes"></div>
+  </section>
+  <details hidden><summary></summary><div class="list"></div></details>
   <div class="acts"><button type="button" class="close">閉じる</button></div>
 </div></div>
 <div id="made" role="status" aria-live="polite"><div class="t"></div><button type="button" class="x" aria-label="閉じる">×</button><div class="s"></div><div class="row"><div class="cmd">claude -n&nbsp;<b class="h"></b>@<input type="text" aria-label="係名" placeholder="係名" autocomplete="off" spellcheck="false"></div><button type="button" class="copy">コピー</button></div><div class="hint"></div><div class="bar"><i></i></div></div>
@@ -778,6 +852,11 @@ function buildWall(roomW, wp) {
   clockEl = el('div', 'abs clock' + (wp.small ? ' small' : ''), room, { left: (wp.clock ?? 0) + 'px' });
   if (wp.clock === null) clockEl.style.display = 'none';
   boardEl = el('div', 'abs board', room, { left: wp.board + 'px', width: wp.boardW + 'px' });
+  // 判断箱の札はボードの右上。ボードの中は3秒ごとに作り直すので、外に置く（フォーカスが外れないように）
+  boxBtn = el('button', 'abs boxbtn', room, { left: (wp.board + wp.boardW - 132) + 'px', top: '30px' });
+  boxBtn.type = 'button';
+  boxBtn.addEventListener('click', openBox);
+  drawBoxBtn();
   usageEl = el('div', 'abs usage', room);
   drawUsage();
 }
@@ -1213,11 +1292,243 @@ document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
   if (madeEl.contains(document.activeElement)) closeMade();
   else if (!dayEl.hidden) closeDay();
+  else if (!dboxEl.hidden) closeBox();
   else if (drag) cancelDrag();
   else if (mv) cancelMove();
   else if (card.dataset.mode === 'island') closeIsland();
   else if (selectedKey) select(selectedKey);
 });
+
+// ---- 判断箱：ボスが置いた問いに答え、係への指示を出す（decisions.json。ボスが読んで係に伝える） ----
+const dboxEl = document.getElementById('dbox');
+let dec = null, decSig = '', boxBtn = null, boxFilter = '', boxPending = false;
+const drafts = new Map(), busyIds = new Set();
+const SPECIAL = { later: 'あとで', ask: '相談したい', memo: 'メモだけ' };
+
+function setDecisions(d) {
+  if (!d) return;
+  dec = { questions: d.questions || [], answers: d.answers || {}, notes: d.notes || [] };
+  drawBoxBtn();
+  const sig = JSON.stringify(dec);
+  if (sig === decSig) return;
+  decSig = sig;
+  if (!dboxEl.hidden) drawBox();
+}
+function openQs() { return dec ? dec.questions.filter(q => q.status === 'open') : []; }
+// まだ答えていない（または「あとで」「相談したい」にした）問い
+function waitingQs() { return openQs().filter(q => { const a = dec.answers[q.id]; return !a || a.choice === 'later' || a.choice === 'ask'; }); }
+function drawBoxBtn() {
+  if (!boxBtn) return;
+  const n = waitingQs().length;
+  boxBtn.classList.toggle('has', n > 0);
+  boxBtn.innerHTML = '判断箱 <b>' + n + '</b>';
+  boxBtn.setAttribute('aria-label', '判断箱を開く（答え待ち ' + n + '件）');
+}
+function qColor(q) {
+  const is = rawIslands.find(i => i.name === q.island);
+  return q.color || (is && is.hex) || '#9AA0B2';
+}
+function choiceLabel(q, v) {
+  const o = (q.options || []).find(o => o.v === v);
+  return o ? o.label : SPECIAL[v] || v;
+}
+function dayAgo(created) {
+  if (!created) return '';
+  const d = Math.floor((Date.now() - new Date(created + 'T00:00:00').getTime()) / 86400e3);
+  return d <= 0 ? '今日' : d + '日前';
+}
+
+function openBox() {
+  if (selectedKey) select(selectedKey);
+  drawBox();
+  dboxEl.hidden = false;
+  const box = dboxEl.querySelector('.box');
+  box.scrollTop = 0; // 閉じるボタンにフォーカスすると下までスクロールするので、最初の選択肢に当てる
+  (box.querySelector('.list.open .q button') || box.querySelector('.close')).focus({ preventScroll: true });
+}
+function closeBox() { dboxEl.hidden = true; boxBtn?.focus(); }
+dboxEl.querySelector('.close').addEventListener('click', closeBox);
+dboxEl.addEventListener('click', e => { if (e.target === dboxEl) closeBox(); });
+// 書いている途中や押している途中は描き直さない（書きかけが消える・フォーカスが外れるため）。離れたら描き直す
+dboxEl.addEventListener('focusout', () => setTimeout(() => { if (boxPending && !dboxEl.contains(document.activeElement)) drawBox(); }, 0));
+
+function drawBox() {
+  const box = dboxEl.querySelector('.box');
+  if (box.contains(document.activeElement) && document.activeElement.matches('textarea,select')) { boxPending = true; return; }
+  boxPending = false;
+  const focusId = document.activeElement?.closest?.('.q')?.dataset.id, focusV = document.activeElement?.dataset?.v;
+  const qs = openQs(), waiting = waitingQs();
+  box.querySelector('.hd small').textContent = dec ? '答え待ち ' + waiting.length + '件' + (qs.length > waiting.length ? '・伝え待ち ' + (qs.length - waiting.length) + '件' : '') : '読み込み中';
+
+  // 島で絞る（答え待ちがある島だけ）
+  const chips = box.querySelector('.chips');
+  chips.replaceChildren();
+  const islands = [...new Map(qs.map(q => [q.island, q])).values()];
+  if (boxFilter && !islands.some(q => q.island === boxFilter)) boxFilter = '';
+  if (islands.length > 1) {
+    const chip = (label, val, color, n) => {
+      const b = el('button', '', chips); b.type = 'button';
+      b.setAttribute('aria-pressed', String(boxFilter === val));
+      if (color) el('i', '', b).style.background = color;
+      b.append(label + ' ' + n);
+      b.addEventListener('click', () => { boxFilter = val; drawBox(); });
+    };
+    chip('すべて', '', '', qs.length);
+    islands.forEach(q => chip(q.island, q.island, qColor(q), qs.filter(x => x.island === q.island).length));
+  }
+
+  const list = box.querySelector('.list.open');
+  list.replaceChildren();
+  // 答え待ち → あとで・相談したい → 伝え待ち の順
+  const rank = q => { const a = dec.answers[q.id]; return !a ? 0 : a.choice === 'later' || a.choice === 'ask' ? 1 : 2; };
+  const shown = qs.filter(q => !boxFilter || q.island === boxFilter).sort((a, b) => rank(a) - rank(b));
+  if (!dec) el('div', 'none', list).textContent = '読み込み中…';
+  else if (!shown.length) el('div', 'none', list).textContent = 'いまは決めることはありません';
+  shown.forEach(q => list.append(qCard(q)));
+
+  // 係への指示
+  const sel = box.querySelector('.send select'), keep = sel.value;
+  sel.replaceChildren();
+  const opt = (v, t) => { const o = el('option', '', sel); o.value = v; o.textContent = t; };
+  opt('', 'ボス（全体へ）');
+  (lastList || []).filter(m => !m.boss).sort((a, b) => a.name.localeCompare(b.name)).forEach(m => opt(m.name, m.name));
+  if ([...sel.options].some(o => o.value === keep)) sel.value = keep;
+  const notes = box.querySelector('.notes');
+  notes.replaceChildren();
+  (dec ? dec.notes.slice(-5).reverse() : []).forEach(n => {
+    const r = el('div', '', notes);
+    el('span', '', r).textContent = n.to || 'ボス';
+    el('span', '', r).textContent = n.text;
+    el('span', n.relayed ? 'ok' : 'w', r).textContent = n.relayed ? '伝えました' : '伝え待ち・' + ago(Date.now() - n.at);
+  });
+
+  // 伝え終えたもの
+  const done = dec ? dec.questions.filter(q => q.status !== 'open').slice(0, 20) : [];
+  const det = box.querySelector('details');
+  det.hidden = !done.length;
+  det.querySelector('summary').textContent = '伝え終えたもの（直近 ' + done.length + '件）';
+  const dl = det.querySelector('.list');
+  dl.replaceChildren();
+  done.forEach(q => dl.append(qCard(q)));
+
+  if (focusId) { const t = box.querySelector(`.q[data-id="${CSS.escape(focusId)}"] [data-v="${CSS.escape(focusV || '')}"]`); t?.focus(); }
+}
+
+function qCard(q) {
+  const a = dec.answers[q.id], open = q.status === 'open', busy = busyIds.has(q.id);
+  const c = el('article', 'q' + (open ? '' : ' done'));
+  c.dataset.id = q.id;
+  c.style.setProperty('--c', qColor(q));
+  const meta = el('div', 'meta', c);
+  el('b', '', meta).textContent = q.island || '（島なし）';
+  if (q.session) el('span', '', meta).textContent = q.session;
+  if (q.due) el('span', 'due', meta).textContent = q.due.slice(5).replace('-', '/') + ' まで';
+  if (q.created) el('span', '', meta).textContent = dayAgo(q.created);
+  el('h4', '', c).textContent = q.title;
+  if (q.context) {
+    const p = el('p', 'ctx', c);
+    p.textContent = q.context;
+    if (open && q.context.length > 160) {
+      p.classList.add('clip');
+      const more = el('button', 'more', c); more.type = 'button'; more.textContent = '続きを読む';
+      more.addEventListener('click', () => { p.classList.remove('clip'); more.remove(); });
+    }
+  }
+  if (q.links && q.links.length) {
+    const ls = el('div', 'links', c);
+    q.links.forEach(l => { if (!/^https?:\/\//.test(l.url)) return; const x = el('a', '', ls); x.href = l.url; x.target = '_blank'; x.rel = 'noopener noreferrer'; x.textContent = l.label || l.url; });
+  }
+  if (open && q.auto && q.auto.at && !a) {
+    const at = new Date(q.auto.at);
+    if (!isNaN(at)) el('div', 'auto', c).textContent = `${at.getMonth() + 1}/${at.getDate()} ${at.getHours()}:${String(at.getMinutes()).padStart(2, '0')} までに答えがなければ「${choiceLabel(q, q.auto.choice)}」で進みます` + (q.auto.undo ? `（戻し方：${q.auto.undo}）` : '');
+  }
+  if (open) {
+    const opts = el('div', 'opts', c);
+    const pick = (v, label, cls, rec) => {
+      const b = el('button', cls || '', opts); b.type = 'button'; b.dataset.v = v;
+      b.disabled = busy;
+      b.setAttribute('aria-pressed', String(!!a && a.choice === v));
+      if (rec) el('span', 'rec', b).textContent = 'おすすめ';
+      b.append(label);
+      b.addEventListener('click', () => answer(q, v));
+    };
+    (q.options || []).forEach(o => pick(o.v, o.label, '', o.rec));
+    pick('later', 'あとで', 'sub');
+    pick('ask', '相談したい', 'sub');
+    const memo = el('div', 'memo', c);
+    const ta = el('textarea', '', memo);
+    ta.rows = 1; ta.maxLength = 2000; ta.dataset.v = 'memo';
+    ta.placeholder = 'メモ（条件・直してほしい所など。選ぶと一緒に送ります）';
+    ta.setAttribute('aria-label', q.title + ' へのメモ');
+    ta.value = drafts.get(q.id) ?? (a && a.note) ?? '';
+    ta.addEventListener('input', () => drafts.set(q.id, ta.value));
+    ta.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); answer(q, a && a.choice !== 'memo' ? a.choice : ''); } });
+    const send = el('button', '', memo); send.type = 'button'; send.dataset.v = 'memo-send'; send.disabled = busy;
+    send.textContent = 'メモを送る';
+    send.addEventListener('click', () => answer(q, a && a.choice !== 'memo' ? a.choice : ''));
+  }
+  const st = el('div', 'st', c);
+  if (a) {
+    const by = a.by === 'claude.ai' ? '（claude.ai で）' : '';
+    st.textContent = (a.choice === 'memo' ? 'メモを送りました' : '「' + choiceLabel(q, a.choice) + '」を選びました') + by + (a.note && !open ? '：' + a.note : '') +
+      (q.status === 'auto' ? '・期限で進めました' : !open || a.relayed ? '・係に伝えました' : a.choice === 'later' ? '' : '・ボスが係に伝えるのを待っています');
+    if (open && !a.relayed && a.choice !== 'later') st.classList.add('wait');
+  } else if (q.status === 'auto') st.textContent = '期限までに答えがなく、おすすめで進めました';
+  el('div', 'err', c).setAttribute('role', 'alert');
+  return c;
+}
+
+async function answer(q, choice) {
+  if (busyIds.has(q.id)) return;
+  const note = (drafts.get(q.id) ?? (dec.answers[q.id] || {}).note ?? '').trim();
+  if (!choice && !note) { showBoxErr(q.id, '選ぶか、メモを書いてください'); return; }
+  busyIds.add(q.id);
+  dboxEl.querySelectorAll(`.q[data-id="${CSS.escape(q.id)}"] button`).forEach(b => { b.disabled = true; });
+  try {
+    const r = await fetch('/api/decisions/answer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: q.id, choice, note }) });
+    if (!r.ok) throw new Error(await r.text());
+    drafts.delete(q.id);
+    busyIds.delete(q.id);
+    if (document.activeElement?.matches?.('#dbox textarea')) document.activeElement.blur();
+    await loadDecisions(true);
+  } catch (e) {
+    busyIds.delete(q.id);
+    drawBox();
+    showBoxErr(q.id, '送れませんでした：' + (e.message || '').trim());
+  }
+}
+function showBoxErr(id, msg) { const e = dboxEl.querySelector(`.q[data-id="${CSS.escape(id)}"] .err`); if (e) e.textContent = msg; }
+
+const sendBox = dboxEl.querySelector('.send');
+let sending = false;
+async function sendNote() {
+  const ta = sendBox.querySelector('textarea'), btn = sendBox.querySelector('button'), err = sendBox.querySelector('.err');
+  const text = ta.value.trim();
+  if (!text || sending) { if (!text) err.textContent = '指示を書いてください'; return; }
+  sending = true; btn.disabled = true; err.textContent = '';
+  try {
+    const r = await fetch('/api/decisions/notes', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ to: sendBox.querySelector('select').value, text }) });
+    if (!r.ok) throw new Error(await r.text());
+    ta.value = '';
+    ta.blur();
+    await loadDecisions(true);
+  } catch (e) {
+    err.textContent = '送れませんでした：' + (e.message || '').trim();
+  } finally {
+    sending = false; btn.disabled = false;
+  }
+}
+sendBox.querySelector('button').addEventListener('click', sendNote);
+sendBox.querySelector('textarea').addEventListener('keydown', e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); sendNote(); } });
+
+async function loadDecisions(force) {
+  try {
+    const r = await fetch('/api/decisions', { cache: 'no-store' });
+    if (!r.ok) return;
+    if (force) decSig = '';
+    setDecisions(await r.json());
+  } catch (e) {}
+}
 
 // ---- 島を作る・直す・消す（islands.json に保存する） ----
 const COLORS = [['green', '緑'], ['blue', '青'], ['yellow', '黄'], ['magenta', '紫'], ['cyan', '水色'], ['red', '赤']];
@@ -1521,6 +1832,7 @@ async function tick() {
     if (!rc.ok) throw new Error(String(rc.status));
     setIslands(await ri.json());
     render(await rc.json() || [], Date.now());
+    loadDecisions();
     document.getElementById('err').style.display = 'none';
   } catch (e) {
     const err = document.getElementById('err');
