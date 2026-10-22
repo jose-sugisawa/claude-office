@@ -325,66 +325,110 @@ code b.r,.onb b.r{color:#FFD27A}
 #day .note{font-size:12px;color:#6B5442;line-height:1.6;margin:0}
 #day .acts{display:flex;justify-content:flex-end}
 #day button.close{font:inherit;font-size:14px;font-weight:700;min-height:44px;padding:0 18px;border:0;border-radius:10px;background:var(--night2);color:#F4F1E8;box-shadow:0 4px 0 #171A33;cursor:pointer}
-/* 判断箱：ホワイトボード右上の札と、紙の窓 */
-.boxbtn{z-index:4;height:34px;display:flex;align-items:center;gap:6px;padding:0 12px;border:0;border-radius:17px;background:#E7E9F2;color:#4A5072;font:inherit;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 3px 0 #B6BCD2}
-.boxbtn b{font-size:15px}
-.boxbtn.has{background:#C2410C;color:#FFF8E7;box-shadow:0 3px 0 #8A2E08}
-.boxbtn:focus-visible{outline:4px solid #FFD27A;outline-offset:3px}
-#dbox{position:fixed;inset:0;z-index:45;background:rgba(12,14,32,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+/* 判断箱：モチ（壁の下に立つキャラ。件数で大きさと動きが変わる）と、決裁トレイ（1件ずつ決める窓） */
+.mochi{z-index:6;width:110px;height:122px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;border:0;padding:0;background:transparent;cursor:pointer;--c:#3FB36B}
+.mochi .fig{width:80px;height:90px;transform-origin:50% 100%}
+.mochi svg{display:block;width:80px;height:90px}
+.mochi .mtag{position:relative;z-index:1;margin-top:-4px;font:inherit;font-size:12px;font-weight:700;color:var(--ink);padding:2px 10px;border-radius:999px;background:#FFFDF5;border:2px solid var(--c);white-space:nowrap}
+.mochi .say{position:absolute;left:50%;bottom:118px;transform:translateX(-50%);padding:4px 10px;border-radius:10px;background:#FFFDF5;border:2px solid var(--ink);font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap;opacity:0;transition:opacity .2s;pointer-events:none}
+.mochi .say.on{opacity:1}
+.mochi:focus-visible{outline:4px solid #FFD27A;outline-offset:2px;border-radius:12px}
+.mochi.m1{--c:#9AA0B2}.mochi.m2{--c:#F2A93B}.mochi.m3{--c:#E0662A}.mochi.m4{--c:#C2410C}
+.mochi.m0 .fig{animation:mo-squish 2.4s steps(4) infinite}
+.mochi.m1 .fig{animation:mo-squish 1.4s steps(4) infinite}
+.mochi.m2{animation:mo-pace 6s steps(24) infinite}.mochi.m2 .fig{animation:mo-squish 1.4s steps(4) infinite}
+.mochi.m3{animation:mo-run 3s steps(24) infinite}.mochi.m3 .fig{animation:mo-tremble .2s steps(2) infinite}
+.mochi.m4{animation:mo-hop .6s steps(3) infinite}.mochi.m4 .fig{animation:mo-press .5s steps(2) infinite}
+.mochi:hover,.mochi:focus-visible,.mochi:hover .fig,.mochi:focus-visible .fig{animation-play-state:paused}
+.mochi .fig.ate{animation:mo-ate .5s steps(3) 1}
+@keyframes mo-squish{0%,100%{transform:scale(1,1)}50%{transform:scale(1.08,.92)}}
+@keyframes mo-tremble{0%,100%{transform:translateX(0)}50%{transform:translateX(2px)}}
+@keyframes mo-press{0%,100%{transform:scale(1,1)}50%{transform:scale(1.04,.97)}}
+@keyframes mo-pace{0%,100%{transform:translateX(0)}50%{transform:translateX(-120px)}}
+@keyframes mo-run{0%,100%{transform:translateX(0)}50%{transform:translateX(-380px)}}
+@keyframes mo-hop{0%,100%{transform:translateY(0) rotate(0)}40%{transform:translateY(-24px) rotate(-6deg)}60%{transform:translateY(-24px) rotate(6deg)}}
+@keyframes mo-ate{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+@media (prefers-reduced-motion:reduce){.mochi,.mochi .fig{animation:none!important}}
+
+#dbox{position:fixed;inset:0;z-index:45;background:rgba(18,21,42,.96);overflow:auto;padding:40px 24px;box-sizing:border-box}
 #dbox[hidden]{display:none}
-#dbox .box{width:min(820px,100%);max-height:calc(100vh - 32px);overflow:auto;box-sizing:border-box;background:#FFF8E7;color:var(--ink);border:6px solid var(--wood);box-shadow:0 10px 0 rgba(0,0,0,.35);padding:20px 24px 22px;display:flex;flex-direction:column;gap:14px}
-#dbox .hd{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
-#dbox h2{margin:0;font-size:22px}
-#dbox .hd small{font-size:14px;color:#6B5442}
-#dbox h3{margin:4px 0 0;font-size:14px;color:#6B5442}
-#dbox .chips{display:flex;flex-wrap:wrap;gap:6px}
-#dbox .chips button{font:inherit;font-size:13px;font-weight:700;min-height:36px;padding:0 12px;border:2px solid #E2D3BC;border-radius:18px;background:#FFFDF5;color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:6px}
-#dbox .chips button[aria-pressed=true]{border-color:var(--ink);background:var(--ink);color:#FFF8E7}
-#dbox .chips i{width:10px;height:10px;border-radius:50%}
-#dbox .list{display:flex;flex-direction:column;gap:12px}
-#dbox .none{font-size:14px;color:#6B5442}
-#dbox .q{background:#FFFDF5;border:2px solid #E2D3BC;border-left:8px solid var(--c,#9AA0B2);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:8px}
-#dbox .q.done{opacity:.7}
-#dbox .q .meta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 10px;font-size:12px;color:#6B5442}
-#dbox .q .meta b{color:var(--ink)}
-#dbox .q .due{color:#C2410C;font-weight:700}
-#dbox .q h4{margin:0;font-size:16px;line-height:1.45}
-#dbox .q .ctx{margin:0;font-size:14px;line-height:1.65;color:#4A3A30;white-space:pre-wrap;overflow-wrap:anywhere}
-#dbox .q .ctx.clip{display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
-#dbox .q .more{align-self:flex-start;font:inherit;font-size:13px;color:#2F5BB7;background:none;border:0;padding:0;min-height:28px;cursor:pointer}
-#dbox .q .links{display:flex;flex-wrap:wrap;gap:10px;font-size:13px}
-#dbox .q .links a{color:#2F5BB7}
-#dbox .q .auto{font-size:13px;color:#7A4B00;background:#FFF0C9;border-radius:8px;padding:6px 10px}
-#dbox .opts{display:flex;flex-wrap:wrap;gap:8px}
-#dbox .opts button{font:inherit;font-size:14px;font-weight:700;min-height:44px;padding:6px 14px;border:2px solid #CDBFA8;border-radius:10px;background:#fff;color:var(--ink);cursor:pointer;text-align:left;display:flex;align-items:center;gap:8px;box-shadow:0 3px 0 #E2D3BC}
+#dbox .tray{max-width:1260px;margin:0 auto;display:grid;grid-template-columns:200px minmax(0,680px) 280px;gap:16px 36px;align-items:start;justify-content:center;color:#F4F1E8}
+#dbox .info{display:flex;flex-direction:column;gap:6px;padding-top:8px}
+#dbox .lab,#dbox .aside h3{font-family:'DotGothic16',ui-monospace,monospace;font-size:15px;font-weight:400;letter-spacing:.06em;color:#FFD27A;margin:0}
+#dbox h2{margin:0;font-size:30px;font-weight:900;color:#F4F1E8}
+#dbox .info small{font-size:14px;color:#C9CEE3}
+#dbox .stack{position:relative}
+#dbox .stack::before,#dbox .stack::after{content:'';position:absolute;inset:14px 0 -14px 0;background:#EFE6D2;transform:rotate(3deg);box-shadow:0 8px 0 rgba(0,0,0,.25)}
+#dbox .stack::after{background:#F6EEDC;transform:rotate(-2deg);inset:8px 0 -8px 0}
+#dbox .stack.one::before,#dbox .stack.one::after{display:none}
+#dbox .letter{position:relative;z-index:1;box-sizing:border-box;background:#FFFDF5;color:var(--ink);border:6px solid var(--wood);box-shadow:0 10px 0 rgba(0,0,0,.35);padding:26px 30px 22px;display:flex;flex-direction:column;gap:16px}
+#dbox .meta{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;color:#6B5442}
+#dbox .meta .l{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
+#dbox .pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#EFE6D2;color:var(--ink);font-weight:700}
+#dbox .pill i{width:10px;height:10px;border-radius:50%}
+#dbox .due{color:#B4380A;font-weight:700}
+#dbox .pos{font-family:'DotGothic16',ui-monospace,monospace;font-size:16px;color:#6B5442;flex:none}
+#dbox h1{margin:0;font-size:26px;line-height:1.4;font-weight:900}
+#dbox .ctx{margin:0;font-size:15px;line-height:1.8;color:#4A3A30;white-space:pre-wrap;overflow-wrap:anywhere}
+#dbox .ctx.clip{display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
+#dbox .more{align-self:flex-start;font:inherit;font-size:13px;color:#2F5BB7;background:none;border:0;padding:0;min-height:28px;cursor:pointer}
+#dbox .links{display:flex;flex-wrap:wrap;gap:12px;font-size:14px}
+#dbox .links a{color:#2F5BB7}
+#dbox .note{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;font-size:14px;line-height:1.6}
+#dbox .note.wait{background:#FFF0C9;color:#6A4100}
+#dbox .note.auto{background:#EAF0FB;color:#1E3F85}
+#dbox .note svg{flex:none}
+#dbox .opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+#dbox .opts button{font:inherit;text-align:left;min-height:68px;padding:10px 14px;border:3px solid #CDBFA8;border-radius:12px;background:#fff;color:var(--ink);display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 4px 0 #E2D3BC}
 #dbox .opts button:hover{border-color:var(--ink)}
-#dbox .opts button[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#FFF8E7;box-shadow:0 3px 0 #000}
-#dbox .opts button.sub{font-weight:400;font-size:13px;border-style:dashed}
+#dbox .opts button[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#FFF8E7;box-shadow:0 4px 0 #000}
 #dbox .opts button:disabled{opacity:.5;cursor:default}
-#dbox .opts .rec{font-size:11px;font-weight:700;color:#FFF8E7;background:#3FB36B;border-radius:6px;padding:2px 6px;flex:none}
-#dbox .memo{display:flex;gap:8px;align-items:flex-start}
-#dbox textarea{flex:1;font:inherit;font-size:16px;line-height:1.5;min-height:44px;padding:8px 10px;border:2px solid #E2D3BC;border-radius:10px;background:#fff;color:var(--ink);resize:vertical;box-sizing:border-box}
-#dbox textarea:focus,#dbox select:focus{outline:none;border-color:#C2410C}
-#dbox .memo button,#dbox .send button{font:inherit;font-size:14px;font-weight:700;min-height:44px;padding:0 16px;border:0;border-radius:10px;background:var(--night2);color:#F4F1E8;box-shadow:0 4px 0 #171A33;cursor:pointer;flex:none}
-#dbox .memo button:disabled,#dbox .send button:disabled{opacity:.5;cursor:default}
-#dbox .st{font-size:13px;color:#2E7D4F;font-weight:700}
-#dbox .st.wait{color:#7A4B00}
-#dbox .err{font-size:13px;color:#C2410C;font-weight:700}
+#dbox .key{font-family:'DotGothic16',ui-monospace,monospace;width:32px;height:32px;border-radius:8px;background:#EFE6D2;color:var(--ink);display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
+#dbox .opts button[aria-pressed=true] .key{background:#FFD27A}
+#dbox .opts .t{display:flex;flex-direction:column;gap:2px;min-width:0}
+#dbox .opts .t b{font-size:16px;overflow-wrap:anywhere}
+#dbox .opts .t small{font-size:12px;color:#2E7D4F;font-weight:700}
+#dbox .opts button[aria-pressed=true] .t small{color:#FFD27A}
+#dbox label.memo{display:flex;flex-direction:column;gap:6px;font-size:13px;color:#6B5442}
+#dbox input,#dbox textarea,#dbox select{font:inherit;font-size:16px;min-height:44px;padding:0 12px;border:2px solid #E2D3BC;border-radius:10px;background:#fff;color:var(--ink);box-sizing:border-box}
+#dbox textarea{padding:8px 12px;line-height:1.5;resize:vertical}
+#dbox input:focus,#dbox textarea:focus,#dbox select:focus{outline:none;border-color:#C2410C}
+#dbox .foot{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:2px dashed #E2D3BC;padding-top:14px}
+#dbox .foot .g{display:flex;gap:8px}
+#dbox .sub{font:inherit;font-size:14px;min-height:44px;padding:0 14px;border:2px dashed #CDBFA8;border-radius:10px;background:transparent;color:#4A3A30;cursor:pointer}
+#dbox .sub[aria-pressed=true]{border-style:solid;border-color:var(--ink);background:#EFE6D2}
+#dbox .sub kbd{font-family:'DotGothic16',ui-monospace,monospace;color:#8A7560}
+#dbox .nav{width:44px;height:44px;border:0;border-radius:10px;background:#EFE6D2;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center}
+#dbox .nav:disabled{opacity:.4;cursor:default}
+#dbox .err{font-size:13px;color:#B4380A;font-weight:700}
 #dbox .err:empty{display:none}
-#dbox .send{display:flex;flex-direction:column;gap:8px;background:#EAF0FB;border-radius:10px;padding:12px 14px}
-#dbox .send .row{display:flex;gap:8px;align-items:flex-start}
-#dbox select{font:inherit;font-size:16px;min-height:44px;padding:0 10px;border:2px solid #C8D3EA;border-radius:10px;background:#fff;color:var(--ink);max-width:100%}
-#dbox .send small{font-size:12px;color:#4A5072;line-height:1.6}
-#dbox .notes{display:flex;flex-direction:column;gap:4px;font-size:13px}
-#dbox .notes div{display:grid;grid-template-columns:minmax(0,140px) minmax(0,1fr) auto;gap:10px}
-#dbox .notes span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
-#dbox .notes .w{color:#7A4B00;font-weight:700}
-#dbox .notes .ok{color:#2E7D4F}
-#dbox details summary{cursor:pointer;font-size:14px;font-weight:700;color:#6B5442;min-height:32px;display:flex;align-items:center}
-#dbox details .list{margin-top:8px}
-#dbox .acts{display:flex;justify-content:flex-end}
-#dbox button.close{font:inherit;font-size:14px;font-weight:700;min-height:44px;padding:0 18px;border:0;border-radius:10px;background:var(--night2);color:#F4F1E8;box-shadow:0 4px 0 #171A33;cursor:pointer}
-@media (max-width:600px){#dbox .box{padding:16px}#dbox .memo,#dbox .send .row{flex-direction:column;align-items:stretch}#dbox .notes div{grid-template-columns:minmax(0,90px) minmax(0,1fr) auto}}
+#dbox .st{font-size:13px;font-weight:700;color:#2E7D4F}
+#dbox .st:empty{display:none}
+#dbox .empty{align-items:center;text-align:center;padding:36px 30px}
+#dbox .empty svg{width:120px;height:135px}
+#dbox .aside{display:flex;flex-direction:column;gap:12px;padding-top:8px}
+#dbox .done{display:flex;flex-direction:column;gap:8px}
+#dbox .done .row{padding:10px 14px;border-radius:10px;background:var(--night2);display:flex;flex-direction:column;gap:3px}
+#dbox .done .row small{font-size:12px;color:#C9CEE3}
+#dbox .done .row b{font-size:14px}
+#dbox .done .row span{font-size:12px;color:#8FE3A8}
+#dbox .done .none{font-size:13px;color:#C9CEE3}
+#dbox .undo{font:inherit;font-size:14px;font-weight:700;min-height:44px;border:0;border-radius:10px;background:#FFD27A;color:var(--ink);cursor:pointer;box-shadow:0 4px 0 #B5843A}
+#dbox .undo:disabled{opacity:.4;cursor:default}
+#dbox .send{display:flex;flex-direction:column;gap:8px;margin-top:8px}
+#dbox .send button{font:inherit;font-size:14px;font-weight:700;min-height:44px;border:0;border-radius:10px;background:var(--night2);color:#F4F1E8;cursor:pointer;box-shadow:0 4px 0 #171A33}
+#dbox .send button:disabled{opacity:.5;cursor:default}
+#dbox .send small{font-size:12px;line-height:1.6;color:#C9CEE3}
+#dbox .send .err{color:#FFB38A}
+#dbox .notes{display:flex;flex-direction:column;gap:4px;font-size:12px}
+#dbox .notes div{display:flex;gap:8px;color:#C9CEE3}
+#dbox .notes span:nth-child(2){flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#F4F1E8}
+#dbox .notes .w{color:#FFD27A}
+#dbox .keys{grid-column:2;display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px;font-size:13px;color:#C9CEE3;padding-top:12px}
+#dbox .keys b{font-family:'DotGothic16',ui-monospace,monospace;font-weight:400;color:#FFD27A}
+#dbox .x{position:fixed;top:16px;right:16px;width:44px;height:44px;border:0;border-radius:10px;background:var(--night2);color:#F4F1E8;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
+@media (max-width:1100px){#dbox .tray{grid-template-columns:minmax(0,680px)}#dbox .keys{grid-column:1}}
+@media (max-width:600px){#dbox{padding:24px 12px}#dbox .letter{padding:18px 16px}#dbox .opts{grid-template-columns:minmax(0,1fr)}#dbox h1{font-size:21px}#dbox .keys{display:none}}
 @media (max-width:600px){#day .lanes{grid-template-columns:80px minmax(0,1fr) 70px}#day .sum .n{font-size:34px}}
 /* ボスの席（壁際・ホワイトボードの横。狭い画面では床の上） */
 .bossdesk{width:190px;height:214px;z-index:6}
@@ -456,19 +500,25 @@ code b.r,.onb b.r{color:#FFD27A}
   <p class="note">動いた時間は、指示を出してから Claude が返事を終えるまで。同時に動いた分は足すので「のべ」です。会話の記録の時刻から数えるので、トークンは使いません。</p>
   <div class="acts"><button type="button" class="close">閉じる</button></div>
 </div></div>
-<div id="dbox" hidden><div class="box" role="dialog" aria-modal="true" aria-labelledby="dbox-t">
-  <div class="hd"><h2 id="dbox-t">判断箱</h2><small></small></div>
-  <div class="chips"></div>
-  <div class="list open"></div>
-  <section class="send" aria-labelledby="dbox-send">
-    <h3 id="dbox-send">係に指示を出す</h3>
-    <div class="row"><select aria-label="宛先"></select><textarea rows="2" maxlength="2000" placeholder="例：#336 は案1で進めて（⌘Enter で送る）" aria-label="指示"></textarea><button type="button">送る</button></div>
-    <div class="err" role="alert"></div>
-    <small>ボスが次の見回りで係に伝えます。お金・外への送信・マージなど Jose さんの判断が要ることは、ボスが止めて判断箱に戻します。</small>
-    <div class="notes"></div>
-  </section>
-  <details hidden><summary></summary><div class="list"></div></details>
-  <div class="acts"><button type="button" class="close">閉じる</button></div>
+<div id="dbox" hidden><div class="tray" role="dialog" aria-modal="true" aria-labelledby="dbox-t">
+  <button type="button" class="x close" aria-label="決裁トレイを閉じる"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <div class="info"><p class="lab">決裁トレイ</p><h2 id="dbox-t"></h2><small></small></div>
+  <div class="stack"><section class="letter" aria-live="polite"></section></div>
+  <aside class="aside" aria-label="いま決めた分と指示">
+    <h3>いま決めた分</h3>
+    <div class="done"></div>
+    <button type="button" class="undo">1つ戻す</button>
+    <div class="send">
+      <h3>係に指示を出す</h3>
+      <select aria-label="宛先"></select>
+      <textarea rows="3" maxlength="2000" placeholder="例：今日はブログを先に（⌘Enter で送る）" aria-label="指示"></textarea>
+      <button type="button">送る</button>
+      <div class="err" role="alert"></div>
+      <small>ボスが次の見回りで係に伝えます。お金・外への送信・マージなど Jose さんの判断が要ることは、ボスが止めて判断箱に戻します。</small>
+      <div class="notes"></div>
+    </div>
+  </aside>
+  <div class="keys" aria-hidden="true"><span><b>1〜9</b> 選ぶ</span><span><b>M</b> メモ</span><span><b>L</b> あとで</span><span><b>A</b> 相談したい</span><span><b>← →</b> 前・次</span><span><b>Esc</b> 閉じる</span></div>
 </div></div>
 <div id="made" role="status" aria-live="polite"><div class="t"></div><button type="button" class="x" aria-label="閉じる">×</button><div class="s"></div><div class="row"><div class="cmd">claude -n&nbsp;<b class="h"></b>@<input type="text" aria-label="係名" placeholder="係名" autocomplete="off" spellcheck="false"></div><button type="button" class="copy">コピー</button></div><div class="hint"></div><div class="bar"><i></i></div></div>
 <section id="card" aria-label="カード" data-mode="person">
@@ -852,11 +902,8 @@ function buildWall(roomW, wp) {
   clockEl = el('div', 'abs clock' + (wp.small ? ' small' : ''), room, { left: (wp.clock ?? 0) + 'px' });
   if (wp.clock === null) clockEl.style.display = 'none';
   boardEl = el('div', 'abs board', room, { left: wp.board + 'px', width: wp.boardW + 'px' });
-  // 判断箱の札はボードの右上。ボードの中は3秒ごとに作り直すので、外に置く（フォーカスが外れないように）
-  boxBtn = el('button', 'abs boxbtn', room, { left: (wp.board + wp.boardW - 132) + 'px', top: '30px' });
-  boxBtn.type = 'button';
-  boxBtn.addEventListener('click', openBox);
-  drawBoxBtn();
+  // 判断箱のモチはホワイトボードの右、壁の下に立つ（時計の下。ボスの席と時計の間が狭いときはボードの右下の前）
+  placeMochi(wp.clock !== null || wp.boss === null ? wp.board + wp.boardW + 2 : wp.board + wp.boardW - 112);
   usageEl = el('div', 'abs usage', room);
   drawUsage();
 }
@@ -1292,7 +1339,7 @@ document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
   if (madeEl.contains(document.activeElement)) closeMade();
   else if (!dayEl.hidden) closeDay();
-  else if (!dboxEl.hidden) closeBox();
+  else if (!dboxEl.hidden) closeTray();
   else if (drag) cancelDrag();
   else if (mv) cancelMove();
   else if (card.dataset.mode === 'island') closeIsland();
@@ -1300,30 +1347,74 @@ document.addEventListener('keydown', e => {
 });
 
 // ---- 判断箱：ボスが置いた問いに答え、係への指示を出す（decisions.json。ボスが読んで係に伝える） ----
+// 壁の下にモチが立つ。答え待ちが増えるほど大きくなって落ち着きがなくなり、押すと決裁トレイ（1件ずつ決める窓）が開く
 const dboxEl = document.getElementById('dbox');
-let dec = null, decSig = '', boxBtn = null, boxFilter = '', boxPending = false;
-const drafts = new Map(), busyIds = new Set();
+let dec = null, decSig = '', mochiEl = null, mochiN = null, trayId = '', sayTimer = 0;
+const drafts = new Map(), busyIds = new Set(), decided = [];
 const SPECIAL = { later: 'あとで', ask: '相談したい', memo: 'メモだけ' };
+
+// モチの5つの機嫌（0件・1〜3・4〜8・9〜15・16〜）。[x, y, w, h, 色]、色 S は影
+const MO = { K: '#2A1E1A', W: '#FBFAF6', G: '#E7E9F2', P: '#F2A7A0', Y: '#FFF6C9', H: '#FFFFFF', B: '#5FA8DE', R: '#C2410C', O: '#F2A93B', T: '#6B4A2A' };
+const MOCHI = [
+  [[10,33,12,2,'S'],[12,21,8,2,'K'],[10,23,12,10,'K'],[13,22,6,2,'W'],[11,24,10,8,'W'],[11,31,10,1,'G'],[12,27,1,1,'K'],[13,26,1,1,'K'],[14,27,1,1,'K'],[17,27,1,1,'K'],[18,26,1,1,'K'],[19,27,1,1,'K'],[11,29,2,1,'P'],[19,29,2,1,'P'],[24,15,1,3,'O'],[23,16,3,1,'O'],[7,18,1,3,'O'],[6,19,3,1,'O']],
+  [[7,33,18,2,'S'],[11,16,10,2,'K'],[8,18,16,15,'K'],[12,17,8,2,'W'],[9,19,14,13,'W'],[9,30,14,2,'G'],[12,22,2,3,'K'],[18,22,2,3,'K'],[15,26,2,1,'K'],[10,25,2,1,'P'],[20,25,2,1,'P'],[14,28,4,3,'Y']],
+  [[4,33,24,2,'S'],[9,11,14,2,'K'],[5,13,22,20,'K'],[10,12,12,2,'W'],[6,14,20,18,'W'],[6,30,20,2,'G'],[10,17,1,1,'K'],[11,16,2,1,'K'],[19,16,2,1,'K'],[21,17,1,1,'K'],[11,19,2,3,'K'],[19,19,2,3,'K'],[13,24,1,1,'K'],[14,23,1,1,'K'],[15,24,1,1,'K'],[16,23,1,1,'K'],[17,24,1,1,'K'],[18,23,1,1,'K'],[9,26,5,4,'Y'],[17,27,5,3,'H'],[27,12,2,3,'B']],
+  [[1,33,30,2,'S'],[7,5,18,2,'K'],[2,7,28,26,'K'],[8,6,16,2,'W'],[3,8,26,24,'W'],[3,30,26,2,'G'],[7,12,6,6,'K'],[8,13,4,4,'H'],[9,14,2,2,'K'],[19,12,6,6,'K'],[20,13,4,4,'H'],[21,14,2,2,'K'],[13,19,6,4,'K'],[14,20,4,2,'R'],[5,24,5,4,'Y'],[11,25,5,4,'H'],[17,24,5,4,'Y'],[23,25,4,4,'H'],[0,9,2,3,'B'],[30,11,2,3,'B']],
+  [[0,0,32,1,'T'],[0,1,32,33,'K'],[1,1,30,32,'W'],[1,30,30,3,'G'],[6,9,1,1,'K'],[8,9,1,1,'K'],[7,10,1,1,'K'],[6,11,1,1,'K'],[8,11,1,1,'K'],[23,9,1,1,'K'],[25,9,1,1,'K'],[24,10,1,1,'K'],[23,11,1,1,'K'],[25,11,1,1,'K'],[11,15,10,5,'K'],[12,16,8,3,'R'],[3,22,6,5,'Y'],[10,23,6,5,'H'],[17,22,6,5,'Y'],[24,23,5,5,'H'],[0,16,3,5,'K'],[0,17,2,3,'H'],[29,18,3,5,'K'],[30,19,2,3,'Y'],[4,3,2,2,'G'],[26,3,2,2,'G']],
+];
+const MOOD_NAME = ['ごきげん', 'ふつう', 'こまり', 'あせり', 'パンク'];
+function mochiSvg(m, cls) {
+  return `<svg class="${cls || ''}" viewBox="0 0 32 36" shape-rendering="crispEdges" aria-hidden="true">` +
+    MOCHI[m].map(([x, y, w, h, c]) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${c === 'S' ? MO.K : MO[c]}"${c === 'S' ? ' opacity="0.18"' : ''}/>`).join('') + '</svg>';
+}
+function moodOf(n) { return n === 0 ? 0 : n <= 3 ? 1 : n <= 8 ? 2 : n <= 15 ? 3 : 4; }
 
 function setDecisions(d) {
   if (!d) return;
   dec = { questions: d.questions || [], answers: d.answers || {}, notes: d.notes || [] };
-  drawBoxBtn();
+  drawMochi();
   const sig = JSON.stringify(dec);
   if (sig === decSig) return;
   decSig = sig;
-  if (!dboxEl.hidden) drawBox();
+  if (!dboxEl.hidden) drawTray();
 }
 function openQs() { return dec ? dec.questions.filter(q => q.status === 'open') : []; }
-// まだ答えていない（または「あとで」「相談したい」にした）問い
-function waitingQs() { return openQs().filter(q => { const a = dec.answers[q.id]; return !a || a.choice === 'later' || a.choice === 'ask'; }); }
-function drawBoxBtn() {
-  if (!boxBtn) return;
-  const n = waitingQs().length;
-  boxBtn.classList.toggle('has', n > 0);
-  boxBtn.innerHTML = '判断箱 <b>' + n + '</b>';
-  boxBtn.setAttribute('aria-label', '判断箱を開く（答え待ち ' + n + '件）');
+// 答え待ち（まだ答えていない・「あとで」「相談したい」にした）。まだ答えていないものを先に
+function waitingQs() {
+  const r = q => { const a = dec.answers[q.id]; return !a ? 0 : a.choice === 'later' || a.choice === 'ask' ? 1 : 2; };
+  return openQs().filter(q => r(q) < 2).sort((a, b) => r(a) - r(b));
 }
+
+// モチ：壁の下（床との境目）に立つ。部屋を作り直したときに置き、件数が変わったら描き直す
+function placeMochi(x) {
+  mochiEl = el('button', 'abs mochi', room, { left: x + 'px', top: (WALL - 110) + 'px' });
+  mochiEl.type = 'button';
+  mochiEl.innerHTML = '<span class="say" aria-hidden="true"></span><span class="fig"></span><span class="mtag"></span>';
+  mochiEl.addEventListener('click', openTray);
+  mochiN = null;
+  drawMochi();
+}
+function drawMochi() {
+  if (!mochiEl || !dec) return;
+  const n = waitingQs().length, m = moodOf(n);
+  if (n === mochiN) return;
+  const prev = mochiN;
+  mochiN = n;
+  mochiEl.className = 'abs mochi m' + m;
+  const fig = mochiEl.querySelector('.fig');
+  fig.innerHTML = mochiSvg(m);
+  mochiEl.querySelector('.mtag').textContent = n ? '判断箱 ' + n : '判断箱 0';
+  mochiEl.setAttribute('aria-label', 'モチ（' + MOOD_NAME[m] + '）：判断箱 答え待ち ' + n + '件。押すと決裁トレイが開きます');
+  if (prev === null) return;
+  // 減ったらぴょんと跳ねる。増えたら一言
+  const say = mochiEl.querySelector('.say');
+  say.textContent = n < prev ? (n === 0 ? 'すっきり！' : 'もぐもぐ') : 'むにっ（' + n + '件）';
+  say.classList.add('on');
+  clearTimeout(sayTimer);
+  sayTimer = setTimeout(() => say.classList.remove('on'), 2500);
+  if (n < prev) { fig.classList.remove('ate'); void fig.offsetWidth; fig.classList.add('ate'); fig.addEventListener('animationend', () => fig.classList.remove('ate'), { once: true }); }
+}
+
 function qColor(q) {
   const is = rawIslands.find(i => i.name === q.island);
   return q.color || (is && is.hex) || '#9AA0B2';
@@ -1332,172 +1423,230 @@ function choiceLabel(q, v) {
   const o = (q.options || []).find(o => o.v === v);
   return o ? o.label : SPECIAL[v] || v;
 }
-function dayAgo(created) {
-  if (!created) return '';
-  const d = Math.floor((Date.now() - new Date(created + 'T00:00:00').getTime()) / 86400e3);
-  return d <= 0 ? '今日' : d + '日前';
+function dueLabel(due) {
+  if (!due) return '';
+  const d = Math.round((new Date(due + 'T00:00:00') - new Date(new Date().toDateString())) / 86400e3);
+  return d < 0 ? (-d) + '日すぎ' : d === 0 ? '今日まで' : d === 1 ? '明日まで' : due.slice(5).replace('-', '/') + ' まで';
 }
 
-function openBox() {
+function openTray(id) {
   if (selectedKey) select(selectedKey);
-  drawBox();
+  const w = dec ? waitingQs() : [];
+  trayId = typeof id === 'string' ? id : (w[0] ? w[0].id : '');
+  drawTray();
   dboxEl.hidden = false;
-  const box = dboxEl.querySelector('.box');
-  box.scrollTop = 0; // 閉じるボタンにフォーカスすると下までスクロールするので、最初の選択肢に当てる
-  (box.querySelector('.list.open .q button') || box.querySelector('.close')).focus({ preventScroll: true });
+  dboxEl.scrollTop = 0;
+  (dboxEl.querySelector('.opts button') || dboxEl.querySelector('.x')).focus({ preventScroll: true });
 }
-function closeBox() { dboxEl.hidden = true; boxBtn?.focus(); }
-dboxEl.querySelector('.close').addEventListener('click', closeBox);
-dboxEl.addEventListener('click', e => { if (e.target === dboxEl) closeBox(); });
-// 書いている途中や押している途中は描き直さない（書きかけが消える・フォーカスが外れるため）。離れたら描き直す
-dboxEl.addEventListener('focusout', () => setTimeout(() => { if (boxPending && !dboxEl.contains(document.activeElement)) drawBox(); }, 0));
+function closeTray() { dboxEl.hidden = true; mochiEl?.focus(); }
+dboxEl.querySelectorAll('.close').forEach(b => b.addEventListener('click', closeTray));
+dboxEl.addEventListener('click', e => { if (e.target === dboxEl) closeTray(); });
 
-function drawBox() {
-  const box = dboxEl.querySelector('.box');
-  if (box.contains(document.activeElement) && document.activeElement.matches('textarea,select')) { boxPending = true; return; }
-  boxPending = false;
-  const focusId = document.activeElement?.closest?.('.q')?.dataset.id, focusV = document.activeElement?.dataset?.v;
-  const qs = openQs(), waiting = waitingQs();
-  box.querySelector('.hd small').textContent = dec ? '答え待ち ' + waiting.length + '件' + (qs.length > waiting.length ? '・伝え待ち ' + (qs.length - waiting.length) + '件' : '') : '読み込み中';
-
-  // 島で絞る（答え待ちがある島だけ）
-  const chips = box.querySelector('.chips');
-  chips.replaceChildren();
-  const islands = [...new Map(qs.map(q => [q.island, q])).values()];
-  if (boxFilter && !islands.some(q => q.island === boxFilter)) boxFilter = '';
-  if (islands.length > 1) {
-    const chip = (label, val, color, n) => {
-      const b = el('button', '', chips); b.type = 'button';
-      b.setAttribute('aria-pressed', String(boxFilter === val));
-      if (color) el('i', '', b).style.background = color;
-      b.append(label + ' ' + n);
-      b.addEventListener('click', () => { boxFilter = val; drawBox(); });
-    };
-    chip('すべて', '', '', qs.length);
-    islands.forEach(q => chip(q.island, q.island, qColor(q), qs.filter(x => x.island === q.island).length));
+// トレイに並べる順：答え待ちの順。いま開いている問いが答え済みでも、その場に残す（選び直せるように）
+function trayList() {
+  const w = waitingQs();
+  if (trayId && !w.some(q => q.id === trayId)) {
+    const q = openQs().find(q => q.id === trayId);
+    if (q) w.unshift(q);
   }
-
-  const list = box.querySelector('.list.open');
-  list.replaceChildren();
-  // 答え待ち → あとで・相談したい → 伝え待ち の順
-  const rank = q => { const a = dec.answers[q.id]; return !a ? 0 : a.choice === 'later' || a.choice === 'ask' ? 1 : 2; };
-  const shown = qs.filter(q => !boxFilter || q.island === boxFilter).sort((a, b) => rank(a) - rank(b));
-  if (!dec) el('div', 'none', list).textContent = '読み込み中…';
-  else if (!shown.length) el('div', 'none', list).textContent = 'いまは決めることはありません';
-  shown.forEach(q => list.append(qCard(q)));
-
-  // 係への指示
-  const sel = box.querySelector('.send select'), keep = sel.value;
-  sel.replaceChildren();
-  const opt = (v, t) => { const o = el('option', '', sel); o.value = v; o.textContent = t; };
-  opt('', 'ボス（全体へ）');
-  (lastList || []).filter(m => !m.boss).sort((a, b) => a.name.localeCompare(b.name)).forEach(m => opt(m.name, m.name));
-  if ([...sel.options].some(o => o.value === keep)) sel.value = keep;
-  const notes = box.querySelector('.notes');
-  notes.replaceChildren();
-  (dec ? dec.notes.slice(-5).reverse() : []).forEach(n => {
-    const r = el('div', '', notes);
-    el('span', '', r).textContent = n.to || 'ボス';
-    el('span', '', r).textContent = n.text;
-    el('span', n.relayed ? 'ok' : 'w', r).textContent = n.relayed ? '伝えました' : '伝え待ち・' + ago(Date.now() - n.at);
-  });
-
-  // 伝え終えたもの
-  const done = dec ? dec.questions.filter(q => q.status !== 'open').slice(0, 20) : [];
-  const det = box.querySelector('details');
-  det.hidden = !done.length;
-  det.querySelector('summary').textContent = '伝え終えたもの（直近 ' + done.length + '件）';
-  const dl = det.querySelector('.list');
-  dl.replaceChildren();
-  done.forEach(q => dl.append(qCard(q)));
-
-  if (focusId) { const t = box.querySelector(`.q[data-id="${CSS.escape(focusId)}"] [data-v="${CSS.escape(focusV || '')}"]`); t?.focus(); }
+  return w;
+}
+function move(step) {
+  const list = trayList(), i = list.findIndex(q => q.id === trayId);
+  const to = list[i + step];
+  if (!to) return;
+  trayId = to.id;
+  drawTray();
+  dboxEl.querySelector('.opts button')?.focus({ preventScroll: true });
 }
 
-function qCard(q) {
-  const a = dec.answers[q.id], open = q.status === 'open', busy = busyIds.has(q.id);
-  const c = el('article', 'q' + (open ? '' : ' done'));
-  c.dataset.id = q.id;
-  c.style.setProperty('--c', qColor(q));
-  const meta = el('div', 'meta', c);
-  el('b', '', meta).textContent = q.island || '（島なし）';
-  if (q.session) el('span', '', meta).textContent = q.session;
-  if (q.due) el('span', 'due', meta).textContent = q.due.slice(5).replace('-', '/') + ' まで';
-  if (q.created) el('span', '', meta).textContent = dayAgo(q.created);
-  el('h4', '', c).textContent = q.title;
+function drawTray() {
+  if (!dec) return;
+  const tray = dboxEl.querySelector('.tray');
+  // 書いている途中は描き直さない（書きかけが消えるため）。離れたら描き直す
+  if (tray.contains(document.activeElement) && document.activeElement.matches('input,textarea,select')) { tray.dataset.pending = '1'; return; }
+  delete tray.dataset.pending;
+  const w = waitingQs(), list = trayList();
+  if (!list.some(q => q.id === trayId)) trayId = list[0] ? list[0].id : '';
+  const left = w.length;
+  tray.querySelector('h2').textContent = left ? 'のこり ' + left + '件' : 'のこり 0件';
+  tray.querySelector('.info small').textContent = left ? '1件 30秒ほど・全部で約 ' + Math.max(1, Math.round(left / 2)) + '分' : 'ぜんぶ片づきました';
+  dboxEl.querySelector('.stack').classList.toggle('one', list.length <= 1);
+  const letter = tray.querySelector('.letter');
+  letter.replaceChildren();
+  letter.classList.toggle('empty', !trayId);
+  const q = list.find(x => x.id === trayId);
+  if (!q) {
+    letter.insertAdjacentHTML('beforeend', mochiSvg(0));
+    el('h1', '', letter).textContent = '決めることはありません';
+    el('p', 'ctx', letter).textContent = 'ボスが新しい問いを置くと、モチが少しずつ大きくなります。';
+  } else drawLetter(letter, q, list);
+  drawAside();
+}
+
+function drawLetter(letter, q, list) {
+  const a = dec.answers[q.id], busy = busyIds.has(q.id), i = list.indexOf(q);
+  const meta = el('div', 'meta', letter), l = el('div', 'l', meta);
+  const pill = el('span', 'pill', l); el('i', '', pill).style.background = qColor(q); pill.append(q.island || '（島なし）');
+  if (q.session) el('span', '', l).textContent = q.session + ' から';
+  if (q.due) el('span', 'due', l).textContent = dueLabel(q.due);
+  el('span', 'pos', meta).textContent = (i + 1) + ' / ' + list.length;
+  el('h1', '', letter).textContent = q.title;
   if (q.context) {
-    const p = el('p', 'ctx', c);
+    const p = el('p', 'ctx', letter);
     p.textContent = q.context;
-    if (open && q.context.length > 160) {
+    if (q.context.length > 240) {
       p.classList.add('clip');
-      const more = el('button', 'more', c); more.type = 'button'; more.textContent = '続きを読む';
+      const more = el('button', 'more', letter); more.type = 'button'; more.textContent = '続きを読む';
       more.addEventListener('click', () => { p.classList.remove('clip'); more.remove(); });
     }
   }
   if (q.links && q.links.length) {
-    const ls = el('div', 'links', c);
-    q.links.forEach(l => { if (!/^https?:\/\//.test(l.url)) return; const x = el('a', '', ls); x.href = l.url; x.target = '_blank'; x.rel = 'noopener noreferrer'; x.textContent = l.label || l.url; });
+    const ls = el('div', 'links', letter);
+    q.links.forEach(x => { if (!/^https?:\/\//.test(x.url)) return; const k = el('a', '', ls); k.href = x.url; k.target = '_blank'; k.rel = 'noopener noreferrer'; k.textContent = x.label || x.url; });
   }
-  if (open && q.auto && q.auto.at && !a) {
+  // 止まっている係がいれば、答えるとだれが動くか
+  const who = q.session && (lastList || []).find(m => m.name === q.session);
+  if (who && who.status !== 'busy') {
+    const n = el('div', 'note wait', letter);
+    n.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+    el('span', '', n).textContent = '止まって ' + ago(Date.now() - who.since).replace(/前$/, '') + '。答えると ' + who.name + ' が動けます';
+  }
+  if (q.auto && q.auto.at && !a) {
     const at = new Date(q.auto.at);
-    if (!isNaN(at)) el('div', 'auto', c).textContent = `${at.getMonth() + 1}/${at.getDate()} ${at.getHours()}:${String(at.getMinutes()).padStart(2, '0')} までに答えがなければ「${choiceLabel(q, q.auto.choice)}」で進みます` + (q.auto.undo ? `（戻し方：${q.auto.undo}）` : '');
+    if (!isNaN(at)) el('div', 'note auto', letter).textContent = `${at.getMonth() + 1}/${at.getDate()} ${at.getHours()}:${String(at.getMinutes()).padStart(2, '0')} までに答えがなければ「${choiceLabel(q, q.auto.choice)}」で進みます` + (q.auto.undo ? `（戻し方：${q.auto.undo}）` : '');
   }
-  if (open) {
-    const opts = el('div', 'opts', c);
-    const pick = (v, label, cls, rec) => {
-      const b = el('button', cls || '', opts); b.type = 'button'; b.dataset.v = v;
-      b.disabled = busy;
-      b.setAttribute('aria-pressed', String(!!a && a.choice === v));
-      if (rec) el('span', 'rec', b).textContent = 'おすすめ';
-      b.append(label);
-      b.addEventListener('click', () => answer(q, v));
-    };
-    (q.options || []).forEach(o => pick(o.v, o.label, '', o.rec));
-    pick('later', 'あとで', 'sub');
-    pick('ask', '相談したい', 'sub');
-    const memo = el('div', 'memo', c);
-    const ta = el('textarea', '', memo);
-    ta.rows = 1; ta.maxLength = 2000; ta.dataset.v = 'memo';
-    ta.placeholder = 'メモ（条件・直してほしい所など。選ぶと一緒に送ります）';
-    ta.setAttribute('aria-label', q.title + ' へのメモ');
-    ta.value = drafts.get(q.id) ?? (a && a.note) ?? '';
-    ta.addEventListener('input', () => drafts.set(q.id, ta.value));
-    ta.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !e.isComposing && e.keyCode !== 229) { e.preventDefault(); answer(q, a && a.choice !== 'memo' ? a.choice : ''); } });
-    const send = el('button', '', memo); send.type = 'button'; send.dataset.v = 'memo-send'; send.disabled = busy;
-    send.textContent = 'メモを送る';
-    send.addEventListener('click', () => answer(q, a && a.choice !== 'memo' ? a.choice : ''));
-  }
-  const st = el('div', 'st', c);
-  if (a) {
-    const by = a.by === 'claude.ai' ? '（claude.ai で）' : '';
-    st.textContent = (a.choice === 'memo' ? 'メモを送りました' : '「' + choiceLabel(q, a.choice) + '」を選びました') + by + (a.note && !open ? '：' + a.note : '') +
-      (q.status === 'auto' ? '・期限で進めました' : !open || a.relayed ? '・係に伝えました' : a.choice === 'later' ? '' : '・ボスが係に伝えるのを待っています');
-    if (open && !a.relayed && a.choice !== 'later') st.classList.add('wait');
-  } else if (q.status === 'auto') st.textContent = '期限までに答えがなく、おすすめで進めました';
-  el('div', 'err', c).setAttribute('role', 'alert');
-  return c;
+  const opts = el('div', 'opts', letter);
+  (q.options || []).forEach((o, k) => {
+    const b = el('button', '', opts); b.type = 'button'; b.disabled = busy;
+    b.setAttribute('aria-pressed', String(!!a && a.choice === o.v));
+    if (k < 9) el('span', 'key', b).textContent = k + 1;
+    const t = el('span', 't', b);
+    el('b', '', t).textContent = o.label;
+    if (o.rec) el('small', '', t).textContent = '係のおすすめ';
+    b.addEventListener('click', () => answer(q, o.v));
+  });
+  const lab = el('label', 'memo', letter);
+  lab.append('メモ（選ぶと一緒に送ります。メモだけなら Enter）');
+  const inp = el('input', '', lab);
+  inp.type = 'text'; inp.maxLength = 2000; inp.placeholder = '条件・直してほしい所など';
+  inp.value = drafts.get(q.id) ?? (a && a.note) ?? '';
+  inp.addEventListener('input', () => drafts.set(q.id, inp.value));
+  inp.addEventListener('keydown', e => {
+    if (e.key !== 'Enter' || e.isComposing || e.keyCode === 229) return;
+    e.preventDefault();
+    answer(q, a && a.choice !== 'memo' ? a.choice : '');
+  });
+  const st = el('div', 'st', letter);
+  if (a) st.textContent = (a.choice === 'memo' ? 'メモを送りました' : '「' + choiceLabel(q, a.choice) + '」にしています') + (a.by === 'claude.ai' ? '（claude.ai で）' : '') + (a.relayed ? '・係に伝えました' : a.choice === 'later' ? '' : '・ボスが伝えるのを待っています');
+  el('div', 'err', letter).setAttribute('role', 'alert');
+  const foot = el('div', 'foot', letter), g = el('div', 'g', foot), nav = el('div', 'g', foot);
+  [['later', 'あとで', 'L'], ['ask', '相談したい', 'A']].forEach(([v, t, k]) => {
+    const b = el('button', 'sub', g); b.type = 'button'; b.disabled = busy;
+    b.setAttribute('aria-pressed', String(!!a && a.choice === v));
+    b.append(t + ' '); el('kbd', '', b).textContent = k;
+    b.addEventListener('click', () => answer(q, v));
+  });
+  const arrow = (d, label, path) => {
+    const b = el('button', 'nav', nav); b.type = 'button'; b.setAttribute('aria-label', label);
+    b.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${path}"/></svg>`;
+    b.disabled = !list[i + d];
+    b.addEventListener('click', () => move(d));
+  };
+  arrow(-1, '前の問い', 'M15 18l-6-6 6-6');
+  arrow(1, '次の問い', 'M9 18l6-6-6-6');
 }
+
+function drawAside() {
+  const done = dboxEl.querySelector('.done');
+  done.replaceChildren();
+  if (!decided.length) el('div', 'none', done).textContent = 'まだありません';
+  decided.slice(-4).reverse().forEach(d => {
+    const q = dec.questions.find(x => x.id === d.id), a = dec.answers[d.id];
+    if (!q) return;
+    const r = el('div', 'row', done);
+    el('small', '', r).textContent = (q.island || '') + (q.session ? '・' + q.session : '');
+    el('b', '', r).textContent = q.title.length > 26 ? q.title.slice(0, 26) + '…' : q.title;
+    el('span', '', r).textContent = a ? '「' + choiceLabel(q, a.choice) + '」' + (a.relayed ? '・伝えました' : '・ボスが伝える待ち') : '';
+  });
+  const undo = dboxEl.querySelector('.undo');
+  const last = decided[decided.length - 1];
+  undo.disabled = !last || !!(dec.answers[last.id] || {}).relayed;
+  // 宛先：ボスと、いまいる係
+  const sel = dboxEl.querySelector('.send select'), keep = sel.value;
+  if (!dboxEl.querySelector('.send').contains(document.activeElement)) {
+    sel.replaceChildren();
+    const opt = (v, t) => { const o = el('option', '', sel); o.value = v; o.textContent = t; };
+    opt('', 'ボス（全体へ）');
+    (lastList || []).filter(m => !m.boss).sort((x, y) => x.name.localeCompare(y.name)).forEach(m => opt(m.name, m.name));
+    if ([...sel.options].some(o => o.value === keep)) sel.value = keep;
+  }
+  const notes = dboxEl.querySelector('.notes');
+  notes.replaceChildren();
+  dec.notes.slice(-4).reverse().forEach(n => {
+    const r = el('div', '', notes);
+    el('span', '', r).textContent = n.to || 'ボス';
+    el('span', '', r).textContent = n.text;
+    el('span', n.relayed ? '' : 'w', r).textContent = n.relayed ? '伝えました' : '伝え待ち';
+  });
+}
+// 1つ戻す：最後に決めた問いを開き直す（ボスが伝える前なら、選び直せる）
+dboxEl.querySelector('.undo').addEventListener('click', () => {
+  const last = decided.pop();
+  if (!last) return;
+  trayId = last.id;
+  drawTray();
+  dboxEl.querySelector('.opts button')?.focus({ preventScroll: true });
+});
+dboxEl.addEventListener('focusout', () => setTimeout(() => {
+  const tray = dboxEl.querySelector('.tray');
+  if (tray.dataset.pending && !tray.contains(document.activeElement)) drawTray();
+}, 0));
 
 async function answer(q, choice) {
   if (busyIds.has(q.id)) return;
   const note = (drafts.get(q.id) ?? (dec.answers[q.id] || {}).note ?? '').trim();
-  if (!choice && !note) { showBoxErr(q.id, '選ぶか、メモを書いてください'); return; }
+  const err = dboxEl.querySelector('.letter .err');
+  if (!choice && !note) { if (err) err.textContent = '選ぶか、メモを書いてください'; return; }
   busyIds.add(q.id);
-  dboxEl.querySelectorAll(`.q[data-id="${CSS.escape(q.id)}"] button`).forEach(b => { b.disabled = true; });
+  dboxEl.querySelectorAll('.letter button').forEach(b => { if (!b.classList.contains('nav')) b.disabled = true; });
   try {
     const r = await fetch('/api/decisions/answer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id: q.id, choice, note }) });
     if (!r.ok) throw new Error(await r.text());
     drafts.delete(q.id);
+    const at = decided.findIndex(d => d.id === q.id);
+    if (at >= 0) decided.splice(at, 1);
+    decided.push({ id: q.id });
+    // 次の問いへ（答えた問いは答え待ちから外れる。「あとで」「相談したい」は後ろに回る）
+    const list = trayList(), i = list.findIndex(x => x.id === q.id);
+    const next = list.slice(i + 1).find(x => !dec.answers[x.id]) || list.find(x => x.id !== q.id && !dec.answers[x.id]);
+    trayId = next ? next.id : '';
     busyIds.delete(q.id);
-    if (document.activeElement?.matches?.('#dbox textarea')) document.activeElement.blur();
+    if (document.activeElement?.matches?.('#dbox input')) document.activeElement.blur();
     await loadDecisions(true);
+    if (!dboxEl.hidden) (dboxEl.querySelector('.opts button') || dboxEl.querySelector('.x')).focus({ preventScroll: true });
   } catch (e) {
     busyIds.delete(q.id);
-    drawBox();
-    showBoxErr(q.id, '送れませんでした：' + (e.message || '').trim());
+    drawTray();
+    const er = dboxEl.querySelector('.letter .err');
+    if (er) er.textContent = '送れませんでした：' + (e.message || '').trim();
   }
 }
-function showBoxErr(id, msg) { const e = dboxEl.querySelector(`.q[data-id="${CSS.escape(id)}"] .err`); if (e) e.textContent = msg; }
+
+// キーで決める（入力欄の中と、IME の変換中は使わない）
+dboxEl.addEventListener('keydown', e => {
+  if (dboxEl.hidden || e.isComposing || e.keyCode === 229 || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (e.target.matches('input,textarea,select')) return;
+  const q = trayList().find(x => x.id === trayId);
+  const k = e.key.toLowerCase();
+  if (k === 'arrowright') { e.preventDefault(); move(1); return; }
+  if (k === 'arrowleft') { e.preventDefault(); move(-1); return; }
+  if (!q) return;
+  if (/^[1-9]$/.test(k) && (q.options || [])[+k - 1]) { e.preventDefault(); answer(q, q.options[+k - 1].v); }
+  else if (k === 'l') { e.preventDefault(); answer(q, 'later'); }
+  else if (k === 'a') { e.preventDefault(); answer(q, 'ask'); }
+  else if (k === 'm') { e.preventDefault(); dboxEl.querySelector('.letter input')?.focus(); }
+});
 
 const sendBox = dboxEl.querySelector('.send');
 let sending = false;
