@@ -25,13 +25,22 @@ const (
 	Later = "later" // あとで（ボスは触らない）
 	Ask   = "ask"   // 相談したい（ボスが報告に載せる）
 	Memo  = "memo"  // 選ばずにメモだけ書いた
+	Drop  = "drop"  // 取り下げる（係はその件をやめる）
+)
+
+// 問いの段（答える順番）。急ぎだけ答えれば止まっている係が動く。空なら期日で決める（DefaultTier）。
+const (
+	Urgent    = "urgent"    // 急ぎ
+	Important = "important" // 大事
+	Droppable = "droppable" // やめてよいか
 )
 
 // Option は問いの選択肢。V はボスが答えを読むときの値。
 type Option struct {
 	V     string `json:"v"`
 	Label string `json:"label"`
-	Rec   bool   `json:"rec,omitempty"` // 係のおすすめ
+	Rec   bool   `json:"rec,omitempty"`  // 係のおすすめ
+	Note  string `json:"note,omitempty"` // 選ぶとどうなるか（例「今日中に終わる」）
 }
 
 // Link は問いに添えるリンク（PR など）。http(s) だけ。
@@ -59,6 +68,9 @@ type Question struct {
 	Links   []Link   `json:"links,omitempty"`
 	Due     string   `json:"due,omitempty"` // YYYY-MM-DD
 	Order   int      `json:"order,omitempty"`
+	Tier    string   `json:"tier,omitempty"`   // urgent・important・droppable
+	Secs    int      `json:"secs,omitempty"`   // 答えるのにかかる目安（秒）
+	Impact  string   `json:"impact,omitempty"` // 答えると何が動くか
 	Status  string   `json:"status"`
 	Created string   `json:"created,omitempty"` // YYYY-MM-DD
 	Auto    *Auto    `json:"auto,omitempty"`
@@ -114,7 +126,7 @@ type Store struct {
 // NewStore は path の判断箱を開く（ファイルが無ければ空の箱として読む）。
 func NewStore(path string) *Store { return &Store{path: path, now: time.Now} }
 
-// Load は判断箱を読む。問いは open を先に、期日・order・作った日の順に並べる。
+// Load は判断箱を読む。問いは open を先に、段・期日・order・作った日の順に並べる。
 func (s *Store) Load() (Box, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
@@ -122,7 +134,7 @@ func (s *Store) Load() (Box, error) {
 	if err != nil {
 		return Box{}, err
 	}
-	sortQuestions(b.Questions)
+	s.sortQuestions(b.Questions)
 	return b, nil
 }
 
@@ -150,7 +162,7 @@ func (s *Store) PutQuestions(in []Question) error {
 	})
 }
 
-// SetAnswer は問いに答える。choice は選択肢の v・later・ask、または選ばずにメモだけなら空。
+// SetAnswer は問いに答える。choice は選択肢の v・later・ask・drop、または選ばずにメモだけなら空。
 // 伝え終えた問いには答えられない（ボスがもう係に伝えたので、変えるなら新しい問いにする）。
 func (s *Store) SetAnswer(id, choice, note, by string) error {
 	note = strings.TrimSpace(note)
@@ -173,7 +185,7 @@ func (s *Store) SetAnswer(id, choice, note, by string) error {
 			return errors.New("選ぶか、メモを書いてください")
 		case choice == "":
 			choice = Memo
-		case choice != Later && choice != Ask && !hasOption(q, choice):
+		case choice != Later && choice != Ask && choice != Drop && !hasOption(q, choice):
 			return errors.New("その選択肢はありません")
 		}
 		b.Answers[id] = Answer{Choice: choice, Note: note, At: s.now().UnixMilli(), By: by}
@@ -284,6 +296,17 @@ func clean(q *Question) error {
 	if (q.Due != "" && !dateRe.MatchString(q.Due)) || (q.Created != "" && !dateRe.MatchString(q.Created)) {
 		return fmt.Errorf("%s：due と created は YYYY-MM-DD です", q.ID)
 	}
+	switch q.Tier {
+	case "", Urgent, Important, Droppable:
+	default:
+		return fmt.Errorf("%s：tier は urgent・important・droppable のどれかです", q.ID)
+	}
+	if q.Secs < 0 || q.Secs > 3600 {
+		return fmt.Errorf("%s：secs は 0〜3600 です", q.ID)
+	}
+	if utf8.RuneCountInString(q.Impact) > maxLabel {
+		return fmt.Errorf("%s：impact は %d 文字までです", q.ID, maxLabel)
+	}
 	switch q.Status {
 	case "":
 		q.Status = "open"
@@ -291,10 +314,10 @@ func clean(q *Question) error {
 	default:
 		return fmt.Errorf("%s：status は open・closed・auto のどれかです", q.ID)
 	}
-	seen := map[string]bool{Later: true, Ask: true, Memo: true}
+	seen := map[string]bool{Later: true, Ask: true, Memo: true, Drop: true}
 	for _, o := range q.Options {
-		if o.V == "" || seen[o.V] || o.Label == "" || utf8.RuneCountInString(o.Label) > maxLabel {
-			return fmt.Errorf("%s：選択肢 %q は v（重ならない・later/ask/memo 以外）と label が要ります", q.ID, o.V)
+		if o.V == "" || seen[o.V] || o.Label == "" || utf8.RuneCountInString(o.Label) > maxLabel || utf8.RuneCountInString(o.Note) > maxLabel {
+			return fmt.Errorf("%s：選択肢 %q は v（重ならない・later/ask/memo/drop 以外）と label が要ります", q.ID, o.V)
 		}
 		seen[o.V] = true
 	}
@@ -339,7 +362,30 @@ func trimNotes(ns []Note) []Note {
 	return ns
 }
 
-func sortQuestions(qs []Question) {
+// DefaultTier は問いの段。tier が無ければ、期日が今日までなら急ぎ、ほかは大事にする。
+func DefaultTier(q Question, today string) string {
+	if q.Tier != "" {
+		return q.Tier
+	}
+	if q.Due != "" && q.Due <= today {
+		return Urgent
+	}
+	return Important
+}
+
+func tierRank(t string) int {
+	switch t {
+	case Urgent:
+		return 0
+	case Important:
+		return 1
+	}
+	return 2
+}
+
+// sortQuestions は open を先に、段（急ぎ・大事・やめてよいか）・期日・order・作った日の順に並べる。
+func (s *Store) sortQuestions(qs []Question) {
+	today := s.now().Format("2006-01-02")
 	key := func(q Question) string { // 期日の無いものは後ろ
 		if q.Due == "" {
 			return "9999-99-99"
@@ -350,6 +396,9 @@ func sortQuestions(qs []Question) {
 		a, b := qs[i], qs[j]
 		if (a.Status == "open") != (b.Status == "open") {
 			return a.Status == "open"
+		}
+		if ra, rb := tierRank(DefaultTier(a, today)), tierRank(DefaultTier(b, today)); ra != rb {
+			return ra < rb
 		}
 		if key(a) != key(b) {
 			return key(a) < key(b)

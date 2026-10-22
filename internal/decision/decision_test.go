@@ -114,6 +114,9 @@ func TestCleanRejectsBadQuestions(t *testing.T) {
 		"status":   func(x *Question) { x.Status = "done" },
 		"reserved": func(x *Question) { x.Options = []Option{{V: Later, Label: "あとで"}} },
 		"dup":      func(x *Question) { x.Options = []Option{{V: "o1", Label: "a"}, {V: "o1", Label: "b"}} },
+		"drop":     func(x *Question) { x.Options = []Option{{V: Drop, Label: "取り下げ"}} },
+		"tier":     func(x *Question) { x.Tier = "soon" },
+		"secs":     func(x *Question) { x.Secs = -1 },
 	}
 	for name, f := range bad {
 		x := q("c-1")
@@ -126,5 +129,31 @@ func TestCleanRejectsBadQuestions(t *testing.T) {
 	ok.Links = []Link{{Label: "PR", URL: "https://github.com/x/y/pull/1"}}
 	if err := clean(&ok); err != nil {
 		t.Errorf("正しい問いを断った: %v", err)
+	}
+}
+
+func TestTierOrderAndDrop(t *testing.T) {
+	s := newStore(t)
+	late, soon, drop := q("t-late"), q("t-soon"), q("t-drop")
+	late.Tier = Important
+	soon.Due = "2026-10-22" // tier が無くても、期日が今日なら急ぎ
+	drop.Tier = Droppable
+	if err := s.PutQuestions([]Question{drop, late, soon}); err != nil {
+		t.Fatal(err)
+	}
+	b, _ := s.Load()
+	if got := b.Questions[0].ID + " " + b.Questions[1].ID + " " + b.Questions[2].ID; got != "t-soon t-late t-drop" {
+		t.Errorf("並びが違う: %s", got)
+	}
+	// 取り下げは選択肢に無くても選べ、伝え終えたら閉じる
+	if err := s.SetAnswer("t-drop", Drop, "", ""); err != nil {
+		t.Fatal(err)
+	}
+	if err := s.MarkRelayed([]string{"t-drop"}, nil); err != nil {
+		t.Fatal(err)
+	}
+	b, _ = s.Load()
+	if x := find(b.Questions, "t-drop"); x.Status != "closed" {
+		t.Errorf("取り下げた問いが閉じていない: %+v", x)
 	}
 }

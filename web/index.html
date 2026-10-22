@@ -350,85 +350,144 @@ code b.r,.onb b.r{color:#FFD27A}
 @keyframes mo-ate{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
 @media (prefers-reduced-motion:reduce){.mochi,.mochi .fig{animation:none!important}}
 
-#dbox{position:fixed;inset:0;z-index:45;background:rgba(18,21,42,.96);overflow:auto;padding:40px 24px;box-sizing:border-box}
+#dbox{position:fixed;inset:0;z-index:45;background:rgba(220,225,232,.985);overflow:auto;overflow-x:hidden;padding:72px 24px 40px;box-sizing:border-box;--tr:#C2410C;--trd:#8A2E08;--ok:#1F5E37;--cream:#FFFDF5;--beige:#EFE6D2;--line:#CDBFA8;--soft:#4A3A30}
 #dbox[hidden]{display:none}
-#dbox .tray{max-width:1260px;margin:0 auto;display:grid;grid-template-columns:200px minmax(0,680px) 280px;gap:16px 36px;align-items:start;justify-content:center;color:#F4F1E8}
-#dbox .info{display:flex;flex-direction:column;gap:6px;padding-top:8px}
-#dbox .lab,#dbox .aside h3{font-family:'DotGothic16',ui-monospace,monospace;font-size:15px;font-weight:400;letter-spacing:.06em;color:#FFD27A;margin:0}
-#dbox h2{margin:0;font-size:30px;font-weight:900;color:#F4F1E8}
-#dbox .info small{font-size:14px;color:#C9CEE3}
+#dbox .tray{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:330px 720px;gap:16px 44px;align-items:start;justify-content:center;color:var(--ink)}
+#dbox kbd{font-family:'DotGothic16',ui-monospace,monospace;padding:0 6px;border-radius:6px;background:var(--beige);color:var(--ink)}
+#dbox .order{display:flex;flex-direction:column;gap:10px}
+#dbox .order>h2{margin:0;font-size:15px;font-weight:900;color:var(--trd)}
+#dbox .tier{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;border:3px solid transparent;font-size:14px;color:var(--soft)}
+#dbox .tier b{display:flex;align-items:center;color:var(--ink)}
+#dbox .num{font-family:'DotGothic16',ui-monospace,monospace;display:inline-flex;flex:none;width:24px;height:24px;border-radius:50%;align-items:center;justify-content:center;background:#E2D3BC;color:var(--ink);font-size:14px;font-weight:400;margin-right:8px}
+#dbox .tier.done{background:var(--ok);border-color:var(--ok);color:#FFF8E7}
+#dbox .tier.done b{color:#FFF8E7}
+#dbox .tier.done .num{background:#FFF8E7;color:var(--ok)}
+#dbox .cur{border-radius:12px;background:var(--cream);border:3px solid var(--tr);overflow:hidden;font-size:14px}
+#dbox .cur .hd{display:flex;flex-direction:column;gap:2px;padding:10px 14px;background:var(--tr);color:#FFF8E7}
+#dbox .cur .hd b{font-size:16px;display:flex;align-items:center}
+#dbox .cur .hd .num{background:#FFF8E7;color:var(--tr)}
+#dbox .cur .sub2{padding:10px 14px;line-height:1.6;color:var(--ink)}
+#dbox .cur ol{list-style:none;margin:0;padding:6px 0}
+#dbox .cur li{display:grid;grid-template-columns:22px minmax(0,1fr);gap:8px;align-items:center;padding:8px 14px;color:var(--soft)}
+#dbox .cur li span:last-child{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#dbox .cur li .ck{color:var(--ok);font-weight:900}
+#dbox .cur li[aria-current]{background:#FBE3D6;color:var(--ink);font-weight:900;font-size:15px}
+#dbox .cur li[aria-current] span:first-child{color:var(--tr)}
+#dbox .cur li.more{display:block;color:var(--soft)}
+#dbox .sep{display:flex;align-items:center;gap:8px;font-size:14px;font-weight:700;color:var(--soft)}
+#dbox .sep::before,#dbox .sep::after{content:'';flex:1;height:2px;background:#B9AC98}
+#dbox .tmochi{margin-top:6px;display:flex;align-items:flex-end;gap:12px}
+#dbox .tmochi svg{width:120px;height:135px}
+#dbox .tmochi span{margin-bottom:24px;padding:6px 12px;background:var(--cream);border:3px solid var(--ink);border-radius:12px;font-size:15px;font-weight:700;white-space:nowrap}
+#dbox .main{display:flex;flex-direction:column;gap:14px;min-width:0}
 #dbox .stack{position:relative}
-#dbox .stack::before,#dbox .stack::after{content:'';position:absolute;inset:14px 0 -14px 0;background:#EFE6D2;transform:rotate(3deg);box-shadow:0 8px 0 rgba(0,0,0,.25)}
-#dbox .stack::after{background:#F6EEDC;transform:rotate(-2deg);inset:8px 0 -8px 0}
-#dbox .stack.one::before,#dbox .stack.one::after{display:none}
-#dbox .letter{position:relative;z-index:1;box-sizing:border-box;background:#FFFDF5;color:var(--ink);border:6px solid var(--wood);box-shadow:0 10px 0 rgba(0,0,0,.35);padding:26px 30px 22px;display:flex;flex-direction:column;gap:16px}
-#dbox .meta{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;color:#6B5442}
-#dbox .meta .l{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px}
-#dbox .pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:#EFE6D2;color:var(--ink);font-weight:700}
+#dbox .stack::before{content:'';position:absolute;inset:0;transform:translate(10px,10px) rotate(1.5deg);background:var(--beige);box-shadow:0 8px 0 rgba(90,70,54,.15)}
+#dbox .stack.one::before{display:none}
+#dbox .letter{position:relative;z-index:1;box-sizing:border-box;background:var(--cream);color:var(--ink);border:6px solid var(--wood);box-shadow:0 10px 0 rgba(90,70,54,.18);padding:26px 30px 18px;display:flex;flex-direction:column;gap:16px}
+#dbox .tags{display:flex;flex-wrap:wrap;align-items:center;gap:8px;font-size:14px}
+#dbox .pill{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;background:var(--beige);color:var(--ink);font-weight:700}
 #dbox .pill i{width:10px;height:10px;border-radius:50%}
+#dbox .pill.t{background:var(--tr);color:#FFF8E7;font-weight:900}
+#dbox .pill.t.n{background:#E2D3BC;color:var(--ink)}
+#dbox .pill.time{background:var(--ok);color:#FFF8E7;font-weight:900}
 #dbox .due{color:#B4380A;font-weight:700}
-#dbox .pos{font-family:'DotGothic16',ui-monospace,monospace;font-size:16px;color:#6B5442;flex:none}
-#dbox h1{margin:0;font-size:26px;line-height:1.4;font-weight:900}
-#dbox .ctx{margin:0;font-size:15px;line-height:1.8;color:#4A3A30;white-space:pre-wrap;overflow-wrap:anywhere}
+#dbox .from{color:var(--soft)}
+#dbox h1{margin:0;font-size:28px;line-height:1.4;font-weight:900}
+#dbox .ctx{margin:0;font-size:16px;line-height:1.8;color:var(--soft);white-space:pre-wrap;overflow-wrap:anywhere}
 #dbox .ctx.clip{display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;overflow:hidden}
-#dbox .more{align-self:flex-start;font:inherit;font-size:13px;color:#2F5BB7;background:none;border:0;padding:0;min-height:28px;cursor:pointer}
-#dbox .links{display:flex;flex-wrap:wrap;gap:12px;font-size:14px}
+#dbox .more{align-self:flex-start;font:inherit;font-size:14px;color:#2F5BB7;background:none;border:0;padding:0;min-height:44px;cursor:pointer}
+#dbox .links{display:flex;flex-wrap:wrap;gap:12px;font-size:15px}
 #dbox .links a{color:#2F5BB7}
-#dbox .note{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;font-size:14px;line-height:1.6}
-#dbox .note.wait{background:#FFF0C9;color:#6A4100}
-#dbox .note.auto{background:#EAF0FB;color:#1E3F85}
-#dbox .note svg{flex:none}
-#dbox .opts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-#dbox .opts button{font:inherit;text-align:left;min-height:68px;padding:10px 14px;border:3px solid #CDBFA8;border-radius:12px;background:#fff;color:var(--ink);display:flex;align-items:center;gap:12px;cursor:pointer;box-shadow:0 4px 0 #E2D3BC}
+#dbox .impact{padding:12px 14px;border-radius:10px;background:#E3F3E8;color:var(--ok);font-size:15px;font-weight:700}
+#dbox .auto{padding:10px 14px;border-radius:10px;background:#EAF0FB;color:#1E3F85;font-size:14px;line-height:1.6}
+#dbox .opts{display:grid;gap:12px}
+#dbox .opts button{font:inherit;text-align:left;min-height:84px;padding:8px 14px 10px;border:3px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);display:flex;flex-direction:column;justify-content:flex-end;gap:6px;cursor:pointer;box-shadow:0 4px 0 #E2D3BC}
 #dbox .opts button:hover{border-color:var(--ink)}
-#dbox .opts button[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#FFF8E7;box-shadow:0 4px 0 #000}
+#dbox .opts button.rec{border:4px solid var(--tr);background:#FFF3EA;box-shadow:0 4px 0 var(--trd)}
+#dbox .opts .top{display:flex;justify-content:space-between;align-items:center;width:100%;font-size:14px;font-weight:700;color:var(--trd)}
+#dbox .opts .top kbd{background:var(--tr);color:#FFF8E7}
+#dbox .opts .lb{display:flex;align-items:center;gap:10px}
+#dbox .opts .lb b{font-size:18px;overflow-wrap:anywhere}
+#dbox .key{font-family:'DotGothic16',ui-monospace,monospace;width:32px;height:32px;border-radius:8px;background:var(--beige);color:var(--ink);display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
+#dbox .opts button.rec .key{background:var(--tr);color:#FFF8E7}
+#dbox .opts small{font-size:14px;color:var(--soft)}
+#dbox .opts button[aria-pressed=true]{background:var(--ink);border-color:var(--ink);color:#FFF8E7}
+#dbox .opts button[aria-pressed=true] small,#dbox .opts button[aria-pressed=true] .top{color:#FFD27A}
 #dbox .opts button:disabled{opacity:.5;cursor:default}
-#dbox .key{font-family:'DotGothic16',ui-monospace,monospace;width:32px;height:32px;border-radius:8px;background:#EFE6D2;color:var(--ink);display:flex;align-items:center;justify-content:center;font-size:18px;flex:none}
-#dbox .opts button[aria-pressed=true] .key{background:#FFD27A}
-#dbox .opts .t{display:flex;flex-direction:column;gap:2px;min-width:0}
-#dbox .opts .t b{font-size:16px;overflow-wrap:anywhere}
-#dbox .opts .t small{font-size:12px;color:#2E7D4F;font-weight:700}
-#dbox .opts button[aria-pressed=true] .t small{color:#FFD27A}
-#dbox label.memo{display:flex;flex-direction:column;gap:6px;font-size:13px;color:#6B5442}
+#dbox label.memo{display:flex;flex-direction:column;gap:6px;font-size:14px;color:var(--soft)}
+#dbox label.memo[hidden]{display:none}
 #dbox input,#dbox textarea,#dbox select{font:inherit;font-size:16px;min-height:44px;padding:0 12px;border:2px solid #E2D3BC;border-radius:10px;background:#fff;color:var(--ink);box-sizing:border-box}
 #dbox textarea{padding:8px 12px;line-height:1.5;resize:vertical}
-#dbox input:focus,#dbox textarea:focus,#dbox select:focus{outline:none;border-color:#C2410C}
-#dbox .foot{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:2px dashed #E2D3BC;padding-top:14px}
-#dbox .foot .g{display:flex;gap:8px}
-#dbox .sub{font:inherit;font-size:14px;min-height:44px;padding:0 14px;border:2px dashed #CDBFA8;border-radius:10px;background:transparent;color:#4A3A30;cursor:pointer}
-#dbox .sub[aria-pressed=true]{border-style:solid;border-color:var(--ink);background:#EFE6D2}
-#dbox .sub kbd{font-family:'DotGothic16',ui-monospace,monospace;color:#8A7560}
-#dbox .nav{width:44px;height:44px;border:0;border-radius:10px;background:#EFE6D2;color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center}
+#dbox input:focus,#dbox textarea:focus,#dbox select:focus{outline:none;border-color:var(--tr)}
+#dbox .foot{display:flex;align-items:center;justify-content:space-between;gap:6px;border-top:2px dashed #E2D3BC;padding-top:8px}
+#dbox .foot .g{display:flex;flex-wrap:wrap;gap:6px}
+#dbox .sub{font:inherit;font-size:14px;min-height:44px;padding:0 10px;border:0;border-radius:8px;background:transparent;color:var(--soft);cursor:pointer;display:flex;align-items:center;gap:6px}
+#dbox .sub[aria-pressed=true]{background:var(--beige);color:var(--ink);font-weight:700}
+#dbox .sub:disabled{opacity:.4;cursor:default}
+#dbox .nav{width:44px;height:44px;border:0;border-radius:10px;background:var(--beige);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center}
 #dbox .nav:disabled{opacity:.4;cursor:default}
-#dbox .err{font-size:13px;color:#B4380A;font-weight:700}
+#dbox .err{font-size:14px;color:#B4380A;font-weight:700}
 #dbox .err:empty{display:none}
-#dbox .st{font-size:13px;font-weight:700;color:#2E7D4F}
+#dbox .st{font-size:14px;font-weight:700;color:var(--ok)}
 #dbox .st:empty{display:none}
-#dbox .empty{align-items:center;text-align:center;padding:36px 30px}
+#dbox .peek{margin:0 18px;padding:12px 24px;background:var(--beige);color:var(--ink);border:4px solid #8C6E52;font-size:15px;display:flex;gap:12px;min-width:0}
+#dbox .peek span{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#dbox .esc{align-self:flex-start;white-space:nowrap;font:inherit;font-size:15px;min-height:48px;padding:0 14px;border:2px solid #B9AC98;border-radius:12px;background:var(--cream);color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:8px}
+#dbox .fork{align-items:center;text-align:center;padding:40px 48px 36px;gap:12px}
+#dbox .fork h1{font-size:32px}
+#dbox .fork p{margin:0;font-size:17px;line-height:1.8;color:var(--soft)}
+#dbox .fork .go{display:flex;flex-direction:column;gap:10px;width:100%;margin-top:12px}
+#dbox .go button{font:inherit;font-size:17px;font-weight:900;min-height:54px;border:3px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);cursor:pointer;box-shadow:0 4px 0 #E2D3BC;display:flex;align-items:center;justify-content:center;gap:10px}
+#dbox .go button.end{font-size:18px;min-height:56px;border:0;background:var(--tr);color:#FFF8E7;box-shadow:0 4px 0 var(--trd)}
+#dbox .go button.end kbd{background:#FFF8E7;color:var(--trd)}
+#dbox .go button.light{font-size:15px;font-weight:400}
 #dbox .empty svg{width:120px;height:135px}
-#dbox .aside{display:flex;flex-direction:column;gap:12px;padding-top:8px}
-#dbox .done{display:flex;flex-direction:column;gap:8px}
-#dbox .done .row{padding:10px 14px;border-radius:10px;background:var(--night2);display:flex;flex-direction:column;gap:3px}
-#dbox .done .row small{font-size:12px;color:#C9CEE3}
-#dbox .done .row b{font-size:14px}
-#dbox .done .row span{font-size:12px;color:#8FE3A8}
-#dbox .done .none{font-size:13px;color:#C9CEE3}
-#dbox .undo{font:inherit;font-size:14px;font-weight:700;min-height:44px;border:0;border-radius:10px;background:#FFD27A;color:var(--ink);cursor:pointer;box-shadow:0 4px 0 #B5843A}
-#dbox .undo:disabled{opacity:.4;cursor:default}
-#dbox .send{display:flex;flex-direction:column;gap:8px;margin-top:8px}
-#dbox .send button{font:inherit;font-size:14px;font-weight:700;min-height:44px;border:0;border-radius:10px;background:var(--night2);color:#F4F1E8;cursor:pointer;box-shadow:0 4px 0 #171A33}
+#dbox .clean{padding:0;gap:0}
+#dbox .clean .head{display:flex;flex-direction:column;gap:6px;padding:14px 16px 10px;background:var(--beige)}
+#dbox .clean .head h1{font-size:24px}
+#dbox .clean .head .pill:not(.time){background:var(--cream)}
+#dbox .clean .head p{margin:0;font-size:15px;line-height:1.6;color:var(--soft)}
+#dbox .clean .head .row{display:flex;align-items:center;gap:8px;font-size:15px}
+#dbox .clean .head small{font-size:14px;color:var(--soft)}
+#dbox .clean .link{font:inherit;font-size:15px;font-weight:700;min-height:44px;padding:0 8px;border:0;background:transparent;color:var(--trd);text-decoration:underline;cursor:pointer}
+#dbox .envs{max-height:min(470px,calc(100vh - 360px));overflow:auto}
+#dbox .env{display:grid;grid-template-columns:28px 140px minmax(0,1fr) 58px 84px;gap:12px;align-items:center;padding:0 16px;min-height:46px;border-bottom:1px solid var(--beige);font-size:15px;cursor:pointer}
+#dbox .env:last-child{border-bottom:0}
+#dbox .env:has(input:checked){background:#FBE3D6}
+#dbox .env:has(.sr:focus-visible){box-shadow:inset 4px 0 0 var(--tr)}
+#dbox .env svg{width:26px;height:20px}
+#dbox .env .pill{justify-self:start;white-space:nowrap;font-size:14px;padding:2px 10px}
+#dbox .env b{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#dbox .env .age{font-size:14px;color:#5A4636;text-align:right}
+#dbox .sr{position:absolute;opacity:0;width:1px;height:1px;margin:0}
+#dbox .stamp{justify-self:end;width:76px;height:32px;box-sizing:border-box;border:2px dashed #7A6650;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--soft)}
+#dbox .stamp::after{content:'選ぶ'}
+#dbox .sr:checked+.stamp{border:3px solid #B4380A;color:#B4380A;font-weight:900;transform:rotate(-4deg);background:#FFF3EA}
+#dbox .sr:checked+.stamp::after{content:'取り下げ'}
+#dbox .bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:8px}
+#dbox .bar>span{display:flex;align-items:center;gap:12px;font-size:14px;color:var(--soft);white-space:nowrap}
+#dbox .drop{font:inherit;font-size:16px;font-weight:900;min-height:52px;padding:0 20px;border:0;border-radius:12px;background:var(--tr);color:#FFF8E7;cursor:pointer;box-shadow:0 4px 0 var(--trd);display:flex;align-items:center;gap:10px}
+#dbox .drop kbd{background:#FFF8E7;color:var(--trd)}
+#dbox .drop:disabled{opacity:.45;cursor:default}
+#dbox .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);display:flex;align-items:center;gap:14px;padding:10px 12px 10px 18px;border-radius:12px;background:var(--ink);color:#FFF8E7;font-size:15px;font-weight:700;z-index:3}
+#dbox .toast[hidden]{display:none}
+#dbox .toast button{font:inherit;font-size:15px;font-weight:900;min-height:44px;padding:0 14px;border:0;border-radius:10px;background:#FFD27A;color:var(--ink);cursor:pointer}
+#dbox .send{font-size:14px;color:var(--soft)}
+#dbox .send summary{min-height:44px;display:flex;align-items:center;font-weight:700;color:var(--ink);cursor:pointer}
+#dbox .send .in{display:flex;flex-direction:column;gap:8px}
+#dbox .send button{font:inherit;font-size:14px;font-weight:700;min-height:44px;border:0;border-radius:10px;background:var(--ink);color:#FFF8E7;cursor:pointer}
 #dbox .send button:disabled{opacity:.5;cursor:default}
-#dbox .send small{font-size:12px;line-height:1.6;color:#C9CEE3}
-#dbox .send .err{color:#FFB38A}
-#dbox .notes{display:flex;flex-direction:column;gap:4px;font-size:12px}
-#dbox .notes div{display:flex;gap:8px;color:#C9CEE3}
-#dbox .notes span:nth-child(2){flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:#F4F1E8}
-#dbox .notes .w{color:#FFD27A}
-#dbox .keys{grid-column:2;display:flex;flex-wrap:wrap;justify-content:center;gap:8px 22px;font-size:13px;color:#C9CEE3;padding-top:12px}
-#dbox .keys b{font-family:'DotGothic16',ui-monospace,monospace;font-weight:400;color:#FFD27A}
-#dbox .x{position:fixed;top:16px;right:16px;width:44px;height:44px;border:0;border-radius:10px;background:var(--night2);color:#F4F1E8;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
-@media (max-width:1100px){#dbox .tray{grid-template-columns:minmax(0,680px)}#dbox .keys{grid-column:1}}
-@media (max-width:600px){#dbox{padding:24px 12px}#dbox .letter{padding:18px 16px}#dbox .opts{grid-template-columns:minmax(0,1fr)}#dbox h1{font-size:21px}#dbox .keys{display:none}}
+#dbox .send small{font-size:13px;line-height:1.6}
+#dbox .notes{display:flex;flex-direction:column;gap:4px;font-size:13px}
+#dbox .notes div{display:flex;gap:8px}
+#dbox .notes span:nth-child(2){flex:1;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--ink)}
+#dbox .notes .w{color:var(--trd);font-weight:700}
+#dbox button:focus-visible,#dbox summary:focus-visible{outline:3px solid #FFD27A;outline-offset:3px;box-shadow:0 0 0 6px var(--ink)}
+#dbox .sr:focus-visible+.stamp{outline:3px solid #FFD27A;outline-offset:2px}
+#dbox .x{position:fixed;top:16px;right:16px;width:44px;height:44px;border:2px solid #B9AC98;border-radius:10px;background:var(--cream);color:var(--ink);cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
+@media (max-width:1100px){#dbox .tray{grid-template-columns:minmax(0,1fr);max-width:720px}#dbox .tmochi,#dbox .send{display:none}}
+@media (max-width:600px){#dbox{padding:64px 12px 24px}#dbox .letter{padding:18px 16px}#dbox .opts{grid-template-columns:minmax(0,1fr)!important}#dbox h1{font-size:21px}#dbox .env{grid-template-columns:minmax(0,1fr) 84px}#dbox .env svg,#dbox .env .pill,#dbox .env .age{display:none}}
+@media (prefers-reduced-motion:reduce){#dbox .sr:checked+.stamp{transform:none}}
 @media (max-width:600px){#day .lanes{grid-template-columns:80px minmax(0,1fr) 70px}#day .sum .n{font-size:34px}}
 /* ボスの席（壁際・ホワイトボードの横。狭い画面では床の上） */
 .bossdesk{width:190px;height:214px;z-index:6}
@@ -500,25 +559,26 @@ code b.r,.onb b.r{color:#FFD27A}
   <p class="note">動いた時間は、指示を出してから Claude が返事を終えるまで。同時に動いた分は足すので「のべ」です。会話の記録の時刻から数えるので、トークンは使いません。</p>
   <div class="acts"><button type="button" class="close">閉じる</button></div>
 </div></div>
-<div id="dbox" hidden><div class="tray" role="dialog" aria-modal="true" aria-labelledby="dbox-t">
-  <button type="button" class="x close" aria-label="決裁トレイを閉じる"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-  <div class="info"><p class="lab">決裁トレイ</p><h2 id="dbox-t"></h2><small></small></div>
-  <div class="stack"><section class="letter" aria-live="polite"></section></div>
-  <aside class="aside" aria-label="いま決めた分と指示">
-    <h3>いま決めた分</h3>
-    <div class="done"></div>
-    <button type="button" class="undo">1つ戻す</button>
-    <div class="send">
-      <h3>係に指示を出す</h3>
-      <select aria-label="宛先"></select>
-      <textarea rows="3" maxlength="2000" placeholder="例：今日はブログを先に（⌘Enter で送る）" aria-label="指示"></textarea>
-      <button type="button">送る</button>
-      <div class="err" role="alert"></div>
-      <small>ボスが次の見回りで係に伝えます。お金・外への送信・マージなど Jose さんの判断が要ることは、ボスが止めて判断箱に戻します。</small>
-      <div class="notes"></div>
-    </div>
-  </aside>
-  <div class="keys" aria-hidden="true"><span><b>1〜9</b> 選ぶ</span><span><b>M</b> メモ</span><span><b>L</b> あとで</span><span><b>A</b> 相談したい</span><span><b>← →</b> 前・次</span><span><b>Esc</b> 閉じる</span></div>
+<div id="dbox" hidden><div class="tray" role="dialog" aria-modal="true" aria-label="決裁トレイ">
+  <button type="button" class="x" aria-label="決裁トレイを閉じる"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  <nav class="order" aria-label="答える順番">
+    <h2>答える順番</h2>
+    <div class="tiers"></div>
+    <div class="tmochi"></div>
+    <details class="send">
+      <summary>係に指示を出す</summary>
+      <div class="in">
+        <select aria-label="宛先"></select>
+        <textarea rows="3" maxlength="2000" placeholder="例：今日はブログを先に（⌘Enter で送る）" aria-label="指示"></textarea>
+        <button type="button">送る</button>
+        <div class="err" role="alert"></div>
+        <small>ボスが次の見回りで係に伝えます。お金・外への送信・マージなど Jose さんの判断が要ることは、ボスが止めて判断箱に戻します。</small>
+        <div class="notes"></div>
+      </div>
+    </details>
+  </nav>
+  <div class="main"></div>
+  <div class="toast" role="status" hidden><span></span><button type="button">もとに戻す <kbd>Z</kbd></button></div>
 </div></div>
 <div id="made" role="status" aria-live="polite"><div class="t"></div><button type="button" class="x" aria-label="閉じる">×</button><div class="s"></div><div class="row"><div class="cmd">claude -n&nbsp;<b class="h"></b>@<input type="text" aria-label="係名" placeholder="係名" autocomplete="off" spellcheck="false"></div><button type="button" class="copy">コピー</button></div><div class="hint"></div><div class="bar"><i></i></div></div>
 <section id="card" aria-label="カード" data-mode="person">
@@ -1339,7 +1399,7 @@ document.addEventListener('keydown', e => {
   if (e.key !== 'Escape') return;
   if (madeEl.contains(document.activeElement)) closeMade();
   else if (!dayEl.hidden) closeDay();
-  else if (!dboxEl.hidden) closeTray();
+  else if (!dboxEl.hidden) trayEsc();
   else if (drag) cancelDrag();
   else if (mv) cancelMove();
   else if (card.dataset.mode === 'island') closeIsland();
@@ -1429,68 +1489,197 @@ function dueLabel(due) {
   return d < 0 ? (-d) + '日すぎ' : d === 0 ? '今日まで' : d === 1 ? '明日まで' : due.slice(5).replace('-', '/') + ' まで';
 }
 
-function openTray(id) {
+// ---- 決裁トレイ：急ぎ → 大事 → やめてよいか の順に答える ----
+// 急ぎだけ答えれば止まっている係が動く。急ぎが終わったら「ここで終わる」か、時間があれば次の段へ進む。
+// やめてよいかは、おすすめのある問いを1件ずつ答えたあと、のこりから取り下げるものを選ぶ（D。10秒は戻せる）
+const TIERS = [['urgent', '急ぎ'], ['important', '大事'], ['droppable', 'やめてよいか']];
+const TIER_NAME = Object.fromEntries(TIERS);
+const DROP_AGE = 12; // 取り下げで先に選んでおく日数
+let trayStage = '', stageTier = '', lastTier = '', trayStart = 0, memoOpen = false;
+const answeredHere = new Map(); // id → 段（このトレイで答えた問い）
+let dropping = null; // 取り下げの待ち（10秒）：{ ids, timer }
+let cleanSel = null; // 取り下げで選んでいる id
+
+function todayStr() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function tierOf(q) { return q.tier || (q.due && q.due <= todayStr() ? 'urgent' : 'important'); }
+function held(q) { return !!(dropping && dropping.ids.includes(q.id)); }
+// 段の問い（伝え終えていないもの）・まだ答えていないもの・答え待ち（まだ＋あとで・相談したい）
+function inTier(t) { return openQs().filter(q => tierOf(q) === t && !held(q)); }
+function unanswered(t) { return inTier(t).filter(q => !dec.answers[q.id]); }
+function waitIn(t) { return waitingQs().filter(q => tierOf(q) === t && !held(q)); }
+function hasRec(q) { return (q.options || []).some(o => o.rec); }
+// 1件ずつ答える問い。やめてよいかは、おすすめのあるものだけ（のこりは選んで取り下げる）
+function stepQs(t) { return t === 'droppable' ? inTier(t).filter(hasRec) : inTier(t); }
+function stepFresh(t) { return stepQs(t).filter(q => !dec.answers[q.id]); }
+function cleanQs() { return unanswered('droppable').filter(q => !hasRec(q)); }
+function secsOf(qs) { return qs.reduce((n, q) => n + (q.secs || 30), 0); }
+function timeLabel(s) { return s < 60 ? '約' + Math.max(10, Math.round(s / 10) * 10) + '秒' : '約' + Math.round(s / 60) + '分'; }
+function ageDays(q) { return q.created ? Math.round((new Date(todayStr() + 'T00:00:00') - new Date(q.created + 'T00:00:00')) / 86400e3) : 0; }
+// 止まっている係（急ぎの問いを出して、いま手が止まっている人）
+function stoppedCrew(qs) {
+  const names = new Set(qs.map(q => q.session).filter(Boolean));
+  return (lastList || []).filter(m => names.has(m.name) && m.status !== 'busy').length;
+}
+
+function openTray() {
   if (selectedKey) select(selectedKey);
-  const w = dec ? waitingQs() : [];
-  trayId = typeof id === 'string' ? id : (w[0] ? w[0].id : '');
-  drawTray();
+  trayStart = Date.now();
+  answeredHere.clear();
+  lastTier = '';
+  startTier(dec && unanswered('urgent').length ? 'urgent' : '');
   dboxEl.hidden = false;
   dboxEl.scrollTop = 0;
-  (dboxEl.querySelector('.opts button') || dboxEl.querySelector('.x')).focus({ preventScroll: true });
+  focusMain();
 }
-function closeTray() { dboxEl.hidden = true; mochiEl?.focus(); }
-dboxEl.querySelectorAll('.close').forEach(b => b.addEventListener('click', closeTray));
+function closeTray() {
+  flushDrop();
+  dboxEl.hidden = true;
+  mochiEl?.focus();
+}
+// Esc：取り下げを選んでいるときは分かれ道に戻る。ほかは閉じる（のこりはあとで）
+function trayEsc() {
+  if (trayStage === 'clean') { showFork(); return; }
+  closeTray();
+}
+dboxEl.querySelector('.x').addEventListener('click', closeTray);
 dboxEl.addEventListener('click', e => { if (e.target === dboxEl) closeTray(); });
 
-// トレイに並べる順：答え待ちの順。いま開いている問いが答え済みでも、その場に残す（選び直せるように）
+// 段を始める。'' なら分かれ道
+function startTier(t) {
+  memoOpen = false;
+  if (!t) { showFork(); return; }
+  stageTier = t;
+  const q = stepFresh(t)[0];
+  if (q) { trayStage = 'q'; trayId = q.id; drawTray(); focusMain(); return; }
+  if (t === 'droppable' && cleanQs().length) { showClean(); return; }
+  lastTier = t;
+  showFork();
+}
+function showFork() { trayStage = 'fork'; trayId = ''; drawTray(); focusMain(); }
+function showClean() {
+  trayStage = 'clean'; stageTier = 'droppable'; trayId = '';
+  const qs = cleanQs();
+  cleanSel = new Set(qs.filter(q => ageDays(q) >= DROP_AGE).map(q => q.id));
+  drawTray(); focusMain();
+}
+function focusMain() {
+  const m = dboxEl.querySelector('.main');
+  (m.querySelector('.opts button.rec') || m.querySelector('.opts button') || m.querySelector('.go button') || m.querySelector('.sr') || dboxEl.querySelector('.x')).focus({ preventScroll: true });
+}
+
+// いまの段で、答える順の問い（まだ → あとで・相談したい）。開いている問いは答えてもその場に残す
 function trayList() {
-  const w = waitingQs();
-  if (trayId && !w.some(q => q.id === trayId)) {
-    const q = openQs().find(q => q.id === trayId);
-    if (q) w.unshift(q);
-  }
-  return w;
+  const r = q => { const a = dec.answers[q.id]; return !a ? 0 : a.choice === 'later' || a.choice === 'ask' ? 1 : 2; };
+  const all = stepQs(stageTier);
+  return all.filter(q => r(q) < 2 || q.id === trayId).sort((a, b) => r(a) - r(b));
 }
 function move(step) {
   const list = trayList(), i = list.findIndex(q => q.id === trayId);
   const to = list[i + step];
   if (!to) return;
-  trayId = to.id;
-  drawTray();
-  dboxEl.querySelector('.opts button')?.focus({ preventScroll: true });
+  trayId = to.id; memoOpen = false;
+  drawTray(); focusMain();
 }
 
 function drawTray() {
   if (!dec) return;
   const tray = dboxEl.querySelector('.tray');
   // 書いている途中は描き直さない（書きかけが消えるため）。離れたら描き直す
-  if (tray.contains(document.activeElement) && document.activeElement.matches('input,textarea,select')) { tray.dataset.pending = '1'; return; }
+  if (tray.contains(document.activeElement) && document.activeElement.matches('input:not(.sr),textarea,select')) { tray.dataset.pending = '1'; return; }
   delete tray.dataset.pending;
-  const w = waitingQs(), list = trayList();
-  if (!list.some(q => q.id === trayId)) trayId = list[0] ? list[0].id : '';
-  const left = w.length;
-  tray.querySelector('h2').textContent = left ? 'のこり ' + left + '件' : 'のこり 0件';
-  tray.querySelector('.info small').textContent = left ? '1件 30秒ほど・全部で約 ' + Math.max(1, Math.round(left / 2)) + '分' : 'ぜんぶ片づきました';
-  dboxEl.querySelector('.stack').classList.toggle('one', list.length <= 1);
-  const letter = tray.querySelector('.letter');
-  letter.replaceChildren();
-  letter.classList.toggle('empty', !trayId);
-  const q = list.find(x => x.id === trayId);
-  if (!q) {
-    letter.insertAdjacentHTML('beforeend', mochiSvg(0));
-    el('h1', '', letter).textContent = '決めることはありません';
-    el('p', 'ctx', letter).textContent = 'ボスが新しい問いを置くと、モチが少しずつ大きくなります。';
-  } else drawLetter(letter, q, list);
-  drawAside();
+  if (trayStage === 'q' && !stepQs(stageTier).some(q => q.id === trayId)) { startTier(stageTier); return; }
+  if (trayStage === 'clean' && !cleanQs().length) { showFork(); return; }
+  drawOrder();
+  const main = dboxEl.querySelector('.main');
+  main.replaceChildren();
+  if (!openQs().filter(q => !held(q)).length) drawEmpty(main);
+  else if (trayStage === 'q') drawLetter(main, trayList().find(q => q.id === trayId));
+  else if (trayStage === 'clean') drawClean(main);
+  else drawFork(main);
+  drawSend();
 }
 
-function drawLetter(letter, q, list) {
-  const a = dec.answers[q.id], busy = busyIds.has(q.id), i = list.indexOf(q);
-  const meta = el('div', 'meta', letter), l = el('div', 'l', meta);
-  const pill = el('span', 'pill', l); el('i', '', pill).style.background = qColor(q); pill.append(q.island || '（島なし）');
-  if (q.session) el('span', '', l).textContent = q.session + ' から';
-  if (q.due) el('span', 'due', l).textContent = dueLabel(q.due);
-  el('span', 'pos', meta).textContent = (i + 1) + ' / ' + list.length;
+// 左：答える順番（段ごとに件数・目安の時間・済み/まだ）。いまの段は開いて中身を見せる
+function drawOrder() {
+  const box = dboxEl.querySelector('.tiers');
+  box.replaceChildren();
+  TIERS.forEach(([t, name], k) => {
+    if (k === 1) el('div', 'sep', box).textContent = '時間があれば、急ぎのあとで';
+    const all = inTier(t), w = waitIn(t);
+    const head = (b, n) => { const x = el('b', '', b); el('span', 'num', x).textContent = k + 1; x.append(name + ' ' + n + '件・' + timeLabel(secsOf(w.length ? w : all))); return x; };
+    const active = (trayStage === 'q' || trayStage === 'clean') && stageTier === t;
+    if (!active) {
+      const row = el('div', 'tier', box);
+      const done = all.length > 0 && !unanswered(t).length;
+      row.classList.toggle('done', done);
+      head(row, all.length);
+      const n = all.length - unanswered(t).length;
+      el('span', '', row).textContent = !all.length ? 'なし' : done ? '✓ 済み' : n ? n + '/' + all.length + ' 済み' : 'まだ';
+      return;
+    }
+    const cur = el('div', 'cur', box), hd = el('div', 'hd', cur);
+    head(hd, all.length);
+    if (trayStage === 'clean') {
+      const n = all.length - cleanQs().length;
+      const s = el('div', 'sub2', cur);
+      el('b', '', s).textContent = n + '件答え済み・のこり' + cleanQs().length + '件';
+      el('br', '', s); s.append('いまは取り下げる問いを選んでいます');
+      return;
+    }
+    if (t === 'urgent') {
+      const n = stoppedCrew(all);
+      el('span', '', hd).textContent = n ? 'この' + all.length + '件だけで、止まっている係' + n + '人が動きます' : 'まずはこの' + all.length + '件だけ答えてください';
+    }
+    const ol = el('ol', '', cur), list = stepQs(t);
+    const at = Math.max(0, list.findIndex(q => q.id === trayId));
+    const from = Math.max(0, Math.min(at - 2, list.length - 6));
+    list.slice(from, from + 6).forEach((q, j) => {
+      const li = el('li', '', ol), a = dec.answers[q.id];
+      if (q.id === trayId) { li.setAttribute('aria-current', 'step'); el('span', '', li).textContent = '▶'; }
+      else if (a && a.choice !== 'later' && a.choice !== 'ask') { const c = el('span', 'ck', li); c.textContent = '✓'; c.setAttribute('aria-label', '済み'); }
+      else el('span', '', li).textContent = from + j + 1;
+      el('span', '', li).textContent = q.title;
+    });
+    if (list.length > from + 6) el('li', 'more', ol).textContent = 'ほか ' + (list.length - from - 6) + '件';
+  });
+  // モチ：急ぎがあればあせり、なければごきげん
+  const mo = dboxEl.querySelector('.tmochi'), u = unanswered('urgent').length;
+  mo.innerHTML = mochiSvg(u ? 3 : 0);
+  const say = el('span', '', mo);
+  say.textContent = u ? (u <= 2 ? 'あと少し！' : '急ぎから！') : trayStage === 'clean' ? 'すっきり！' : answeredHere.size ? 'ありがとう！' : 'のんびり';
+  mo.setAttribute('role', 'img');
+  mo.setAttribute('aria-label', 'モチ（' + (u ? 'あせり' : 'ごきげん') + '）：' + (u ? '急ぎがあと' + u + '件' : '急ぎはありません'));
+}
+
+function drawEmpty(main) {
+  const letter = el('section', 'letter fork empty', el('div', 'stack one', main));
+  letter.insertAdjacentHTML('beforeend', mochiSvg(0));
+  el('h1', '', letter).textContent = '決めることはありません';
+  el('p', '', letter).textContent = 'ボスが新しい問いを置くと、モチが少しずつ大きくなります。';
+  escButton(main, '閉じる');
+}
+function escButton(main, label) {
+  const b = el('button', 'esc', main); b.type = 'button';
+  el('kbd', '', b).textContent = 'Esc'; b.append(label);
+  b.addEventListener('click', trayEsc);
+}
+
+// 1件ずつ答える手紙
+function drawLetter(main, q) {
+  const list = trayList(), i = list.indexOf(q), a = dec.answers[q.id], busy = busyIds.has(q.id);
+  const all = stepQs(stageTier), pos = all.indexOf(q) + 1;
+  const stack = el('div', 'stack', main);
+  stack.classList.toggle('one', list.length <= 1);
+  const letter = el('section', 'letter', stack);
+  letter.setAttribute('aria-label', 'いまの問い');
+  const tags = el('div', 'tags', letter);
+  const tp = el('span', 'pill t' + (stageTier === 'urgent' ? '' : ' n'), tags);
+  tp.setAttribute('role', 'status');
+  tp.textContent = TIER_NAME[stageTier] + ' ' + pos + '/' + all.length;
+  const pill = el('span', 'pill', tags); el('i', '', pill).style.background = qColor(q); pill.append(q.island || '（島なし）');
+  el('span', 'pill time', tags).textContent = '⏱ ' + timeLabel(q.secs || 30);
+  if (q.due) el('span', 'due', tags).textContent = dueLabel(q.due);
+  if (q.session) el('span', 'from', tags).textContent = q.session + ' から';
   el('h1', '', letter).textContent = q.title;
   if (q.context) {
     const p = el('p', 'ctx', letter);
@@ -1505,28 +1694,29 @@ function drawLetter(letter, q, list) {
     const ls = el('div', 'links', letter);
     q.links.forEach(x => { if (!/^https?:\/\//.test(x.url)) return; const k = el('a', '', ls); k.href = x.url; k.target = '_blank'; k.rel = 'noopener noreferrer'; k.textContent = x.label || x.url; });
   }
-  // 止まっている係がいれば、答えるとだれが動くか
+  // 答えると何が動くか（ボスが書いたもの。無ければ、止まっている係の名前）
   const who = q.session && (lastList || []).find(m => m.name === q.session);
-  if (who && who.status !== 'busy') {
-    const n = el('div', 'note wait', letter);
-    n.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
-    el('span', '', n).textContent = '止まって ' + ago(Date.now() - who.since).replace(/前$/, '') + '。答えると ' + who.name + ' が動けます';
-  }
+  const impact = q.impact || (who && who.status !== 'busy' ? '止まって ' + ago(Date.now() - who.since).replace(/前$/, '') + '。答えると ' + who.name + ' が動けます。' : '');
+  if (impact) el('div', 'impact', letter).textContent = impact;
   if (q.auto && q.auto.at && !a) {
     const at = new Date(q.auto.at);
-    if (!isNaN(at)) el('div', 'note auto', letter).textContent = `${at.getMonth() + 1}/${at.getDate()} ${at.getHours()}:${String(at.getMinutes()).padStart(2, '0')} までに答えがなければ「${choiceLabel(q, q.auto.choice)}」で進みます` + (q.auto.undo ? `（戻し方：${q.auto.undo}）` : '');
+    if (!isNaN(at)) el('div', 'auto', letter).textContent = `${at.getMonth() + 1}/${at.getDate()} ${at.getHours()}:${String(at.getMinutes()).padStart(2, '0')} までに答えがなければ「${choiceLabel(q, q.auto.choice)}」で進みます` + (q.auto.undo ? `（戻し方：${q.auto.undo}）` : '');
   }
-  const opts = el('div', 'opts', letter);
+  const opts = el('div', 'opts', letter), n = (q.options || []).length;
+  opts.style.gridTemplateColumns = n <= 3 ? (n === 3 ? '1.25fr 1fr 1fr' : 'repeat(' + n + ',minmax(0,1fr))') : 'repeat(2,minmax(0,1fr))';
   (q.options || []).forEach((o, k) => {
-    const b = el('button', '', opts); b.type = 'button'; b.disabled = busy;
+    const b = el('button', o.rec ? 'rec' : '', opts); b.type = 'button'; b.disabled = busy;
     b.setAttribute('aria-pressed', String(!!a && a.choice === o.v));
-    if (k < 9) el('span', 'key', b).textContent = k + 1;
-    const t = el('span', 't', b);
-    el('b', '', t).textContent = o.label;
-    if (o.rec) el('small', '', t).textContent = '係のおすすめ';
+    if (k < 9) b.setAttribute('aria-keyshortcuts', (k + 1) + (o.rec ? ' Enter' : ''));
+    if (o.rec) { const t = el('span', 'top', b); el('span', '', t).textContent = 'おすすめ'; el('kbd', '', t).textContent = 'Enter'; }
+    const lb = el('span', 'lb', b);
+    if (k < 9) el('span', 'key', lb).textContent = k + 1;
+    el('b', '', lb).textContent = o.label;
+    if (o.note) el('small', '', b).textContent = o.note;
     b.addEventListener('click', () => answer(q, o.v));
   });
   const lab = el('label', 'memo', letter);
+  lab.hidden = !memoOpen && !(a && a.note) && !drafts.get(q.id);
   lab.append('メモ（選ぶと一緒に送ります。メモだけなら Enter）');
   const inp = el('input', '', lab);
   inp.type = 'text'; inp.maxLength = 2000; inp.placeholder = '条件・直してほしい所など';
@@ -1541,12 +1731,18 @@ function drawLetter(letter, q, list) {
   if (a) st.textContent = (a.choice === 'memo' ? 'メモを送りました' : '「' + choiceLabel(q, a.choice) + '」にしています') + (a.by === 'claude.ai' ? '（claude.ai で）' : '') + (a.relayed ? '・係に伝えました' : a.choice === 'later' ? '' : '・ボスが伝えるのを待っています');
   el('div', 'err', letter).setAttribute('role', 'alert');
   const foot = el('div', 'foot', letter), g = el('div', 'g', foot), nav = el('div', 'g', foot);
-  [['later', 'あとで', 'L'], ['ask', '相談したい', 'A']].forEach(([v, t, k]) => {
+  const sub = (k, t, f, pressed) => {
     const b = el('button', 'sub', g); b.type = 'button'; b.disabled = busy;
-    b.setAttribute('aria-pressed', String(!!a && a.choice === v));
-    b.append(t + ' '); el('kbd', '', b).textContent = k;
-    b.addEventListener('click', () => answer(q, v));
-  });
+    if (pressed !== undefined) b.setAttribute('aria-pressed', String(pressed));
+    el('kbd', '', b).textContent = k; b.append(t);
+    b.addEventListener('click', f);
+    return b;
+  };
+  sub('M', 'メモを書く', openMemo);
+  sub('L', 'あとで答える', () => answer(q, 'later'), !!a && a.choice === 'later');
+  sub('A', '相談したい', () => answer(q, 'ask'), !!a && a.choice === 'ask');
+  const last = decided[decided.length - 1];
+  sub('Z', '1つ戻す', undoLast).disabled = busy || !last || !!(dec.answers[last.id] || {}).relayed;
   const arrow = (d, label, path) => {
     const b = el('button', 'nav', nav); b.type = 'button'; b.setAttribute('aria-label', label);
     b.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${path}"/></svg>`;
@@ -1555,23 +1751,147 @@ function drawLetter(letter, q, list) {
   };
   arrow(-1, '前の問い', 'M15 18l-6-6 6-6');
   arrow(1, '次の問い', 'M9 18l6-6-6-6');
+  // つぎの手紙を下にうっすら
+  const next = list[i + 1];
+  if (next) {
+    const pk = el('div', 'peek', main); pk.setAttribute('aria-hidden', 'true');
+    el('b', '', pk).textContent = 'つぎの手紙';
+    el('span', '', pk).textContent = next.title + '・' + timeLabel(next.secs || 30);
+  }
+  escButton(main, 'あとで続ける');
+}
+function openMemo() {
+  memoOpen = true;
+  const lab = dboxEl.querySelector('.letter label.memo');
+  if (lab) { lab.hidden = false; lab.querySelector('input').focus(); }
 }
 
-function drawAside() {
-  const done = dboxEl.querySelector('.done');
-  done.replaceChildren();
-  if (!decided.length) el('div', 'none', done).textContent = 'まだありません';
-  decided.slice(-4).reverse().forEach(d => {
-    const q = dec.questions.find(x => x.id === d.id), a = dec.answers[d.id];
-    if (!q) return;
-    const r = el('div', 'row', done);
-    el('small', '', r).textContent = (q.island || '') + (q.session ? '・' + q.session : '');
-    el('b', '', r).textContent = q.title.length > 26 ? q.title.slice(0, 26) + '…' : q.title;
-    el('span', '', r).textContent = a ? '「' + choiceLabel(q, a.choice) + '」' + (a.relayed ? '・伝えました' : '・ボスが伝える待ち') : '';
+// 分かれ道：ここで終わるか、時間があれば次の段へ
+function drawFork(main) {
+  const letter = el('section', 'letter fork', el('div', 'stack one', main));
+  letter.setAttribute('aria-label', 'ここで終わるか、続けるか');
+  const n = [...answeredHere.values()].filter(t => t === lastTier).length;
+  const h = el('h1', '', letter);
+  if (lastTier && n) {
+    h.textContent = unanswered(lastTier).length ? TIER_NAME[lastTier] + 'を' + n + '件 片づけました' : TIER_NAME[lastTier] + 'の' + n + '件は終わりです';
+    const s = Math.round((Date.now() - trayStart) / 1000);
+    const p = el('p', '', letter);
+    p.append((s >= 60 ? Math.floor(s / 60) + '分' + (s % 60 ? s % 60 + '秒' : '') : s + '秒') + 'で答えました。');
+    const crew = lastTier === 'urgent' ? stoppedCrew(inTier('urgent').concat(dec.questions.filter(q => answeredHere.has(q.id)))) : 0;
+    if (crew) { el('br', '', p); p.append('止まっていた係' + crew + '人が、もうすぐ動き出します。'); }
+  } else h.textContent = unanswered('urgent').length ? '急ぎがあります' : '急ぎはありません';
+  const go = el('div', 'go', letter);
+  const btn = (cls, key, text, f) => { const b = el('button', cls, go); b.type = 'button'; el('kbd', '', b).textContent = key; b.append(text); b.addEventListener('click', f); return b; };
+  if (unanswered('urgent').length) btn('end', '1', '急ぎ ' + unanswered('urgent').length + '件へ進む（' + timeLabel(secsOf(unanswered('urgent'))) + '）', () => startTier('urgent'));
+  else btn('end', 'Enter', 'ここで終わる', closeTray);
+  [['important', '2'], ['droppable', '3']].forEach(([t, k]) => {
+    const w = unanswered(t);
+    if (!w.length) return;
+    btn(t === 'droppable' ? 'light' : '', k, TIER_NAME[t] + ' ' + w.length + '件へ進む（' + timeLabel(secsOf(w)) + '）', () => startTier(t));
   });
-  const undo = dboxEl.querySelector('.undo');
-  const last = decided[decided.length - 1];
-  undo.disabled = !last || !!(dec.answers[last.id] || {}).relayed;
+  if (unanswered('urgent').length) btn('light', 'Esc', 'あとで続ける', closeTray);
+}
+
+// 取り下げを選ぶ：手紙の行に判子を押す。D で取り下げ（Enter では押さない）
+function drawClean(main) {
+  const qs = cleanQs();
+  cleanSel = new Set([...cleanSel].filter(id => qs.some(q => q.id === id)));
+  const stack = el('div', 'stack', main);
+  const letter = el('section', 'letter clean', stack);
+  letter.setAttribute('aria-label', '取り下げる問いを選ぶ ' + qs.length + '件');
+  const head = el('div', 'head', letter), tags = el('div', 'tags', head);
+  el('span', 'pill', tags).textContent = 'やめてよいか のこり' + qs.length + '件';
+  el('span', 'pill time', tags).textContent = '⏱ ' + timeLabel(secsOf(qs));
+  el('h1', '', head).textContent = '取り下げる問いを選ぶ';
+  const minAge = Math.min(...qs.map(ageDays));
+  el('p', '', head).textContent = (minAge >= 1 ? 'どれも' + minAge + '日以上止まっている問いです。' : '') + '取り下げると、係は次の仕事に移ります。';
+  const row = el('div', 'row', head), cnt = el('b', '', row);
+  const clear = el('button', 'link', row); clear.type = 'button'; clear.textContent = '全部外す';
+  const pre = qs.filter(q => ageDays(q) >= DROP_AGE).length;
+  if (pre) el('small', '', head).textContent = '古い順に' + pre + '件（' + DROP_AGE + '日以上止まっているもの）を選んでおきました。違えば外してください';
+  const hint = el('small', '', head);
+  el('kbd', '', hint).textContent = '↑↓'; hint.append(' で行を移る　'); el('kbd', '', hint).textContent = 'Space'; hint.append(' で選ぶ・外す');
+  const envs = el('div', 'envs', letter);
+  const ENV = '<svg viewBox="0 0 13 10" shape-rendering="crispEdges" aria-hidden="true"><rect width="13" height="10" fill="#2A1E1A"/><rect x="1" y="1" width="11" height="8" fill="#FFF8E7"/><rect x="1" y="1" width="2" height="1" fill="#B08A66"/><rect x="3" y="2" width="2" height="1" fill="#B08A66"/><rect x="5" y="3" width="3" height="1" fill="#B08A66"/><rect x="8" y="2" width="2" height="1" fill="#B08A66"/><rect x="10" y="1" width="2" height="1" fill="#B08A66"/></svg>';
+  const bar = el('div', 'bar', main);
+  escButton(bar, '取り下げずに戻る');
+  const right = el('span', '', bar);
+  right.append('10秒のあいだ、もとに戻せます');
+  const go = el('button', 'drop', right); go.type = 'button';
+  go.setAttribute('aria-keyshortcuts', 'D');
+  const sync = () => {
+    cnt.textContent = qs.length + '件のうち' + cleanSel.size + '件を選んでいます';
+    clear.hidden = !cleanSel.size;
+    go.replaceChildren(); el('kbd', '', go).textContent = 'D'; go.append(cleanSel.size ? '選んだ' + cleanSel.size + '件を取り下げる' : '選んでください');
+    go.disabled = !cleanSel.size;
+  };
+  qs.slice().sort((a, b) => ageDays(b) - ageDays(a)).forEach(q => {
+    const l = el('label', 'env', envs);
+    l.insertAdjacentHTML('beforeend', ENV);
+    const pill = el('span', 'pill', l); el('i', '', pill).style.background = qColor(q); pill.append(q.island || '（島なし）');
+    el('b', '', l).textContent = q.title;
+    el('span', 'age', l).textContent = ageDays(q) ? ageDays(q) + '日前' : '今日';
+    const c = el('input', 'sr', l); c.type = 'checkbox'; c.checked = cleanSel.has(q.id);
+    c.setAttribute('aria-label', '取り下げる：' + q.title);
+    c.addEventListener('change', () => { c.checked ? cleanSel.add(q.id) : cleanSel.delete(q.id); sync(); });
+    el('span', 'stamp', l).setAttribute('aria-hidden', 'true');
+  });
+  clear.addEventListener('click', () => { cleanSel.clear(); envs.querySelectorAll('.sr').forEach(c => { c.checked = false; }); sync(); envs.querySelector('.sr')?.focus(); });
+  go.addEventListener('click', withdraw);
+  sync();
+}
+
+// 取り下げ：10秒待ってから送る（そのあいだは「もとに戻す」で取り消せる）。閉じたらすぐ送る
+function withdraw() {
+  if (!cleanSel || !cleanSel.size) return;
+  flushDrop();
+  const ids = [...cleanSel];
+  dropping = { ids, timer: setTimeout(flushDrop, 10000) };
+  ids.forEach(id => answeredHere.set(id, 'droppable'));
+  cleanSel.clear();
+  const toast = dboxEl.querySelector('.toast');
+  toast.querySelector('span').textContent = ids.length + '件を取り下げました';
+  toast.hidden = false;
+  lastTier = 'droppable';
+  if (cleanQs().length) showClean(); else showFork();
+}
+function undoDrop() {
+  if (!dropping) return;
+  clearTimeout(dropping.timer);
+  const ids = dropping.ids;
+  dropping = null;
+  ids.forEach(id => answeredHere.delete(id));
+  dboxEl.querySelector('.toast').hidden = true;
+  showClean();
+  cleanSel = new Set(ids);
+  drawTray();
+  focusMain();
+}
+dboxEl.querySelector('.toast button').addEventListener('click', undoDrop);
+async function flushDrop() {
+  if (!dropping) return;
+  clearTimeout(dropping.timer);
+  const ids = dropping.ids;
+  dropping = null;
+  dboxEl.querySelector('.toast').hidden = true;
+  const failed = [];
+  for (const id of ids) {
+    try {
+      const r = await fetch('/api/decisions/answer', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, choice: 'drop', note: '' }) });
+      if (!r.ok) failed.push(id);
+    } catch (e) { failed.push(id); }
+  }
+  await loadDecisions(true);
+  if (failed.length && !dboxEl.hidden) {
+    const toast = dboxEl.querySelector('.toast');
+    toast.querySelector('span').textContent = failed.length + '件を取り下げられませんでした。もう一度選んでください';
+    toast.querySelector('button').hidden = true;
+    toast.hidden = false;
+    setTimeout(() => { toast.hidden = true; toast.querySelector('button').hidden = false; }, 5000);
+  }
+}
+
+function drawSend() {
   // 宛先：ボスと、いまいる係
   const sel = dboxEl.querySelector('.send select'), keep = sel.value;
   if (!dboxEl.querySelector('.send').contains(document.activeElement)) {
@@ -1591,13 +1911,15 @@ function drawAside() {
   });
 }
 // 1つ戻す：最後に決めた問いを開き直す（ボスが伝える前なら、選び直せる）
-dboxEl.querySelector('.undo').addEventListener('click', () => {
+function undoLast() {
   const last = decided.pop();
   if (!last) return;
-  trayId = last.id;
-  drawTray();
-  dboxEl.querySelector('.opts button')?.focus({ preventScroll: true });
-});
+  const q = openQs().find(x => x.id === last.id);
+  if (!q) return;
+  answeredHere.delete(q.id);
+  trayStage = 'q'; stageTier = tierOf(q); trayId = q.id;
+  drawTray(); focusMain();
+}
 dboxEl.addEventListener('focusout', () => setTimeout(() => {
   const tray = dboxEl.querySelector('.tray');
   if (tray.dataset.pending && !tray.contains(document.activeElement)) drawTray();
@@ -1617,14 +1939,17 @@ async function answer(q, choice) {
     const at = decided.findIndex(d => d.id === q.id);
     if (at >= 0) decided.splice(at, 1);
     decided.push({ id: q.id });
-    // 次の問いへ（答えた問いは答え待ちから外れる。「あとで」「相談したい」は後ろに回る）
+    if (choice !== 'later' && choice !== 'ask') answeredHere.set(q.id, tierOf(q));
+    // 次の問いへ（この段のまだ答えていないもの）。無ければ分かれ道
     const list = trayList(), i = list.findIndex(x => x.id === q.id);
-    const next = list.slice(i + 1).find(x => !dec.answers[x.id]) || list.find(x => x.id !== q.id && !dec.answers[x.id]);
-    trayId = next ? next.id : '';
+    const next = list.slice(i + 1).find(x => !dec.answers[x.id] && x.id !== q.id) || list.find(x => x.id !== q.id && !dec.answers[x.id]);
     busyIds.delete(q.id);
+    memoOpen = false;
     if (document.activeElement?.matches?.('#dbox input')) document.activeElement.blur();
     await loadDecisions(true);
-    if (!dboxEl.hidden) (dboxEl.querySelector('.opts button') || dboxEl.querySelector('.x')).focus({ preventScroll: true });
+    if (next && !dec.answers[next.id]) { trayId = next.id; drawTray(); }
+    else { lastTier = stageTier; if (stageTier === 'droppable' && cleanQs().length) showClean(); else showFork(); }
+    if (!dboxEl.hidden) focusMain();
   } catch (e) {
     busyIds.delete(q.id);
     drawTray();
@@ -1636,16 +1961,32 @@ async function answer(q, choice) {
 // キーで決める（入力欄の中と、IME の変換中は使わない）
 dboxEl.addEventListener('keydown', e => {
   if (dboxEl.hidden || e.isComposing || e.keyCode === 229 || e.metaKey || e.ctrlKey || e.altKey) return;
-  if (e.target.matches('input,textarea,select')) return;
-  const q = trayList().find(x => x.id === trayId);
+  if (e.target.matches('input:not(.sr),textarea,select')) return;
   const k = e.key.toLowerCase();
+  if (k === 'z' && dropping) { e.preventDefault(); undoDrop(); return; }
+  if (trayStage === 'fork') {
+    const go = [...dboxEl.querySelectorAll('.go button')].find(b => b.querySelector('kbd')?.textContent.toLowerCase() === k);
+    if (go && /^[123]$/.test(k)) { e.preventDefault(); go.click(); }
+    return;
+  }
+  if (trayStage === 'clean') {
+    const boxes = [...dboxEl.querySelectorAll('.envs .sr')], i = boxes.indexOf(e.target);
+    if (k === 'arrowdown' || k === 'arrowup') { e.preventDefault(); boxes[Math.min(boxes.length - 1, Math.max(0, i < 0 ? 0 : i + (k === 'arrowdown' ? 1 : -1)))]?.focus(); }
+    else if (k === 'd') { e.preventDefault(); withdraw(); }
+    else if (k === 'enter' && e.target.matches('.sr')) e.preventDefault(); // Enter では取り下げない
+    return;
+  }
+  const q = trayList().find(x => x.id === trayId);
   if (k === 'arrowright') { e.preventDefault(); move(1); return; }
   if (k === 'arrowleft') { e.preventDefault(); move(-1); return; }
+  if (k === 'z') { e.preventDefault(); undoLast(); return; }
   if (!q) return;
+  const rec = (q.options || []).find(o => o.rec);
   if (/^[1-9]$/.test(k) && (q.options || [])[+k - 1]) { e.preventDefault(); answer(q, q.options[+k - 1].v); }
+  else if (k === 'enter' && rec && !e.target.matches('button,a,summary')) { e.preventDefault(); answer(q, rec.v); }
   else if (k === 'l') { e.preventDefault(); answer(q, 'later'); }
   else if (k === 'a') { e.preventDefault(); answer(q, 'ask'); }
-  else if (k === 'm') { e.preventDefault(); dboxEl.querySelector('.letter input')?.focus(); }
+  else if (k === 'm') { e.preventDefault(); openMemo(); }
 });
 
 const sendBox = dboxEl.querySelector('.send');
