@@ -461,7 +461,14 @@ code b.r,.onb b.r{color:#FFD27A}
 #dbox .env:has(.sr:focus-visible){box-shadow:inset 4px 0 0 var(--tr)}
 #dbox .env svg{width:26px;height:20px}
 #dbox .env .pill{justify-self:start;white-space:nowrap;font-size:14px;padding:2px 10px}
+#dbox .env .tt{font:inherit;min-width:0;min-height:44px;padding:0;border:0;background:none;color:inherit;text-align:left;cursor:pointer;display:flex;align-items:center}
+#dbox .env .tt::before{content:'▸';flex:none;margin-right:6px;color:var(--soft)}
+#dbox .env .tt[aria-expanded=true]::before{content:'▾'}
+#dbox .env .tt:hover b{text-decoration:underline}
 #dbox .env b{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+#dbox .envd{padding:10px 16px 14px 56px;border-bottom:1px solid var(--beige);background:var(--cream);font-size:14px;line-height:1.7;display:flex;flex-direction:column;gap:4px}
+#dbox .envd p{margin:0;white-space:pre-wrap}
+#dbox .envd small{color:var(--soft)}
 #dbox .env .age{font-size:14px;color:#5A4636;text-align:right}
 #dbox .sr{position:absolute;opacity:0;width:1px;height:1px;margin:0}
 #dbox .stamp{justify-self:end;width:76px;height:32px;box-sizing:border-box;border:2px dashed #7A6650;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--soft)}
@@ -1506,6 +1513,7 @@ let runAll = false; // この段では「あとで」にした問いも順に出
 const skipped = new Set(); // この段の中で、また「あとで」にした問い（同じ段では二度出さない）
 let dropping = null; // 取り下げの待ち（10秒）：{ ids, timer }
 let cleanSel = null; // 取り下げで選んでいる id
+const cleanOpen = new Set(); // 取り下げの一覧で、中身を開いている id
 
 function todayStr() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
 function tierOf(q) { return q.tier || (q.due && q.due <= todayStr() ? 'urgent' : 'important'); }
@@ -1645,10 +1653,11 @@ function drawOrder() {
     const cur = el('div', 'cur', box), hd = el('div', 'hd', cur);
     head(hd, all.length);
     if (trayStage === 'clean') {
-      const n = all.length - cleanQs().length;
+      const later = laterIn(t).length, n = all.length - cleanQs().length - later;
       const s = el('div', 'sub2', cur);
-      el('b', '', s).textContent = n + '件答え済み・のこり' + cleanQs().length + '件';
+      el('b', '', s).textContent = [n + '件答え済み', later ? 'あとで ' + later + '件' : '', 'のこり' + cleanQs().length + '件'].filter(Boolean).join('・');
       el('br', '', s); s.append('いまは取り下げる問いを選んでいます');
+      if (later) { el('br', '', s); s.append('「あとで」にした' + later + '件は、このあとの画面の 4 で答えられます'); }
       return;
     }
     if (t === 'urgent') {
@@ -1858,12 +1867,27 @@ function drawClean(main) {
     const l = el('label', 'env', envs);
     l.insertAdjacentHTML('beforeend', ENV);
     const pill = el('span', 'pill', l); el('i', '', pill).style.background = qColor(q); pill.append(q.island || '（島なし）');
-    el('b', '', l).textContent = q.title;
+    // 題を押すと中身を開く（行のほかの所を押すと選ぶ・外す）
+    const tt = el('button', 'tt', l); tt.type = 'button';
+    tt.setAttribute('aria-expanded', String(cleanOpen.has(q.id)));
+    el('b', '', tt).textContent = q.title;
+    tt.addEventListener('click', e => { e.preventDefault(); cleanOpen.has(q.id) ? cleanOpen.delete(q.id) : cleanOpen.add(q.id); drawTray(); dboxEl.querySelector('.envs .tt[data-id="' + q.id + '"]')?.focus(); });
+    tt.dataset.id = q.id;
     el('span', 'age', l).textContent = ageDays(q) ? ageDays(q) + '日前' : '今日';
     const c = el('input', 'sr', l); c.type = 'checkbox'; c.checked = cleanSel.has(q.id);
     c.setAttribute('aria-label', '取り下げる：' + q.title);
     c.addEventListener('change', () => { c.checked ? cleanSel.add(q.id) : cleanSel.delete(q.id); sync(); });
     el('span', 'stamp', l).setAttribute('aria-hidden', 'true');
+    if (!cleanOpen.has(q.id)) return;
+    const d = el('div', 'envd', envs);
+    const meta = [q.session ? q.session + ' から' : '', q.due ? dueLabel(q.due) : ''].filter(Boolean).join('・');
+    if (meta) el('small', '', d).textContent = meta;
+    el('p', '', d).textContent = q.context || '（くわしい説明はありません）';
+    (q.options || []).forEach(o => { el('span', 'op', d).textContent = '・' + o.label + (o.note ? '（' + o.note + '）' : ''); });
+    if (q.links && q.links.length) {
+      const ls = el('div', 'links', d);
+      q.links.forEach(x => { if (!/^https?:\/\//.test(x.url)) return; const k = el('a', '', ls); k.href = x.url; k.target = '_blank'; k.rel = 'noopener noreferrer'; k.textContent = x.label || x.url; });
+    }
   });
   clear.addEventListener('click', () => { cleanSel.clear(); envs.querySelectorAll('.sr').forEach(c => { c.checked = false; }); sync(); envs.querySelector('.sr')?.focus(); });
   go.addEventListener('click', withdraw);
