@@ -356,9 +356,13 @@ code b.r,.onb b.r{color:#FFD27A}
 #dbox kbd{font-family:'DotGothic16',ui-monospace,monospace;padding:0 6px;border-radius:6px;background:var(--beige);color:var(--ink)}
 #dbox .order{display:flex;flex-direction:column;gap:10px}
 #dbox .order>h2{margin:0;font-size:15px;font-weight:900;color:var(--trd)}
-#dbox .tier{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;border:3px solid transparent;font-size:14px;color:var(--soft)}
+#dbox .tier{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:4px 8px;padding:10px 14px;border-radius:12px;border:3px solid transparent;font-size:14px;color:var(--soft)}
 #dbox .tier b{display:flex;align-items:center;color:var(--ink)}
 #dbox .num{font-family:'DotGothic16',ui-monospace,monospace;display:inline-flex;flex:none;width:24px;height:24px;border-radius:50%;align-items:center;justify-content:center;background:#E2D3BC;color:var(--ink);font-size:14px;font-weight:400;margin-right:8px}
+#dbox .tier>span{margin-left:auto}
+#dbox button.tier{font:inherit;width:100%;min-height:48px;text-align:left;background:transparent;cursor:pointer}
+#dbox button.tier:hover:not(:disabled){border-color:#B9AC98}
+#dbox button.tier:disabled{cursor:default}
 #dbox .tier.done{background:var(--ok);border-color:var(--ok);color:#FFF8E7}
 #dbox .tier.done b{color:#FFF8E7}
 #dbox .tier.done .num{background:#FFF8E7;color:var(--ok)}
@@ -1494,9 +1498,12 @@ function dueLabel(due) {
 // やめてよいかは、おすすめのある問いを1件ずつ答えたあと、のこりから取り下げるものを選ぶ（D。10秒は戻せる）
 const TIERS = [['urgent', '急ぎ'], ['important', '大事'], ['droppable', 'やめてよいか']];
 const TIER_NAME = Object.fromEntries(TIERS);
+TIER_NAME.later = 'あとで'; // 段をまたいで「あとで・相談したい」にした問いを答え直すとき
 const DROP_AGE = 12; // 取り下げで先に選んでおく日数
 let trayStage = '', stageTier = '', lastTier = '', trayStart = 0, memoOpen = false;
 const answeredHere = new Map(); // id → 段（このトレイで答えた問い）
+let runAll = false; // この段では「あとで」にした問いも順に出す（左の段を押したとき・あとでの問いに答えるとき）
+const skipped = new Set(); // この段の中で、また「あとで」にした問い（同じ段では二度出さない）
 let dropping = null; // 取り下げの待ち（10秒）：{ ids, timer }
 let cleanSel = null; // 取り下げで選んでいる id
 
@@ -1508,8 +1515,16 @@ function inTier(t) { return openQs().filter(q => tierOf(q) === t && !held(q)); }
 function unanswered(t) { return inTier(t).filter(q => !dec.answers[q.id]); }
 function waitIn(t) { return waitingQs().filter(q => tierOf(q) === t && !held(q)); }
 function hasRec(q) { return (q.options || []).some(o => o.rec); }
-// 1件ずつ答える問い。やめてよいかは、おすすめのあるものだけ（のこりは選んで取り下げる）
-function stepQs(t) { return t === 'droppable' ? inTier(t).filter(hasRec) : inTier(t); }
+function isLater(q) { const a = dec.answers[q.id]; return !!a && (a.choice === 'later' || a.choice === 'ask'); }
+function laterIn(t) { return inTier(t).filter(isLater); }
+// 1件ずつ答える問い。やめてよいかは、おすすめのあるものと「あとで」にしたもの（のこりは選んで取り下げる）
+// 'later' は、段をまたいで「あとで・相談したい」にした問い（急ぎ → 大事 → やめてよいか の順）
+function stepQs(t) {
+  if (t === 'later') return TIERS.flatMap(([x]) => laterIn(x));
+  return t === 'droppable' ? inTier(t).filter(q => hasRec(q) || isLater(q)) : inTier(t);
+}
+// この段でまだ出す問い：まだ答えていないもの。runAll なら「あとで」にしたものも（この段でまた「あとで」にしたものは除く）
+function pendingInRun(q) { return !dec.answers[q.id] || runAll && isLater(q) && !skipped.has(q.id); }
 function stepFresh(t) { return stepQs(t).filter(q => !dec.answers[q.id]); }
 function cleanQs() { return unanswered('droppable').filter(q => !hasRec(q)); }
 function secsOf(qs) { return qs.reduce((n, q) => n + (q.secs || 30), 0); }
@@ -1544,14 +1559,17 @@ function trayEsc() {
 dboxEl.querySelector('.x').addEventListener('click', closeTray);
 dboxEl.addEventListener('click', e => { if (e.target === dboxEl) closeTray(); });
 
-// 段を始める。'' なら分かれ道
-function startTier(t) {
+// 段を始める。'' なら分かれ道。all なら「あとで」にした問いも出す。keep なら、この段で飛ばした問いを覚えたまま
+function startTier(t, all = false, keep = false) {
   memoOpen = false;
   if (!t) { showFork(); return; }
-  stageTier = t;
-  const q = stepFresh(t)[0];
+  stageTier = t; runAll = all;
+  if (!keep) skipped.clear();
+  const q = stepFresh(t)[0] || stepQs(t).find(pendingInRun);
   if (q) { trayStage = 'q'; trayId = q.id; drawTray(); focusMain(); return; }
   if (t === 'droppable' && cleanQs().length) { showClean(); return; }
+  // 済みの段を押したときは、1件目から見直す（ボスが伝える前なら選び直せる）
+  if (all && stepQs(t).length) { trayStage = 'q'; trayId = stepQs(t)[0].id; drawTray(); focusMain(); return; }
   lastTier = t;
   showFork();
 }
@@ -1567,11 +1585,11 @@ function focusMain() {
   (m.querySelector('.opts button.rec') || m.querySelector('.opts button') || m.querySelector('.go button') || m.querySelector('.sr') || dboxEl.querySelector('.x')).focus({ preventScroll: true });
 }
 
-// いまの段で、答える順の問い（まだ → あとで・相談したい）。開いている問いは答えてもその場に残す
+// いまの段で、答える順の問い（まだ → あとで・相談したい）。開いている問いは答えてもその場に残す。runAll なら答えたものも（見直せるように）
 function trayList() {
   const r = q => { const a = dec.answers[q.id]; return !a ? 0 : a.choice === 'later' || a.choice === 'ask' ? 1 : 2; };
   const all = stepQs(stageTier);
-  return all.filter(q => r(q) < 2 || q.id === trayId).sort((a, b) => r(a) - r(b));
+  return all.filter(q => runAll || r(q) < 2 || q.id === trayId).sort((a, b) => r(a) - r(b));
 }
 function move(step) {
   const list = trayList(), i = list.findIndex(q => q.id === trayId);
@@ -1587,7 +1605,7 @@ function drawTray() {
   // 書いている途中は描き直さない（書きかけが消えるため）。離れたら描き直す
   if (tray.contains(document.activeElement) && document.activeElement.matches('input:not(.sr),textarea,select')) { tray.dataset.pending = '1'; return; }
   delete tray.dataset.pending;
-  if (trayStage === 'q' && !stepQs(stageTier).some(q => q.id === trayId)) { startTier(stageTier); return; }
+  if (trayStage === 'q' && !stepQs(stageTier).some(q => q.id === trayId)) { startTier(stageTier, runAll, true); return; }
   if (trayStage === 'clean' && !cleanQs().length) { showFork(); return; }
   drawOrder();
   const main = dboxEl.querySelector('.main');
@@ -1603,18 +1621,25 @@ function drawTray() {
 function drawOrder() {
   const box = dboxEl.querySelector('.tiers');
   box.replaceChildren();
-  TIERS.forEach(([t, name], k) => {
+  // 「あとで」にした問いに答えているあいだは、その一覧を4つめに開く
+  const rows = trayStage === 'q' && stageTier === 'later' ? TIERS.concat([['later', 'あとでにした問い']]) : TIERS;
+  rows.forEach(([t, name], k) => {
     if (k === 1) el('div', 'sep', box).textContent = '時間があれば、急ぎのあとで';
-    const all = inTier(t), w = waitIn(t);
+    const all = t === 'later' ? stepQs(t) : inTier(t), w = t === 'later' ? all : waitIn(t);
     const head = (b, n) => { const x = el('b', '', b); el('span', 'num', x).textContent = k + 1; x.append(name + ' ' + n + '件・' + timeLabel(secsOf(w.length ? w : all))); return x; };
     const active = (trayStage === 'q' || trayStage === 'clean') && stageTier === t;
     if (!active) {
-      const row = el('div', 'tier', box);
-      const done = all.length > 0 && !unanswered(t).length;
+      // 押すと、その段の問いに戻る（「あとで」にしたものも出す）
+      const row = el('button', 'tier', box);
+      row.type = 'button';
+      row.disabled = !all.length;
+      row.addEventListener('click', () => startTier(t, true));
+      const fresh = unanswered(t).length, later = laterIn(t).length, n = all.length - fresh - later;
+      const done = all.length > 0 && !fresh && !later;
       row.classList.toggle('done', done);
       head(row, all.length);
-      const n = all.length - unanswered(t).length;
-      el('span', '', row).textContent = !all.length ? 'なし' : done ? '✓ 済み' : n ? n + '/' + all.length + ' 済み' : 'まだ';
+      const st = [n ? n + '/' + all.length + ' 済み' : fresh ? 'まだ' : '', later ? 'あとで ' + later : ''].filter(Boolean).join('・');
+      el('span', '', row).textContent = !all.length ? 'なし' : done ? '✓ 済み' : st;
       return;
     }
     const cur = el('div', 'cur', box), hd = el('div', 'hd', cur);
@@ -1675,7 +1700,7 @@ function drawLetter(main, q) {
   const tags = el('div', 'tags', letter);
   const tp = el('span', 'pill t' + (stageTier === 'urgent' ? '' : ' n'), tags);
   tp.setAttribute('role', 'status');
-  tp.textContent = TIER_NAME[stageTier] + ' ' + pos + '/' + all.length;
+  tp.textContent = stageTier === 'later' ? 'あとで のこり' + list.filter(x => pendingInRun(x) || x.id === q.id).length + '件' : TIER_NAME[stageTier] + ' ' + pos + '/' + all.length;
   const pill = el('span', 'pill', tags); el('i', '', pill).style.background = qColor(q); pill.append(q.island || '（島なし）');
   el('span', 'pill time', tags).textContent = '⏱ ' + timeLabel(q.secs || 30);
   if (q.due) el('span', 'due', tags).textContent = dueLabel(q.due);
@@ -1773,7 +1798,9 @@ function drawFork(main) {
   const n = [...answeredHere.values()].filter(t => t === lastTier).length;
   const h = el('h1', '', letter);
   if (lastTier && n) {
-    h.textContent = unanswered(lastTier).length ? TIER_NAME[lastTier] + 'を' + n + '件 片づけました' : TIER_NAME[lastTier] + 'の' + n + '件は終わりです';
+    const name = lastTier === 'later' ? 'あとでにした問い' : TIER_NAME[lastTier];
+    const rest = lastTier === 'later' ? stepQs('later').length : unanswered(lastTier).length + laterIn(lastTier).length;
+    h.textContent = rest ? name + 'を' + n + '件 片づけました' : name + 'の' + n + '件は終わりです';
     const s = Math.round((Date.now() - trayStart) / 1000);
     const p = el('p', '', letter);
     p.append((s >= 60 ? Math.floor(s / 60) + '分' + (s % 60 ? s % 60 + '秒' : '') : s + '秒') + 'で答えました。');
@@ -1789,6 +1816,8 @@ function drawFork(main) {
     if (!w.length) return;
     btn(t === 'droppable' ? 'light' : '', k, TIER_NAME[t] + ' ' + w.length + '件へ進む（' + timeLabel(secsOf(w)) + '）', () => startTier(t));
   });
+  const later = stepQs('later');
+  if (later.length) btn('light', '4', '「あとで」にした ' + later.length + '件に答える（' + timeLabel(secsOf(later)) + '）', () => startTier('later', true));
   if (unanswered('urgent').length) btn('light', 'Esc', 'あとで続ける', closeTray);
 }
 
@@ -1939,15 +1968,16 @@ async function answer(q, choice) {
     const at = decided.findIndex(d => d.id === q.id);
     if (at >= 0) decided.splice(at, 1);
     decided.push({ id: q.id });
-    if (choice !== 'later' && choice !== 'ask') answeredHere.set(q.id, tierOf(q));
-    // 次の問いへ（この段のまだ答えていないもの）。無ければ分かれ道
+    if (choice !== 'later' && choice !== 'ask') answeredHere.set(q.id, stageTier); else skipped.add(q.id);
+    // 次の問いへ（この段のまだ出す問い）。無ければ分かれ道
     const list = trayList(), i = list.findIndex(x => x.id === q.id);
-    const next = list.slice(i + 1).find(x => !dec.answers[x.id] && x.id !== q.id) || list.find(x => x.id !== q.id && !dec.answers[x.id]);
+    const left = x => x.id !== q.id && pendingInRun(x);
+    const next = list.slice(i + 1).find(left) || list.find(left);
     busyIds.delete(q.id);
     memoOpen = false;
     if (document.activeElement?.matches?.('#dbox input')) document.activeElement.blur();
     await loadDecisions(true);
-    if (next && !dec.answers[next.id]) { trayId = next.id; drawTray(); }
+    if (next && pendingInRun(next) && stepQs(stageTier).some(x => x.id === next.id)) { trayId = next.id; drawTray(); }
     else { lastTier = stageTier; if (stageTier === 'droppable' && cleanQs().length) showClean(); else showFork(); }
     if (!dboxEl.hidden) focusMain();
   } catch (e) {
@@ -1966,7 +1996,7 @@ dboxEl.addEventListener('keydown', e => {
   if (k === 'z' && dropping) { e.preventDefault(); undoDrop(); return; }
   if (trayStage === 'fork') {
     const go = [...dboxEl.querySelectorAll('.go button')].find(b => b.querySelector('kbd')?.textContent.toLowerCase() === k);
-    if (go && /^[123]$/.test(k)) { e.preventDefault(); go.click(); }
+    if (go && /^[1-4]$/.test(k)) { e.preventDefault(); go.click(); }
     return;
   }
   if (trayStage === 'clean') {
