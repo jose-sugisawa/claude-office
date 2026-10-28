@@ -1576,8 +1576,6 @@ function startTier(t, all = false, keep = false) {
   const q = stepFresh(t)[0] || stepQs(t).find(pendingInRun);
   if (q) { trayStage = 'q'; trayId = q.id; drawTray(); focusMain(); return; }
   if (t === 'droppable' && cleanQs().length) { showClean(); return; }
-  // 済みの段を押したときは、1件目から見直す（ボスが伝える前なら選び直せる）
-  if (all && stepQs(t).length) { trayStage = 'q'; trayId = stepQs(t)[0].id; drawTray(); focusMain(); return; }
   lastTier = t;
   showFork();
 }
@@ -1593,11 +1591,11 @@ function focusMain() {
   (m.querySelector('.opts button.rec') || m.querySelector('.opts button') || m.querySelector('.go button') || m.querySelector('.sr') || dboxEl.querySelector('.x')).focus({ preventScroll: true });
 }
 
-// いまの段で、答える順の問い（まだ → あとで・相談したい）。開いている問いは答えてもその場に残す。runAll なら答えたものも（見直せるように）
+// いまの段で、答える順の問い（まだ → あとで・相談したい）。答えたものは外す（開いている問いだけは残す）
 function trayList() {
   const r = q => { const a = dec.answers[q.id]; return !a ? 0 : a.choice === 'later' || a.choice === 'ask' ? 1 : 2; };
   const all = stepQs(stageTier);
-  return all.filter(q => runAll || r(q) < 2 || q.id === trayId).sort((a, b) => r(a) - r(b));
+  return all.filter(q => r(q) < 2 || q.id === trayId).sort((a, b) => r(a) - r(b));
 }
 function move(step) {
   const list = trayList(), i = list.findIndex(q => q.id === trayId);
@@ -1633,44 +1631,43 @@ function drawOrder() {
   const rows = trayStage === 'q' && stageTier === 'later' ? TIERS.concat([['later', 'あとでにした問い']]) : TIERS;
   rows.forEach(([t, name], k) => {
     if (k === 1) el('div', 'sep', box).textContent = '時間があれば、急ぎのあとで';
+    // 件数は答え待ち（まだ＋あとで）だけ。答えたものは数えず、どんどん減らす
     const all = t === 'later' ? stepQs(t) : inTier(t), w = t === 'later' ? all : waitIn(t);
-    const head = (b, n) => { const x = el('b', '', b); el('span', 'num', x).textContent = k + 1; x.append(name + ' ' + n + '件・' + timeLabel(secsOf(w.length ? w : all))); return x; };
+    const head = b => { const x = el('b', '', b); el('span', 'num', x).textContent = k + 1; x.append(w.length ? name + ' ' + w.length + '件・' + timeLabel(secsOf(w)) : name); return x; };
     const active = (trayStage === 'q' || trayStage === 'clean') && stageTier === t;
     if (!active) {
-      // 押すと、その段の問いに戻る（「あとで」にしたものも出す）
+      // 押すと、その段の答え待ちに戻る（「あとで」にしたものも出す）
       const row = el('button', 'tier', box);
       row.type = 'button';
-      row.disabled = !all.length;
+      row.disabled = !w.length;
       row.addEventListener('click', () => startTier(t, true));
-      const fresh = unanswered(t).length, later = laterIn(t).length, n = all.length - fresh - later;
-      const done = all.length > 0 && !fresh && !later;
+      const later = laterIn(t).length, done = all.length > 0 && !w.length;
       row.classList.toggle('done', done);
-      head(row, all.length);
-      const st = [n ? n + '/' + all.length + ' 済み' : fresh ? 'まだ' : '', later ? 'あとで ' + later : ''].filter(Boolean).join('・');
-      el('span', '', row).textContent = !all.length ? 'なし' : done ? '✓ 済み' : st;
+      head(row);
+      el('span', '', row).textContent = !all.length ? 'なし' : done ? '✓ 済み' : later ? 'うち あとで ' + later : '';
       return;
     }
     const cur = el('div', 'cur', box), hd = el('div', 'hd', cur);
-    head(hd, all.length);
+    head(hd);
     if (trayStage === 'clean') {
-      const later = laterIn(t).length, n = all.length - cleanQs().length - later;
+      const later = laterIn(t).length;
       const s = el('div', 'sub2', cur);
-      el('b', '', s).textContent = [n + '件答え済み', later ? 'あとで ' + later + '件' : '', 'のこり' + cleanQs().length + '件'].filter(Boolean).join('・');
+      el('b', '', s).textContent = '取り下げを選ぶ ' + cleanQs().length + '件' + (later ? '・あとで ' + later + '件' : '');
       el('br', '', s); s.append('いまは取り下げる問いを選んでいます');
       if (later) { el('br', '', s); s.append('「あとで」にした' + later + '件は、このあとの画面の 4 で答えられます'); }
       return;
     }
     if (t === 'urgent') {
-      const n = stoppedCrew(all);
-      el('span', '', hd).textContent = n ? 'この' + all.length + '件だけで、止まっている係' + n + '人が動きます' : 'まずはこの' + all.length + '件だけ答えてください';
+      const n = stoppedCrew(w);
+      if (w.length) el('span', '', hd).textContent = n ? 'この' + w.length + '件だけで、止まっている係' + n + '人が動きます' : 'まずはこの' + w.length + '件だけ答えてください';
     }
-    const ol = el('ol', '', cur), list = stepQs(t);
+    // 答えたものは一覧から外す（いま開いている問いだけは残す）
+    const ol = el('ol', '', cur), list = trayList();
     const at = Math.max(0, list.findIndex(q => q.id === trayId));
     const from = Math.max(0, Math.min(at - 2, list.length - 6));
     list.slice(from, from + 6).forEach((q, j) => {
       const li = el('li', '', ol), a = dec.answers[q.id];
       if (q.id === trayId) { li.setAttribute('aria-current', 'step'); el('span', '', li).textContent = '▶'; }
-      else if (a && a.choice !== 'later' && a.choice !== 'ask') { const c = el('span', 'ck', li); c.textContent = '✓'; c.setAttribute('aria-label', '済み'); }
       else el('span', '', li).textContent = from + j + 1;
       el('span', '', li).textContent = q.title;
     });
@@ -1701,7 +1698,6 @@ function escButton(main, label) {
 // 1件ずつ答える手紙
 function drawLetter(main, q) {
   const list = trayList(), i = list.indexOf(q), a = dec.answers[q.id], busy = busyIds.has(q.id);
-  const all = stepQs(stageTier), pos = all.indexOf(q) + 1;
   const stack = el('div', 'stack', main);
   stack.classList.toggle('one', list.length <= 1);
   const letter = el('section', 'letter', stack);
@@ -1709,7 +1705,7 @@ function drawLetter(main, q) {
   const tags = el('div', 'tags', letter);
   const tp = el('span', 'pill t' + (stageTier === 'urgent' ? '' : ' n'), tags);
   tp.setAttribute('role', 'status');
-  tp.textContent = stageTier === 'later' ? 'あとで のこり' + list.filter(x => pendingInRun(x) || x.id === q.id).length + '件' : TIER_NAME[stageTier] + ' ' + pos + '/' + all.length;
+  tp.textContent = TIER_NAME[stageTier] + ' のこり' + list.filter(x => pendingInRun(x) || x.id === q.id).length + '件';
   const pill = el('span', 'pill', tags); el('i', '', pill).style.background = qColor(q); pill.append(q.island || '（島なし）');
   el('span', 'pill time', tags).textContent = '⏱ ' + timeLabel(q.secs || 30);
   if (q.due) el('span', 'due', tags).textContent = dueLabel(q.due);
