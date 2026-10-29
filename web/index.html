@@ -1755,7 +1755,8 @@ function drawLetter(main, q) {
   inp.addEventListener('keydown', e => {
     if (e.key !== 'Enter' || e.isComposing || e.keyCode === 229) return;
     e.preventDefault();
-    answer(q, a && a.choice !== 'memo' ? a.choice : '');
+    // 選んだ選択肢があればそれと一緒に。「あとで」「相談したい」のときはメモだけの答えにする（答え待ちから外れる）
+    answer(q, a && (q.options || []).some(o => o.v === a.choice) ? a.choice : '');
   });
   const st = el('div', 'st', letter);
   if (a) st.textContent = (a.choice === 'memo' ? 'メモを送りました' : '「' + choiceLabel(q, a.choice) + '」にしています') + (a.by === 'claude.ai' ? '（claude.ai で）' : '') + (a.relayed ? '・係に伝えました' : a.choice === 'later' ? '' : '・ボスが伝えるのを待っています');
