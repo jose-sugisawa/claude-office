@@ -405,7 +405,7 @@ code b.r,.onb b.r{color:#FFD27A}
 #dbox .impact{padding:12px 14px;border-radius:10px;background:#E3F3E8;color:var(--ok);font-size:15px;font-weight:700}
 #dbox .auto{padding:10px 14px;border-radius:10px;background:#EAF0FB;color:#1E3F85;font-size:14px;line-height:1.6}
 #dbox .opts{display:grid;gap:12px}
-#dbox .opts button{font:inherit;text-align:left;min-height:84px;padding:8px 14px 10px;border:3px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);display:flex;flex-direction:column;justify-content:flex-end;gap:6px;cursor:pointer;box-shadow:0 4px 0 #E2D3BC}
+#dbox .opts button{font:inherit;text-align:left;min-height:72px;padding:10px 14px;border:3px solid var(--line);border-radius:12px;background:#fff;color:var(--ink);display:flex;flex-direction:column;justify-content:center;gap:6px;cursor:pointer;box-shadow:0 4px 0 #E2D3BC}
 #dbox .opts button:hover{border-color:var(--ink)}
 #dbox .opts button.rec{border:4px solid var(--tr);background:#FFF3EA;box-shadow:0 4px 0 var(--trd)}
 #dbox .opts .top{display:flex;justify-content:space-between;align-items:center;width:100%;font-size:14px;font-weight:700;color:var(--trd)}
@@ -1733,7 +1733,10 @@ function drawLetter(main, q) {
     if (!isNaN(at)) el('div', 'auto', letter).textContent = `${at.getMonth() + 1}/${at.getDate()} ${at.getHours()}:${String(at.getMinutes()).padStart(2, '0')} までに答えがなければ「${choiceLabel(q, q.auto.choice)}」で進みます` + (q.auto.undo ? `（戻し方：${q.auto.undo}）` : '');
   }
   const opts = el('div', 'opts', letter), n = (q.options || []).length;
-  opts.style.gridTemplateColumns = n <= 3 ? (n === 3 ? '1.25fr 1fr 1fr' : 'repeat(' + n + ',minmax(0,1fr))') : 'repeat(2,minmax(0,1fr))';
+  // 選択肢の文が長いときは列を減らす（狭い列で1文字ずつ折り返さないように）
+  const long = Math.max(0, ...(q.options || []).map(o => o.label.length));
+  const cols = long > 24 ? 1 : long > 8 ? Math.min(n, 2) : n <= 3 ? n : 2;
+  opts.style.gridTemplateColumns = cols === 3 ? '1.25fr 1fr 1fr' : 'repeat(' + cols + ',minmax(0,1fr))';
   (q.options || []).forEach((o, k) => {
     const b = el('button', o.rec ? 'rec' : '', opts); b.type = 'button'; b.disabled = busy;
     b.setAttribute('aria-pressed', String(!!a && a.choice === o.v));
