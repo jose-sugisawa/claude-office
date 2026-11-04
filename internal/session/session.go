@@ -21,7 +21,7 @@ import (
 type Member struct {
 	Key     string          `json:"key"`     // sessionId
 	Name    string          `json:"name"`    // claude -n で付けた係名（なければ Claude Code が付けた名前）
-	Status  string          `json:"status"`  // busy / idle / waiting（許可などの確認待ち）は Claude Code が書いたまま。終了したら gone
+	Status  string          `json:"status"`  // busy / idle / waiting（許可などの確認待ち）は Claude Code が書いたまま
 	Since   int64           `json:"since"`   // 今の状態になった時刻（ミリ秒）
 	Line    string          `json:"line"`    // 最後の返事の1行目
 	Excerpt string          `json:"excerpt"` // 最後の返事の頭の数行（カードに出す）
@@ -71,38 +71,26 @@ type logCache struct {
 	asked   *boss.Ask
 }
 
-// goneKeep は閉じた人を空いた席として残す長さ。
-const goneKeep = time.Hour
-
-// Watcher は呼ばれるたびに sessions を読み直す。今日いた人は、閉じてから goneKeep のあいだ gone として残す。
+// Watcher は呼ばれるたびに sessions を読み直す。閉じた人は次に読んだときから出さない（退出させる手間をなくすため）。
 type Watcher struct {
 	root string // ~/.claude
 
 	mu   sync.Mutex
-	day  string
-	seen map[string]Member   // 今日いた人（sessionId ごと）
-	gone map[string]int64    // 閉じたと気づいた時刻
 	logs map[string]logCache // sessionId ごとの会話ログの読み取り結果
 }
 
 // NewWatcher は root（~/.claude）を読む Watcher を作る。
 func NewWatcher(root string) *Watcher {
-	return &Watcher{root: root, seen: map[string]Member{}, gone: map[string]int64{}, logs: map[string]logCache{}}
+	return &Watcher{root: root, logs: map[string]logCache{}}
 }
 
-// Snapshot は、動いている人と今日いて閉じた人を、名前の順に返す。
-func (w *Watcher) Snapshot(now time.Time) []Member {
+// Snapshot は、動いている人を名前の順に返す。
+func (w *Watcher) Snapshot() []Member {
 	w.mu.Lock()
 	defer w.mu.Unlock()
 
-	if d := now.Format("2006-01-02"); d != w.day {
-		w.day, w.seen, w.gone = d, map[string]Member{}, map[string]int64{}
-	}
-
 	files, _ := filepath.Glob(filepath.Join(w.root, "sessions", "*.json"))
 	var out []Member
-	alive := map[string]bool{}
-	aliveNames := map[string]bool{}
 	for _, f := range files {
 		b, err := os.ReadFile(f)
 		if err != nil {
@@ -131,25 +119,6 @@ func (w *Watcher) Snapshot(now time.Time) []Member {
 			m.Name = m.Dir
 		}
 		out = append(out, m)
-		alive[m.Key] = true
-		aliveNames[m.Name] = true
-		w.seen[m.Key] = m
-		delete(w.gone, m.Key)
-	}
-
-	// 今日いて、もう動いていない人は1時間だけ空いた席として残す（同じ係名で開き直していれば出さない）
-	for key, m := range w.seen {
-		if alive[key] || aliveNames[m.Name] {
-			continue
-		}
-		if _, ok := w.gone[key]; !ok {
-			w.gone[key] = now.UnixMilli()
-		}
-		if now.UnixMilli()-w.gone[key] > goneKeep.Milliseconds() {
-			continue
-		}
-		m.Status, m.Since = "gone", w.gone[key]
-		out = append(out, m)
 	}
 
 	sort.Slice(out, func(i, j int) bool {
@@ -159,16 +128,6 @@ func (w *Watcher) Snapshot(now time.Time) []Member {
 		return out[i].Key < out[j].Key
 	})
 	return out
-}
-
-// Dismiss は閉じた人の空席を、1時間を待たずに消す。動いている人には何もしない（次に読んだときにまた出る）。
-func (w *Watcher) Dismiss(key string) {
-	w.mu.Lock()
-	defer w.mu.Unlock()
-	if _, ok := w.gone[key]; ok {
-		delete(w.seen, key)
-		delete(w.gone, key)
-	}
 }
 
 // lastReplyOf は会話ログの末尾から、最後の返事の1行目と頭の数行、いちばん新しい指示がボスからかを返す。

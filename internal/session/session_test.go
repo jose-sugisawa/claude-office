@@ -51,7 +51,7 @@ func TestFirstLine(t *testing.T) {
 	}
 }
 
-func TestSnapshotKeepsClosedSessionsForToday(t *testing.T) {
+func TestSnapshotDropsClosedSessions(t *testing.T) {
 	root := t.TempDir()
 	sessions := filepath.Join(root, "sessions")
 	os.MkdirAll(sessions, 0o755)
@@ -66,41 +66,18 @@ func TestSnapshotKeepsClosedSessionsForToday(t *testing.T) {
 	p2 := write("b.json", "s2", "shop-page", "busy")
 
 	w := NewWatcher(root)
-	now := time.Date(2026, 10, 6, 12, 0, 0, 0, time.Local)
-	if got := w.Snapshot(now); len(got) != 2 {
+	if got := w.Snapshot(); len(got) != 2 {
 		t.Fatalf("2人のはずが %d 人: %+v", len(got), got)
 	}
 
-	// s2 を閉じる → 同じ日のうちは gone で残る
+	// s2 を閉じる → 次に読んだときにはもういない。動いている人はそのまま
 	os.Remove(p2)
-	got := w.Snapshot(now.Add(time.Minute))
-	if len(got) != 2 || got[1].Name != "shop-page" || got[1].Status != "gone" {
-		t.Fatalf("閉じた人が gone で残っていない: %+v", got)
+	got := w.Snapshot()
+	if len(got) != 1 || got[0].Key != "s1" {
+		t.Fatalf("閉じた人が残っている、または動いている人が消えた: %+v", got)
 	}
 	if got[0].Status != "idle" || got[0].Since != 1000 {
 		t.Errorf("動いている人の状態が違う: %+v", got[0])
-	}
-
-	// 退出させると、1時間を待たずに消える。動いている人は消えない
-	w2 := NewWatcher(root)
-	write("b.json", "s2", "shop-page", "busy")
-	w2.Snapshot(now)
-	os.Remove(p2)
-	w2.Snapshot(now)
-	w2.Dismiss("s2")
-	w2.Dismiss("s1")
-	if got := w2.Snapshot(now); len(got) != 1 || got[0].Key != "s1" {
-		t.Errorf("退出させた人が残っている、または動いている人が消えた: %+v", got)
-	}
-
-	// 閉じてから1時間を過ぎたら消える
-	if got := w.Snapshot(now.Add(time.Minute + time.Hour + time.Second)); len(got) != 1 {
-		t.Errorf("1時間を過ぎても閉じた人が残っている: %+v", got)
-	}
-
-	// 次の日には消える
-	if got := w.Snapshot(now.Add(24 * time.Hour)); len(got) != 1 {
-		t.Errorf("日が変わっても閉じた人が残っている: %+v", got)
 	}
 }
 
@@ -108,7 +85,7 @@ func TestSnapshotSkipsDeadProcess(t *testing.T) {
 	root := t.TempDir()
 	os.MkdirAll(filepath.Join(root, "sessions"), 0o755)
 	os.WriteFile(filepath.Join(root, "sessions", "1.json"), []byte(`{"pid":-5,"sessionId":"s","name":"x","status":"idle"}`), 0o644)
-	if got := NewWatcher(root).Snapshot(time.Now()); len(got) != 0 {
+	if got := NewWatcher(root).Snapshot(); len(got) != 0 {
 		t.Errorf("動いていないプロセスが出ている: %+v", got)
 	}
 }
