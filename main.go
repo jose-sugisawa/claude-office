@@ -98,6 +98,7 @@ func serve(args []string) error {
 	fs := flag.NewFlagSet("serve", flag.ExitOnError)
 	fs.StringVar(&cfg.Addr, "addr", "127.0.0.1:7777", "待ち受けるアドレス（手元だけで開く）")
 	fs.StringVar(&cfg.Islands, "islands", filepath.Join(claudehome.Office(home), claudehome.IslandsFile), "島の一覧のファイル（無ければ見本を置く）")
+	fs.StringVar(&cfg.Decisions, "decisions", filepath.Join(claudehome.Office(home), claudehome.DecisionsFile), "判断箱のファイル（ボスが問いを置き、画面で答える）")
 	fs.StringVar(&cfg.Dev, "dev", "", "開発用：index.html をこのディレクトリから毎回読む（リポジトリでは -dev web）")
 	fs.BoolVar(&cfg.Demo, "demo", false, "見本のデータで動かす（Claude Code のセッションを読まない）")
 	fs.BoolVar(&cfg.AllowRemote, "allow-remote", false, "127.0.0.1・localhost 以外でも待ち受ける（パスワードは無いので、同じネットワークの誰でも会話の抜粋を見られます）")

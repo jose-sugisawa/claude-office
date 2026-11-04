@@ -1,4 +1,4 @@
-// Package server は、オフィスの画面と API（/api/crew・/api/islands・/api/usage・/api/today）を手元に出す。
+// Package server は、オフィスの画面と API（/api/crew・/api/islands・/api/usage・/api/today・/api/decisions）を手元に出す。
 // 読むだけの API と、この画面からの書き換えだけを受け付ける（guard・sameOrigin）。
 package server
 
@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/jose-sugisawa/claude-office/internal/claudehome"
+	"github.com/jose-sugisawa/claude-office/internal/decision"
 	"github.com/jose-sugisawa/claude-office/internal/island"
 	"github.com/jose-sugisawa/claude-office/internal/session"
 	"github.com/jose-sugisawa/claude-office/internal/worklog"
@@ -26,6 +27,7 @@ type Config struct {
 	Addr        string // 待ち受けるアドレス（手元だけで開く）
 	Home        string // Claude Code の設定ディレクトリ（~/.claude）
 	Islands     string // 島の一覧のファイル（無ければ見本を置く）
+	Decisions   string // 判断箱のファイル（無ければ空の箱）
 	Dev         string // 開発用：index.html をこのディレクトリから毎回読む
 	Demo        bool   // 見本のデータで動かす（Claude Code のセッションを読まない）
 	AllowRemote bool   // 127.0.0.1・localhost 以外でも待ち受ける
@@ -50,6 +52,10 @@ func Run(cfg Config, stdout, stderr io.Writer) error {
 		defer os.RemoveAll(dir)
 		cfg.Islands = filepath.Join(dir, claudehome.IslandsFile)
 		if err := os.WriteFile(cfg.Islands, demoIslands, 0o644); err != nil {
+			return err
+		}
+		cfg.Decisions = filepath.Join(dir, claudehome.DecisionsFile)
+		if err := decision.NewStore(cfg.Decisions).PutQuestions(demoQuestions()); err != nil {
 			return err
 		}
 	} else if err := island.Ensure(cfg.Islands, island.Example); err != nil {
@@ -110,6 +116,7 @@ func Handler(cfg Config, w *session.Watcher) http.Handler {
 		}
 		writeJSON(rw, islands)
 	})
+	handleDecisions(mux, cfg)
 	mux.HandleFunc("/api/crew", func(rw http.ResponseWriter, r *http.Request) {
 		if cfg.Demo {
 			writeJSON(rw, demoCrew(time.Now()))

@@ -26,8 +26,9 @@ func Office(root string) string { return filepath.Join(root, "office") }
 
 // office/ の下に置くファイル。
 const (
-	IslandsFile = "islands.json" // 島の一覧
-	UsageFile   = "usage.json"   // 使用量の枠（statusline が Claude Code の rate_limits をそのまま書く。全セッション共通）
+	IslandsFile   = "islands.json"   // 島の一覧
+	DecisionsFile = "decisions.json" // 判断箱（ボスが問いを置き、人が答える）
+	UsageFile     = "usage.json"     // 使用量の枠（statusline が Claude Code の rate_limits をそのまま書く。全セッション共通）
 )
 
 // Ctx は statusline が office/ctx/<セッションID>.json に書く、コンテキストの使用率。
